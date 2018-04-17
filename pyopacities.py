@@ -463,6 +463,7 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
     k_sca_rmd = np.zeros((P_array.size,dim_bande),dtype=np.float64)
 
     fact = 24*np.pi**3/((101325/(R_gp*273.15)*N_A)**2)
+    print (101325/(R_gp*273.15)*N_A)
 
     n_mol_tot = P_array/(R_gp*T_array)*N_A
 
@@ -495,7 +496,7 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
 
                 else :
 
-                    sig = f_K*(8.14e-33/(wl**4) + 1.28e-35/(wl**6) + 1.61e-37/(wl**8))
+                    sig = f_K*(8.14e-33/(wl**4) + 1.28e-34/(wl**6) + 1.61e-35/(wl**8))
 
             elif n_species[sp] == 'He' :
 
@@ -568,6 +569,12 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
 
                 f_K = 1.
                 index = 1 + (4.6662e-4 + (4.02e-6)/(wl**2))
+                pol = (index**2-1.)/(index**2+2.)**2
+
+            elif n_species[sp] == 'NH3' :
+
+                f_K = 1.
+                index = 1 + (3.27e-4 + (4.44e-6)/(wl**2))
                 pol = (index**2-1.)/(index**2+2.)**2
 
             elif n_species[sp] == 'Ar' :

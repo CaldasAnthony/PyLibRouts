@@ -429,6 +429,8 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
                    n_species,domain,ratio,directory,Tracer=False,Continuum=False,Scattering=False,Clouds=False,\
                    Kcorr=True,Optimal=False,Script=True) :
 
+    rank, rank_ref = 0, 0
+
     c_number = c_species.size
 
     if Kcorr == True :
@@ -447,20 +449,21 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
 
         if Tracer == True :
             Q_rmd = Q_col[no_zero]
-            k_rmd = Ksearcher_M(T_rmd,P_rmd,Q_rmd,dim_gauss,dim_bande,K,P_sample,T_sample,Q_sample,Kcorr,Optimal,Script)
+            k_rmd = Ksearcher_M(T_rmd,P_rmd,Q_rmd,dim_gauss,dim_bande,K,P_sample,T_sample,Q_sample,rank,rank_ref,Kcorr,Optimal,Script)
             if Script == True :
                 print "Ssearcher_M finished with success"
         else :
-            k_rmd = Ksearcher(T_rmd,P_rmd,dim_gauss,dim_bande,K,P_sample,T_sample,Kcorr,Optimal,Script)
+            k_rmd = Ksearcher(T_rmd,P_rmd,dim_gauss,dim_bande,K,P_sample,T_sample,rank,rank_ref,Kcorr,Optimal,Script)
             if Script == True :
                 print "Ksearcher finished with success"
         Q_rmd = np.array([])
 
     else :
         compo = compo_col[ind_active,:]
-        k_rmd = Ssearcher(T_rmd,P_rmd,compo,K,P_sample,T_sample,Kcorr,Optimal,Script)
+        k_rmd = Ssearcher(T_rmd,P_rmd,compo,K,P_sample,T_sample,rank,rank_ref,Kcorr,Optimal,Script)
         if Script == True :
             print "Ssearcher finished with success"
+        Q_rmd = Q_col
 
     if Continuum == True :
 
@@ -479,7 +482,7 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
             T_cont_h2h2 = np.load('%sSource/T_cont_%s.npy'%(directory,K_cont.associations[0]))
 
             k_interp_h2h2 = k_cont_interp_h2h2_integration(K_cont_h2h2,K_cont_nu_h2h2,\
-                                        T_rmd,bande_sample,T_cont_h2h2,1,1,Kcorr,Script)
+                                        T_rmd,bande_sample,T_cont_h2h2,rank,rank_ref,Kcorr,Script)
 
             amagat_h2h2 = amagat*compo_rmd[0,:]
 
@@ -497,7 +500,7 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
             T_cont_h2he = np.load('%sSource/T_cont_%s.npy'%(directory,K_cont.associations[1]))
 
             k_interp_h2he = k_cont_interp_h2he_integration(K_cont_h2he,K_cont_nu_h2he,\
-                                    T_rmd,bande_sample,T_cont_h2he,1,1,Kcorr,Script)
+                                    T_rmd,bande_sample,T_cont_h2he,rank,rank_ref,Kcorr,Script)
 
             amagat_self = amagat*compo_rmd[0,:]
             amagat_foreign = amagat*compo_rmd[1,:]
@@ -531,7 +534,7 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
                         amagat_spe = amagat*compo_rmd[wh_c[0],:]**2*N_mol
 
                 k_interp_spespe = k_cont_interp_spespe_integration(K_cont_spespe,K_cont_nu_spespe,\
-                            T_rmd,bande_sample,T_cont_spespe,1,1,K_cont.associations[i_cont],Kcorr,H2O,Script)
+                            T_rmd,bande_sample,T_cont_spespe,rank,rank_ref,K_cont.associations[i_cont],Kcorr,H2O,Script)
 
                 for i_bande in range(dim_bande) :
 
@@ -553,7 +556,7 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
 
     if Scattering == True :
 
-        k_sca_rmd = Rayleigh_scattering(P_rmd,T_rmd,bande_sample,x_mol_species,n_species,zero,Kcorr,Script)
+        k_sca_rmd = Rayleigh_scattering(P_rmd,T_rmd,bande_sample,x_mol_species,n_species,zero,rank,rank_ref,Kcorr,False,Script)
 
         if Script == True :
             print "Rayleigh_scattering finished with success"
@@ -584,7 +587,7 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
 
         for c_num in range(c_number) :
 
-            k_cloud_rmd[c_num,:,:] = cloud_scattering(Qext[c_num,:,:],bande_cloud,P_rmd,T_rmd,wl,compo_rmd[n_size-1,:],rho_p[c_num],gen_rmd[c_num,:],r_eff[c_num],r_cloud,zero,Script)
+            k_cloud_rmd[c_num,:,:] = cloud_scattering(Qext[c_num,:,:],bande_cloud,P_rmd,T_rmd,wl,compo_rmd[n_size-1,:],rho_p[c_num],gen_rmd[c_num,:],r_eff[c_num],r_cloud,zero,rank,rank_ref,Script)
 
         if Script == True :
             print "Cloud_scattering finished with success, process are beginning to save data remind \n"
