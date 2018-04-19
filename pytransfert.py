@@ -198,7 +198,7 @@ def trans2fert1D (k_corr_data_grid,k_cont,Q_cloud,Rp,h,g0,r_step,theta_step,\
 
 def trans2fert3D (k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,Rp,h,g0,r_step,theta_step,gauss_val,dim_bande,data,\
                   P_rmd,T_rmd,Q_rmd,dx_grid,order_grid,pdx_grid,z_grid,t,\
-                  name_file,n_species,single,rmind,lim_alt,rupt_alt,\
+                  name_file,n_species,single,rmind,lim_alt,rupt_alt,rank,rank_ref,\
                   Tracer=False,Continuum=True,Isolated=False,Scattering=True,Clouds=True,Kcorr=True,\
                   Rupt=False,Module=False,Integral=False,TimeSel=False) :
 
@@ -210,7 +210,8 @@ def trans2fert3D (k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,Rp,h,g0,r_step,theta_st
 
     Itot = np.ones((dim_bande,r_size-1,theta_size))
 
-    bar = ProgressBar(int(round(2*np.pi/theta_step)),'Radiative transfert progression')
+    if rank == rank_ref :
+        bar = ProgressBar(int(round(2*np.pi/theta_step)),'Radiative transfert progression')
 
     for i in range(theta_size) :
 
@@ -272,7 +273,8 @@ def trans2fert3D (k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,Rp,h,g0,r_step,theta_st
 
                 Itot[:, r_line, theta_line] = I_out
 
-        bar.animate(i+1)
+        if rank == rank_ref :
+            bar.animate(i+1)
 
         if fail !=0 :
 
