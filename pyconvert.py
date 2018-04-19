@@ -597,6 +597,7 @@ def convertator1D (P_col,T_col,gen_col,c_species,Q_col,compo_col,ind_active,K,K_
         if Script == True :
             print "There is no clouds"
 
+        k_cloud_rmd = np.zeros((T_rmd.size,dim_bande))
 
     return P_rmd,T_rmd,Q_rmd,k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd
 

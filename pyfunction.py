@@ -580,7 +580,7 @@ def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,nam
     theta_step = 2*np.pi/np.float(theta_number)
     R = Rp/np.float(factor)
     dim = int((R+1.15*h)/param)
-    print h, R, dim, param
+
     from pytransfert import atmospectre
     wl_sample_micron = 1./bande_sample*1.0e+4
     ind, = np.where(wl_sample_micron <= wl)
@@ -626,7 +626,6 @@ def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,nam
     Z = I_png
     R_eff_bar,R_e,ratio_bar,ratR_bar,bande_bar,flux_bar,flux = atmospectre(I_tot,bande_sample,R_s,Rp,r_step*factor,extra,trans,Kcorr,Middle)
     R_eff = (R_e[i_bande]/factor - Rp/factor + R)
-    print(R_e[i_bande]/factor,Rp/factor,R_eff)
 
     plt.imshow(I_png, extent = [-dim*param*factor/1000.,dim*param*factor/1000.,-dim*param*factor/1000.,dim*param*factor/1000.])
     plt.colorbar()
@@ -2442,7 +2441,6 @@ def stellar_noise(star,detection,gamme,resolution,Total=False) :
                     lam = gamme[i_bande]
                     delta_lam = lam/reso[i_t-1]
                     lam_1,lam_2 = lam - delta_lam/2.,lam +delta_lam/2.
-                    print lam,lam_1,lam_2
                     N_phot = integrate.quad(lambda wl:fac*1/(wl**4*(np.exp(h_P*c/(k_B*wl*T))-1)),lam_1*1.e-6,lam_2*1.e-6)
                     noise[i_bande] = 1./np.sqrt(N_phot[0])
                 else :
@@ -2454,7 +2452,7 @@ def stellar_noise(star,detection,gamme,resolution,Total=False) :
         for i_b in range(sh_b[0]) :
             fac = np.pi**2*tau[i_b]*delta_t*c*R**2*D[i_b]**2/(2*d**2)
             N_phot = integrate.quad(lambda wl:fac*1./(wl**4*(np.exp(h_P*c/(k_B*wl*T))-1)),bande[i_b,0]*1.e-6,bande[i_b,1]*1.e-6)
-            print 1/np.sqrt(N_phot[0])
+
     return noise
 
 

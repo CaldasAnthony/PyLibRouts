@@ -254,12 +254,12 @@ Ord = False             ###### Si Discreet == False, Ord permet de calculer les 
 
 Matrix = False          ###### Transposition de la maille spherique dans la maille cylindrique
 
-Convert = True        ###### Lance la fonction convertator qui assure l'interpolation des sections efficaces
+Convert = False       ###### Lance la fonction convertator qui assure l'interpolation des sections efficaces
 Kcorr = False           ###### Sections efficaces ou k-correles
 Molecul = False       ###### Effectue les calculs pour l'absorption moleculaire
 Cont = False            ###### Effectue les calculs pour l'absorption par les collisions
-Scatt = False           ###### Effectue les calculs pour l'absorption par diffusion Rayleigh
-Cl = True              ###### Effectue les calculs pour l'absorption par les nuages
+Scatt = True           ###### Effectue les calculs pour l'absorption par diffusion Rayleigh
+Cl = False              ###### Effectue les calculs pour l'absorption par les nuages
 Optimal = False         ###### Interpolation optimal (Waldmann et al.)
 TimeSelec = True       ###### Si nous etudions un temps precis de la simulation
 
@@ -272,7 +272,7 @@ Cylindric_transfert_3D = True
 Molecular = True       ###### Ne tiens pas compte de l'absorption moleculaire
 Continuum = True       ###### Tiens compte de l'absorption par les collisions
 Scattering = True      ###### Tiens compte de l'absorption par la diffusion
-Clouds = True          ###### Tiens compte de l'absoprtion par les nuages
+Clouds = False          ###### Tiens compte de l'absoprtion par les nuages
 Single = "no"           ###### Isole une espece de nuage
 Rupt = False            ###### Si l'atmosphere est tronquee
 Discreet = True        ###### Calcul discret
@@ -289,7 +289,7 @@ ErrOr = False           ###### Si calculons le bruit de photon pour un instrumen
 detection = JWST()
 Noise = False           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
 resolution = 'low'
-Push = np.array([False,False,False,True])
+Push = np.array([False,False,False,False])
 ###### Si nous voulons forcer le code a faire les spcectres intermediaires meme s'ils existent
 
 ########################################################################################################################

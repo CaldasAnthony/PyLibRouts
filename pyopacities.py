@@ -463,7 +463,6 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
     k_sca_rmd = np.zeros((P_array.size,dim_bande),dtype=np.float64)
 
     fact = 24*np.pi**3/((101325/(R_gp*273.15)*N_A)**2)
-    print (101325/(R_gp*273.15)*N_A)
 
     n_mol_tot = P_array/(R_gp*T_array)*N_A
 
@@ -509,14 +508,12 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
                 else :
 
                     index = 1 + (2.283e-5 + 1.8102e-3/(1.532e+2-1/(wl**2)))
-                    pol = (index**2-1)/(index**2+2)**2
-
 
             elif n_species[sp] == 'O2' :
 
                 f_K = 1.096 + 1.385e-3/(wl**2) + 1.448e-4/(wl**4)
 
-                if wl < 0.221 :
+                if wl <= 0.221 :
 
                     index = 1 + (2.37967e-4 + 1.689884e-3/(4.09e+1-1/wl**2))
 
@@ -524,64 +521,55 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
 
                     index = 1 + (2.21204e-4 + 2.03187e-3/(4.09e+1-1/wl**2))
 
-                if w_n > 0.228 and wl < 0.546 :
+                if w_n >= 0.228 and wl < 0.546 :
 
                     index = 1 + (2.0564e-4 + 2.480899e-3/(4.09e+1-1/wl**2))
 
-                if w_n > 0.546 :
+                if w_n >= 0.546 :
 
                     index = 1 + (2.1351e-4 + 2.18567e-3/(4.09e+1-1/wl**2))
-
-                pol = (index**2-1.)/(index**2+2.)**2
 
             elif n_species[sp] == 'N2' :
 
                 f_K = 1.034 + 3.17e-4/wl**2
 
-                if wl > 0.468 :
+                if wl >= 0.468 :
 
                     index = 1 + (6.4982e-5 + (3.0743305e-2)/(1.44e+2-1/wl**2))
 
-                if wl > 0.254 and w_n < 0.468 :
+                if wl > 0.254 and wl < 0.468 :
 
                     index = 1 + (5.677465e-5 + (3.1881874e-2)/(1.44e+2-1/wl**2))
 
-                if wl < 0.254 :
+                if wl <= 0.254 :
 
                     index = 1 + (6.998749e-5 + (3.23358e-2)/(1.44e+2-1/wl**2))
-
-                pol = (index**2-1.)/(index**2+2.)**2
 
             elif n_species[sp] == 'CO2' :
 
                 f_K = 1.1364 + 2.53e-3/wl**2
-                index = 1 + 1.1427e-5*(5.79925e+3/(1.66175e+2-1/wl**2) + 1.2005e+2/(7.9608e+1-1/wl**2) + 5.3334/(5.6306e+1-1/wl**2) + \
-                                    4.3244/(4.619e+1-1/wl**2) + 0.12181e-4/(5.8474e-2-1/wl**2))
-                pol = (index**2-1)/(index**2+2)**2
+                index = 1 + 1.1427e-5*(5.79925e+3/((128908.9)**2*1.e-8-1/wl**2) + 1.2005e+2/((89223.8)**2*1.e-8-1/wl**2) + 5.3334/((75037.5)**2*1.e-8-1/wl**2) + \
+                                    4.3244/((67837.7)**2*1.e-8-1/wl**2) + 0.1218145e-4/((2418.136)**2*1.e-8-1/wl**2))
 
             elif n_species[sp] == 'CO' :
 
                 f_K = 1.016
                 index = 1 + (2.2851e-4 + (4.56e-5)/(5.101816329e+1-1/wl**2))
-                pol = (index**2-1.)/(index**2+2.)**2
 
             elif n_species[sp] == 'CH4' :
 
                 f_K = 1.
                 index = 1 + (4.6662e-4 + (4.02e-6)/(wl**2))
-                pol = (index**2-1.)/(index**2+2.)**2
 
             elif n_species[sp] == 'NH3' :
 
                 f_K = 1.
                 index = 1 + (3.27e-4 + (4.44e-6)/(wl**2))
-                pol = (index**2-1.)/(index**2+2.)**2
 
             elif n_species[sp] == 'Ar' :
 
                 f_K = 1.
                 index = 1 + (6.432135e-5 + (2.8606e-2)/(1.44e+2 - 1/(wl**2)))
-                pol = (index**2-1.)/(index**2+2.)**2
 
             elif n_species[sp] == 'H2O' :
 
@@ -594,7 +582,6 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
                 else :
 
                     index = 1 + 0.85*(8.06051e-4 + 2.48099e-2/(132.274e+2 - 1/wl**2) + 1.74557e-2/(3.932957e+1 - 1/wl**2))
-                pol = (index**2-1.)/(index**2+2.)**2
 
             else :
 
@@ -603,10 +590,12 @@ def Rayleigh_scattering (P_array,T_array,bande_sample,x_mol_species,n_species,ze
                 f_K = 0.
 
             if n_species[sp] != 'H2' and n_species[sp] != 'He':
+                pol = ((index**2-1)/(index**2+2))**2
                 sig = fact*1.e+24/(wl**4)*pol*f_K
+
             if n_species[sp] == 'He' and MarcIngo == False :
+                pol = ((index**2-1)/(index**2+2))**2
                 sig = fact*1.e+24/(wl**4)*pol*f_K
-            wll = 1./(w_n*10**(2))
 
             k_sca_rmd[:,i_bande] += sig*n_mol_tot*x_mol_species[sp,:]
 
@@ -1411,3 +1400,161 @@ def k_cont_interp_spespe_integration(K_cont_spespe,wavelength_cont_spespe,T_arra
         return k_interp_spespe*0.0001
     else :
         return k_interp_spespe*100*losch**2
+
+
+########################################################################################################################
+
+
+def Rayleigh_section(P_array,T_array,bande_sample,x_mol_species,n_species,zero,Kcorr=True,MarcIngo=False,Script=True) :
+
+    if Kcorr == True :
+        dim_bande = bande_sample.size-1
+    else :
+        dim_bande = bande_sample.size
+
+    k_sca_rmd = np.zeros((n_species.size,P_array.size,dim_bande),dtype=np.float64)
+    sigma = np.zeros((n_species.size,P_array.size,dim_bande),dtype = np.float64)
+
+    fact = 24*np.pi**3/((101325/(R_gp*273.15)*N_A)**2)
+
+    n_mol_tot = P_array/(R_gp*T_array)*N_A
+
+    if zero.size != 0 :
+
+        n_mol_tot[zero] = np.zeros((zero.size))
+
+    if Script == True :
+        bar = ProgressBar(dim_bande,'Scattering computation progression')
+
+    for i_bande in range(dim_bande) :
+
+        if Kcorr == True :
+            w_n = (bande_sample[i_bande] + bande_sample[i_bande + 1])/2.
+        else :
+            w_n = bande_sample[i_bande]
+
+        wl = 1./(w_n)*10**4
+
+        for sp in range(n_species.size) :
+
+            if n_species[sp] == 'H2' :
+
+                f_K = 1.
+
+                if wl < 0.300 :
+
+                    sig = f_K*8.49e-33/(wl**4)
+
+                else :
+
+                    sig = f_K*(8.14e-33/(wl**4) + 1.28e-34/(wl**6) + 1.61e-35/(wl**8))
+
+            elif n_species[sp] == 'He' :
+
+                f_K = 1.
+
+                if MarcIngo == True :
+
+                    sig = f_K*(5.484e-34/(wl**4) + 1.33e-36/(wl**6))
+
+                else :
+
+                    index = 1 + (2.283e-5 + 1.8102e-3/(1.532e+2-1/(wl**2)))
+
+            elif n_species[sp] == 'O2' :
+
+                f_K = 1.096 + 1.385e-3/(wl**2) + 1.448e-4/(wl**4)
+
+                if wl <= 0.221 :
+
+                    index = 1 + (2.37967e-4 + 1.689884e-3/(4.09e+1-1/wl**2))
+
+                if wl > 0.221 and wl < 0.288 :
+
+                    index = 1 + (2.21204e-4 + 2.03187e-3/(4.09e+1-1/wl**2))
+
+                if w_n >= 0.228 and wl < 0.546 :
+
+                    index = 1 + (2.0564e-4 + 2.480899e-3/(4.09e+1-1/wl**2))
+
+                if w_n >= 0.546 :
+
+                    index = 1 + (2.1351e-4 + 2.18567e-3/(4.09e+1-1/wl**2))
+
+            elif n_species[sp] == 'N2' :
+
+                f_K = 1.034 + 3.17e-4/wl**2
+
+                if wl >= 0.468 :
+
+                    index = 1 + (6.4982e-5 + (3.0743305e-2)/(1.44e+2-1/wl**2))
+
+                if wl > 0.254 and wl < 0.468 :
+
+                    index = 1 + (5.677465e-5 + (3.1881874e-2)/(1.44e+2-1/wl**2))
+
+                if wl <= 0.254 :
+
+                    index = 1 + (6.998749e-5 + (3.23358e-2)/(1.44e+2-1/wl**2))
+
+            elif n_species[sp] == 'CO2' :
+
+                f_K = 1.1364 + 2.53e-3/wl**2
+                index = 1 + 1.1427e-5*(5.79925e+3/((128908.9)**2*1.e-8-1/wl**2) + 1.2005e+2/((89223.8)**2*1.e-8-1/wl**2) + 5.3334/((75037.5)**2*1.e-8-1/wl**2) + \
+                                    4.3244/((67837.7)**2*1.e-8-1/wl**2) + 0.1218145e-4/((2418.136)**2*1.e-8-1/wl**2))
+
+            elif n_species[sp] == 'CO' :
+
+                f_K = 1.016
+                index = 1 + (2.2851e-4 + (4.56e-5)/(5.101816329e+1-1/wl**2))
+
+            elif n_species[sp] == 'CH4' :
+
+                f_K = 1.
+                index = 1 + (4.6662e-4 + (4.02e-6)/(wl**2))
+
+            elif n_species[sp] == 'NH3' :
+
+                f_K = 1.
+                index = 1 + (3.27e-4 + (4.44e-6)/(wl**2))
+
+            elif n_species[sp] == 'Ar' :
+
+                f_K = 1.
+                index = 1 + (6.432135e-5 + (2.8606e-2)/(1.44e+2 - 1/(wl**2)))
+
+            elif n_species[sp] == 'H2O' :
+
+                f_K = (6+3*0.17)/(6-7*0.17)
+
+                if w_n > 0.230 :
+
+                    index = 1 + (4.92303e-2/(2.380185e+2 - 1/wl**2) + 1.42723e-3/(5.7362e+1 - 1/wl**2))
+
+                else :
+
+                    index = 1 + 0.85*(8.06051e-4 + 2.48099e-2/(132.274e+2 - 1/wl**2) + 1.74557e-2/(3.932957e+1 - 1/wl**2))
+
+
+            else :
+
+                sig = 0.
+                pol = 0.
+                f_K = 0.
+
+            if n_species[sp] != 'H2' and n_species[sp] != 'He':
+                pol = ((index**2-1)/(index**2+2))**2
+                sig = fact*1.e+24/(wl**4)*pol*f_K
+
+            if n_species[sp] == 'He' and MarcIngo == False :
+                pol = ((index**2-1)/(index**2+2))**2
+                sig = fact*1.e+24/(wl**4)*pol*f_K
+            wll = 1./(w_n*10**(2))
+
+            sigma[sp,:,i_bande] = sig
+            k_sca_rmd[sp,:,i_bande] += sig*n_mol_tot*x_mol_species[sp,:]
+
+        if Script == True :
+            bar.animate(i_bande + 1)
+
+    return k_sca_rmd, sigma

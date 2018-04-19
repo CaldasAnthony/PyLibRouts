@@ -1098,7 +1098,6 @@ def generator_1D_isoc_pressure(P,T,M,compo,dim_bande,Rp,h,alt_array,g0,cross,ind
 
     tau = np.zeros((dim_bande,P.size-2))
     tau3 = np.zeros((dim_bande,P.size-2))
-    print alt_array.size, P.size
 
     for i_r in range(1,P.size-2) :
 
