@@ -140,7 +140,7 @@ if Parameters == True :
         order_grid = np.load("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,\
                 reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli))
 
-        result = atmospheric_matrix_3D(order_grid,data_convert,t,Rp,c_species,Tracer,Cloudy)
+        result = atmospheric_matrix_3D(order_grid,data_convert,t,Rp,c_species,0,Tracer,Cloudy)
 
         np.save("%s%s/%s/%s_P_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
                 t_selec,r_step,phi_rot,phi_obli),result[0])

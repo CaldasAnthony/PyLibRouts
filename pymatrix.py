@@ -121,7 +121,7 @@ def altitude_line_array1D_cyl_optimized_correspondance (r_line,theta_line,dx_gri
 ########################################################################################################################
 ########################################################################################################################
 
-def atmospheric_matrix_3D(order,data,t,Rp,c_species,Tracer=False,Clouds=False) :
+def atmospheric_matrix_3D(order,data,t,Rp,c_species,rank,Tracer=False,Clouds=False) :
 
     sp,reso_t,reso_z,reso_lat,reso_long = np.shape(data)
     T_file = data[1,:,:,:,:]
@@ -178,7 +178,8 @@ def atmospheric_matrix_3D(order,data,t,Rp,c_species,Tracer=False,Clouds=False) :
 
             compo[:,i,j,wh] = composit[:,t,order[0,i,j,wh],order[1,i,j,wh],order[2,i,j,wh]]
 
-        bar.animate(i + 1)
+        if rank == 0 :
+            bar.animate(i + 1)
 
     if Tracer == True :
         if Clouds == False :
