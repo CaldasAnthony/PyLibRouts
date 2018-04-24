@@ -76,6 +76,11 @@ error = np.array([1.e-5])
 # Proprietes en cas de lecture d'un diagfi
 
 long_step, lat_step = 2*np.pi/np.float(reso_long), np.pi/np.float(reso_lat)
+long_lat = np.zeros((2,int(np.amax(np.array([reso_long,reso_lat])))+1))
+degpi = np.pi/180.
+long_lat[0,0:reso_long+1] = np.linspace(-180.*degpi,180.*degpi,reso_long+1,dtype=np.float64)
+long_lat[1,0:reso_lat+1] = np.linspace(-90*degpi,90.*degpi,reso_lat+1,dtype=np.float64)
+Inverse = 'False'
 
 # Proprietes de l'atmosphere
 
@@ -361,8 +366,9 @@ for beta_rad in beta_rad_array :
             alp = R_gp*T_Ref/(g0*M)*np.log(P_h/P_surf)
             h_top = round(-alp/(1+alp/Rp),-5)
             delta_z, r_step, x_step = h_top/np.float(n_layers), h_top/np.float(n_layers), h_top/np.float(n_layers)
-            print 'Width of layers : %i m'%(delta_z)
-            print 'Top of the atmosphere : %i m'%(h_top)
+            if rank == 0 :
+                print 'Width of layers : %i m'%(delta_z)
+                print 'Top of the atmosphere : %i m'%(h_top)
 
         data_convert = np.zeros((number,1,n_layers+2,reso_lat+1,reso_long+1))
         T_min, T_max = np.amin(T_iso_array), np.amax(T_iso_array)
@@ -370,7 +376,8 @@ for beta_rad in beta_rad_array :
         alp_max = R_gp*T_max/(g0*M)*np.log(P_tau/P_surf)
         n_lim = -alp_max/(1+alp_max/Rp)
 
-        bar = ProgressBar(reso_lat+1,'Data generation')
+        if rank == 0 :
+            bar = ProgressBar(reso_lat+1,'Data generation')
 
         for i_lat in range(reso_lat+1) :
             for i_long in range(reso_long+1) :
@@ -439,7 +446,8 @@ for beta_rad in beta_rad_array :
                             else :
                                 delta = delta_z
                             data_convert[0,0,i_n,i_lat,i_long] = data_convert[0,0,i_n-1,i_lat,i_long]*np.exp(-g*data_convert[number-1,0,i_n,i_lat,i_long]/(R_gp*T)*delta)
-            bar.animate(i_lat+1)
+            if rank == 0 :
+                bar.animate(i_lat+1)
 
 
         if TopPressure == True :

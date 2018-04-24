@@ -52,7 +52,7 @@ def data_record(path,name_source,data_base,name_exo,aerosol,continuum,kcorr,cros
     if aerosol.number != 0 :
         for i_c in range(aerosol.number) :
             if aerosol.continuity[i_c] == True :
-                if os.path.isfile('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo)) == False :
+                if os.path.isfile('%sQsingle_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo)) == False :
                     for i_continuity in range(2) :
                         aerosol_file = '%saerosol_properties/optprop_%s.dat'%(data_base,aerosol.file_name[i_c+i_continuity+i_dec])
                         aerosol_data_read(aerosol_file,0,13,aerosol.file_name[i_c+i_continuity+i_dec],name_exo,directory,Save=True)
@@ -68,13 +68,13 @@ def data_record(path,name_source,data_base,name_exo,aerosol,continuum,kcorr,cros
                     Q_fin = np.zeros((sh_1[0],sh_1[1]+sh_2[1]))
                     Q_fin[:,0:sh_1[1]] = Q_1
                     Q_fin[:,sh_1[1]:sh_1[1]+sh_2[1]] = Q_2
-                    np.save('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo),Q_fin)
+                    np.save('%sQsingle_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo),Q_fin)
                     np.save('%sbande_cloud_%s.npy'%(directory,name_exo),bande_cloud)
                 else :
                     print 'Aerosol data already recorded : %s'%(aerosol.nspecies[i_c])
                 i_dec += 1
             else :
-                if os.path.isfile('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo)) == False :
+                if os.path.isfile('%sQsingle_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo)) == False :
                     aerosol_file = '%saerosol_properties/optprop_%s.dat'%(data_base,aerosol.file_name[i_dec+i_c])
                     aerosol_data_read(aerosol_file,0,13,aerosol.nspecies[i_c],name_exo,directory,Save=True)
                 else :
@@ -82,11 +82,11 @@ def data_record(path,name_source,data_base,name_exo,aerosol,continuum,kcorr,cros
         all_species = ''
         for i_c in range(aerosol.number):
             all_species += '%s_'%(aerosol.nspecies[i_c])
-        Q_f = np.load('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[0],name_exo))
+        Q_f = np.load('%sQsingle_%s_%s.npy'%(directory,aerosol.nspecies[0],name_exo))
         sh = np.shape(Q_f)
         Q_ext = np.zeros((aerosol.number,sh[0],sh[1]))
         for i_c in range(aerosol.number):
-            Q_ext[i_c] = np.load('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo))
+            Q_ext[i_c] = np.load('%sQsingle_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo))
         np.save('%sQ_%s%s.npy'%(directory,all_species,name_exo),Q_ext)
 
     k_cont_number = continuum.number
@@ -507,7 +507,7 @@ def aerosol_data_read(aerosol_file,dec_first,space,species,name,directory,Save=T
             bar.animate(i*n_bande+j+1)
 
     if Save == True :
-        np.save('%sQ_%s_%s.npy'%(directory,species,name),Q)
+        np.save('%sQsingle_%s_%s.npy'%(directory,species,name),Q)
         np.save('%sbande_cloud_%s.npy'%(directory,name),bande)
         np.save('%sradius_cloud_%s.npy'%(directory,name),radius)
 
