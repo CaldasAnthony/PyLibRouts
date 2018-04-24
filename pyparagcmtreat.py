@@ -830,7 +830,7 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
                             if long < -np.pi :
                                 long = long%(np.pi)
 
-                            lat_o = np.sin(lat)*np.cos(inc)+np.cos(lat)*np.sin(inc)*np.sin(long)
+                            lat_o = np.arcsin(np.sin(lat)*np.cos(inc)+np.cos(lat)*np.sin(inc)*np.sin(long))
                             long_o = np.arctan2(np.sin(long)*np.cos(lat),np.cos(lat)*np.cos(inc)*np.cos(long)-np.sin(lat)*np.sin(inc))
                             lat = lat_o
                             long = long_o
