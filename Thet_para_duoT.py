@@ -112,8 +112,8 @@ r_eff = np.array([])
 # Crossection
 
 n_species_cross = np.array(['H2O','CH4','NH3','CO','CO2'])
-m_species = np.array(['H2O'])
-m_file = np.array(['h2o'])
+m_species = np.array([])
+m_file = np.array([])
 domain, domainn, source = "IR", "IR", "bin10"
 dim_bande, dim_gauss = 3000, 16
 
