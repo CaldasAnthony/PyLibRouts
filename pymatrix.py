@@ -1,5 +1,35 @@
 from pyfunction import *
 
+########################################################################################################################
+########################################################################################################################
+
+"""
+    PYGMATRIX
+
+    Cette bibliotheque intervient dans la recuperation des trajets de rayons dans la dite maille et la recuperation des
+    donnees pre-calculees.
+
+    Version : 6.3
+
+    Recentes mises a jour :
+
+    >> Modifications de altitude_line_array1D_cyl_optimized_correspondance suite a une mauvaise estimation du l qui
+    calculait l'epaisseur de correction sur les bords de l'atmosphere
+    >> Suppression du retour de N
+    >> Suppression de l'entree T
+    >> Memes modifications altitude_line_array2D_cyl_optimized_correspondance
+
+    Date de derniere modification : 14.09.2016
+
+    >> Optimisation de egalement lors des calculs de composition, nous nous assurons bien que la somme des fractions
+    molaires soit toujours egale a 1 sans etre biaisee par les etapes d'interpolation.
+
+    Date de derniere modification : 17.05.2017
+
+"""
+
+########################################################################################################################
+########################################################################################################################
 
 ########################################################################################################################
 ########################################################################################################################

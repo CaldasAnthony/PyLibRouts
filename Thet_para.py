@@ -318,8 +318,8 @@ if Parameters == True :
 
         z_array = np.arange(h/np.float(delta_z)+1)*float(delta_z)
 
-        p_grid_n,q_grid_n,z_grid_n,n_level_rank = cylindric_assymatrix_parameter(Rp,h,alpha_step,delta_step,r_step,theta_step,theta_number,\
-                                x_step,z_array,phi_rot,phi_obli,reso_long,reso_lat,long_lat,rank,number_rank,Obliquity,Middle)
+        p_grid_n,q_grid_n,z_grid_n,n_level_rank = cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,theta_number,\
+                            x_step,z_array,phi_rot,inclinaison,phi_obli,reso_long,reso_lat,long_lat,rank,number_rank,Inclinaison,Obliquity,Middle)
 
                                     ###### Parallele encoding init ######
 

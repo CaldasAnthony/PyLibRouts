@@ -48,8 +48,6 @@ if diag_file == '' :
     reso_long, reso_lat = planet.longitude, planet.latitude
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.00, 0.00, 0.00
-if inclinaison != 0. :
-    phi_obli = np.abs(phi_obli+inclinaison-np.pi/2.)
 
 Record = True
 
@@ -89,7 +87,7 @@ else :
     long_lat[1,0:reso_lat+1] = np.linspace(-90*degpi,90.*degpi,reso_lat+1,dtype=np.float64)
     Inverse = 'False'
 
-alpha_step, delta_step = 2*np.pi/np.float(reso_long), np.pi/np.float(reso_lat)
+long_step, lat_step = 2*np.pi/np.float(reso_long), np.pi/np.float(reso_lat)
 
 # Proprietes de l'atmosphere
 
@@ -254,6 +252,9 @@ compo_type = np.array(['tracer_other'])
 Parameters = True
 
 Cylindre = True        ###### Construit la maille cylindrique
+Inclinaison = False     ###### En presence d'une inclinaison par rapport au plan ecliptique, l'angle d'inclinaison est
+                             # defini positivement si le parametre d'impact est negatif et qu'elle passe en dessous de
+                             # l'etoile
 Obliquity = False       ###### Si l'exoplanete est inclinee
 
 Corr = True            ###### Traite les parcours optiques

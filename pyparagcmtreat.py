@@ -25,7 +25,7 @@ import time
 
     Nous pouvons ici tenir compte de la rotation de l'exoplanete ou d'une eventuelle obliquite.
 
-    Version : 6.2
+    Version : 6.3
 
     Recentes mises a jour :
 
@@ -102,6 +102,11 @@ import time
     du traceur
 
     Date de derniere modification : 03.04.2018
+
+    >> Reecriture de la fonction cylindric_assymetrix, cette nouvelle version plus epuree permet de calculer plus
+    facilement les correspondances en indice au sein de la maille cylindrique.
+
+    Date de derniere modification : 24.04.2018
 
 """
 
@@ -458,7 +463,7 @@ def Boxes_interpolation(P,T,Q,Rp,g0,number,P_comp,T_comp,Q_comp,species,x_specie
 
 
 def Boxes_conversion(P,T,Q,gen,z,compo,delta_z,Rp,h,hmax,dim,g0,M_atm,number,T_comp,P_comp,Q_comp,x_species,M_species,ratio,rank,Upper,\
-                     species,m_species,composition,Tracer=False,Clouds=False,Middle=False,LogInterp=False,MassAtm=False,NoH2=False) :
+                     species,m_species,composition,Tracer=False,Clouds=False,Middle=False,LogInterp=False,MassAtm=False,NoH2=False,Rotate=True) :
 
     n_t,n_l,n_lat,n_long = np.shape(P)
     data_convert = np.zeros((number,n_t,dim,n_lat,n_long),dtype=np.float64)
@@ -687,6 +692,13 @@ def Boxes_conversion(P,T,Q,gen,z,compo,delta_z,Rp,h,hmax,dim,g0,M_atm,number,T_c
     if rank == 0 :
         print 'Shape of the dataset :',np.shape(data_convert)
 
+    if Rotate == True :
+        data_convert_r = np.zeros(np.shape(data_convert),dtype=np.float64)
+        for i_l in range(n_long) :
+            i_l_r = (i_l + n_long)%(n_long)
+            data_convert_r[:,:,:,:,i_l] = data_convert[:,:,:,:,i_l_r]
+        data_convert = data_convert_r
+
     return data_convert
 
 
@@ -708,8 +720,11 @@ def Boxes_conversion(P,T,Q,gen,z,compo,delta_z,Rp,h,hmax,dim,g0,M_atm,number,T_c
 ########################################################################################################################
 
 
-def cylindric_assymatrix_parameter(Rp,h,alpha_step,delta_step,r_step,theta_step,theta_number,x_step,z_level,phi_rot,\
-                                   phi_obli,reso_long,reso_lat,long_lat,rank,number_rank,Obliquity=False,Middle=False) :
+def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,theta_number,x_step,z_level,phi_rot,\
+                                   inc,phi_obli,reso_long,reso_lat,long_lat,rank,number_rank,Inclinaison=True,Obliquity=False,Middle=False) :
+
+    long_ref = long_lat[0,0:reso_long+1]
+    lat_ref = long_lat[1,0:reso_lat+1]
 
     # On calcule la distance maximale que peut parcourir un rayon lumineux rasant comme un entier et un multiple du pas
     # en x
@@ -736,8 +751,8 @@ def cylindric_assymatrix_parameter(Rp,h,alpha_step,delta_step,r_step,theta_step,
     # Le coeur qui s'occupera de la toute derniere couche aura 5 points fictifs supplementaires charges de deliminter 
     # l'echelle en altiude des tableaux. Le 5 est arbitraire
  
-    p_grid = np.ones((int(n_level_rank.size) ,theta_number , x_reso),dtype='int')*(-1)
-    q_grid = np.ones((int(n_level_rank.size) ,theta_number , x_reso),dtype='int')*(-1)
+    q_lat_grid = np.ones((int(n_level_rank.size) ,theta_number , x_reso),dtype='int')*(-1)
+    q_long_grid = np.ones((int(n_level_rank.size) ,theta_number , x_reso),dtype='int')*(-1)
     z_grid = np.ones((int(n_level_rank.size) ,theta_number , x_reso),dtype='int')*(-1)
 
     if Obliquity == False :
@@ -770,64 +785,93 @@ def cylindric_assymatrix_parameter(Rp,h,alpha_step,delta_step,r_step,theta_step,
         for theta_range in range(theta_all) :
             theta = theta_range*theta_step
 
-            alpha_o_ref, alpha_o_ref_0, inv, refrac, begin = -1., -1., 0, 0, 0
-
             for repeat in range(1,3) :
 
                 for x_pos in range(0,int((x_reso-1)/2)) :
 
                     # x est la distance au centre et peut donc etre negatif comme positif, le 0 etant au terminateur
-                    if Obliquity == False :
-                        x = x_pos*x_step*(-1)**(repeat)
-                        x_range = int((x_reso-1)/2.) + x_pos*(-1)**(repeat)
-                    else :
-                        if repeat == 2 :
-                            x = x_pos*x_step
-                        if repeat == 1 :
-                            x = (x_pos)*x_step - int((x_reso-1)/2 -1)*x_step
+
+                    if repeat == 1 :
+                        x = x_pos*x_step
                         x_range = int((x_reso-1)/2.) + x_pos
+                    if repeat == 2 :
+                        x = (x_pos)*x_step - int((x_reso-1)/2 -1)*x_step
+                        x_range = x_pos
 
 
                     # rho est la distance au centre de l'exoplanete du point de maille considere
                     rho = np.sqrt(r**2 + x**2)
 
                     if rho <= Rp + h :
-                        if repeat == 1 :
-                            if begin == 0 :
-                                begin = x_range
-                        if repeat == 2 :
-                            begin = 0
+
                         # On verifie que le point considere est dans l'atmosphere
                         # alpha est la longitude correspondante
-                        alpha = math.atan2(r*np.cos(theta),x) + phi_rot
+
+                        long = math.atan2(r*np.cos(theta),x)
 
                         # Les points de longitude allant de 0 a reso_long, le dernier point etant le meme que le premier, tandis qu'en
                         # angle ils correspondent a -pi a pi (pour le dernier), nous devons renormaliser la longitude
-                        if Obliquity == False :
-                            if alpha > np.pi :
-                                alpha = -np.pi + alpha%(np.pi)
-                            if alpha < -np.pi :
-                                alpha = np.pi + alpha%(-np.pi)
+
+                        if r*np.cos(theta) >= 0 :
+                            long = long - np.pi
                         else :
-                            if alpha >= -np.pi/2. and alpha <= np.pi :
-                                alpha += np.pi/2.
+                            long = long + np.pi
+
+                        # lat est la latitude correspondante
+                        lat = np.arcsin((r*np.sin(theta))/(rho))
+
+                        if Inclinaison == True :
+
+                            long = long + phi_rot
+                            if long > np.pi :
+                                long = -np.pi + long%(np.pi)
+                            if long < -np.pi :
+                                long = long%(np.pi)
+
+                            lat_o = np.sin(lat)*np.cos(inc)+np.cos(lat)*np.sin(inc)*np.sin(long)
+                            long_o = np.arctan2(np.sin(long)*np.cos(lat),np.cos(lat)*np.cos(inc)*np.cos(long)-np.sin(lat)*np.sin(inc))
+                            lat = lat_o
+                            long = long_o
+
+                        else :
+                            long = long + phi_rot
+                            if long > np.pi :
+                                long = -np.pi + long%(np.pi)
+                            if long < -np.pi :
+                                long = long%(np.pi)
+
+                        lat_wh = np.where(np.round(lat_ref,7) == np.round(lat-lat%(lat_step),7))
+
+                        if lat <= 0 :
+                            if lat%(lat_step) >= lat_step/2. :
+                                q_lat = lat_wh[0]
                             else :
-                                alpha += 5*np.pi/2.
+                                q_lat = lat_wh[0]+1
+                        else :
+                            if lat%(lat_step) >= lat_step/2. :
+                                q_lat = lat_wh[0] + 1
+                            else :
+                                q_lat = lat_wh[0]
 
-                        # delta est la latitude correspondante
-                        delta = np.arcsin((r*np.sin(theta))/(rho))
+                        long_wh = np.where(np.round(long_ref,7) == np.round(long-long%(long_step),7))
+                        if long%(long_step) >= long_step/2. :
+                            q_long = long_wh[0] + 1
+                        else :
+                            q_long = long_wh[0]
 
-                        p, q, z, alpha_o_ref, alpha_o_ref_0, inv, refrac, begin = latlongalt(Rp,h,r,rho,r_step,z_level,delta,delta_step,\
-                                                        reso_lat,alpha,alpha_o_ref,alpha_o_ref_0,alpha_step,reso_long,phi_obli,x,x_range,\
-                                                        x_reso,x_step,theta_range,theta_number,begin,inv,refrac,long_lat,True,Middle,Obliquity)
+                        if theta_range == 0 :
+                            z_wh = np.where(np.round(z_level,7) == np.round((rho-Rp) - (rho-Rp)%(r_step),7))
+                            z = z_wh[0] + 1
 
-                        if Obliquity == False :
+                        #print lat, q_lat, x
 
-                            p_grid[r_range,theta_range,x_range] = p
+                        if Inclinaison == False :
+
+                            q_lat_grid[r_range,theta_range,x_range] = q_lat
                             if theta_range != theta_number/4 or theta_range != 3*theta_number/4 :
-                                q_grid[r_range,theta_range,x_range] = q
+                                q_long_grid[r_range,theta_range,x_range] = q_long
                             else :
-                                q_grid[r_range,theta_range,x_range] = q_grid[r_range,theta_range,x_range-1]
+                                q_long_grid[r_range,theta_range,x_range] = q_long_grid[r_range,theta_range,x_range-1]
 
                             # Conditions de symetrie
                             if theta_range == 0 :
@@ -835,39 +879,28 @@ def cylindric_assymatrix_parameter(Rp,h,alpha_step,delta_step,r_step,theta_step,
                             else :
                                 z_grid[r_range,theta_range,x_range] = z_grid[r_range,0,x_range]
                                 if theta_range != theta_number/4 or theta_range != 3*theta_number/4 :
-                                    q_grid[r_range,theta_number - theta_range,x_range] = q
+                                    q_long_grid[r_range,theta_number - theta_range,x_range] = q_long
                                 else :
-                                    q_grid[r_range,theta_number - theta_range,x_range] = q_grid[r_range,theta_range,x_range-1]
-                                p_grid[r_range,theta_number - theta_range,x_range] = reso_lat - p
+                                    q_long_grid[r_range,theta_number - theta_range,x_range] = q_long_grid[r_range,theta_range,x_range-1]
+                                q_lat_grid[r_range,theta_number - theta_range,x_range] = reso_lat - q_lat
                                 z_grid[r_range,theta_number - theta_range,x_range] = z_grid[r_range,0,x_range]
 
                         else :
 
-                            if repeat == 2 and x_range != int((x_reso-1)/2.) :
-                                p_grid[r_range,theta_range,x_range] = p
-                                z_grid[r_range,theta_range,x_range] = z
-                                if begin == -1 :
-                                    q_grid[r_range,theta_range,x_range] = q[0]
-                                    q_grid[r_range,theta_range,x_range-1] = q[1]
-                                    begin = -2
-                                else :
-                                    q_grid[r_range,theta_range,x_range] = q
-                            if repeat == 1 :
-                                p_grid[r_range,theta_range,x_pos+1] = p
-                                z_grid[r_range,theta_range,x_pos+1] = z
-                                if begin == -1 :
-                                    q_grid[r_range,theta_range,x_pos+1] = q[0]
-                                    q_grid[r_range,theta_range,x_pos] = q[1]
-                                    begin = -2
-                                else :
-                                    q_grid[r_range,theta_range,x_pos+1] = q
+                            q_lat_grid[r_range,theta_range,x_range] = q_lat
+                            q_long_grid[r_range,theta_range,x_range] = q_long
 
-                        #print x_range, x_pos, begin, q, alpha_o_ref, alpha_o_ref_0
+                            # Conditions de symetrie
+                            if theta_range == 0 :
+                                z_grid[r_range,theta_range,x_range] = z
+                            else :
+                                z_grid[r_range,theta_range,x_range] = z_grid[r_range,0,x_range]
+                                z_grid[r_range,theta_number - theta_range,x_range] = z_grid[r_range,0,x_range]
 
             if rank == 0 :
                 bar.animate(r_range*theta_all+theta_range+1)
 
-    return p_grid,q_grid,z_grid,n_level_rank
+    return q_lat_grid,q_long_grid,z_grid,n_level_rank
 
 
 ########################################################################################################################

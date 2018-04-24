@@ -75,8 +75,8 @@ if Parameters == True :
 
     if Cylindre == True :
 
-        p_grid,q_grid,z_grid = cylindric_assymatrix_parameter(Rp,h,alpha_step,delta_step,r_step,theta_step,theta_number,\
-                                x_step,z_array,phi_rot,phi_obli,reso_long,reso_lat,long_lat,Obliquity,Middle)
+        p_grid,q_grid,z_grid = cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,theta_number,\
+                                x_step,z_array,phi_rot,inclinaison,phi_obli,reso_long,reso_lat,long_lat,Inclinaison,Obliquity,Middle)
 
         np.save("%s%s/%s/p_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                 reso_alt,r_step,phi_rot,phi_obli),p_grid)

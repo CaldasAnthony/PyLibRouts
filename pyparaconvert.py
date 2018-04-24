@@ -10,7 +10,7 @@ number_rank = comm.size
 ########################################################################################################################
 
 """
-    PYKCORR
+    PYCONVERT
 
     Cette bibliotheque contient l'ensemble des routines permettant l'interpolation des sections efficaces ou des
     k coefficients dans les atmospheres qui nous interessent. Certaines fonctions sont dupliquees en fonction de la
@@ -23,44 +23,18 @@ number_rank = comm.size
     La cle de voute de cette bibliotheque, a savoir convertator, permet la generation de l'ensemble des opacites
     (moleculaire, continuum, diffusion Rayleigh et diffusion de Mie)
 
-    Version : 5.6
+    Version : 6.3
 
     Recentes mise a jour :
 
     >> Modification totale de l'identification des couples P,T ou P,T,Q dans les simulations 3D dans les routines
     convertator
-    >> Correction d'un bug de cloud_scattering qui faisait que la meme masse molaire etait adoptee pour toutes les
-    couches de l'atmosphere, a present la routine tient compte de la diversite sur le poids moleculaire moyen dans les
-    differentes cellules associees aux couples P,T ou P,T,Q
 
-    Date de derniere modification : 10.10.2016
+    Date de derniere modification : 07.07.2016
 
-    >> Reecriture du calcul des donnees continuum, elle s'adapte desormais a une plus grande diversite de sources
-    continuum (l'eau, le methane, le dioxyde de carbone ...), et utilise les fonctions deja existante pour calculer
-    les aspects self et foreign
+    >> Refonte de convertator et convertator1D
 
-    Date de derniere modification : 29.10.2017
-
-    >> Correction d'un bug qui faisait qu'on ne prenait pas a la fois les donnees H2-H2 et H2-He lors du calcul du
-    continuum. Reecriture egalement pour permettre de travailler avec des atmopshere ne comportant pas soit l'un soit
-    l'autre.
-    >> Optimisation de l'ecriture et de la methode d'extraction des donnnees continuum toujours.
-    >> Correction d'une partie du code d'interpolation dans les donnees continuum.
-    >> Correction de la methode de calcul des opacites continuum ... oui il y avait un probleme avec le continuum de
-    toute evidence ^^
-
-    Date de derniere modification : 06.12.2017
-
-    >> Refonte complete de la fonction k_correlated_interp. De part son ecriture, il semblerait que des indices se soient
-    melanges et introduisait une erreur sur l'interpolation en temperature et en pression pour les parties en dehors de
-    la grille, raison pour laquelle les spectres ne ressemblaient pas ce qu'on attendait pour les hautes tempertaures
-    pour lesquelles la region d'inversion de la profondeur optique se produisait pour des pressions en dehors de la grille
-    >> Correction de trois bugs majeurs dans Ssearcher qui faisait que meme apres correction de k_correlated_interp, nous
-    ne produisions pas des spectres satisfaisants. Des i_Tu transformes en i_Td, des c13 appliques a la mauvaise section
-    efficace ... tous ces effets etaient compenses par l'erreur dans k_correlated (sauf dans le cas des hautes temperatures)
-    >> Reecriture globale des fonctions d'interpolation.
-
-    Date de derniere modification : 05.03.2018
+    Date de derniere modification : 03.04.2018
 
 """
 

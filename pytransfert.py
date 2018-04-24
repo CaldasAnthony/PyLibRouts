@@ -48,6 +48,117 @@ import time
 
 """
 
+
+########################################################################################################################
+########################################################################################################################
+
+"""
+    TRANS2FERT3D
+
+    Cette fonction exploite l'ensemble des outils developpes precedemment afin de produire une carte de transmittance
+    dans une maille cylindrique. Cette routine peut effectuer une interpolation sur les donnees, toutefois le temps de
+    calcul est tres nettement augmente (plusieurs dizaines d'heure)
+    L'utilisation des donnees brutes peut etre traite en utilisant ou non les tables dx_grid et order_grid pre-etablie.
+    En fonction de la resolution initiale adoptee pour les donnees GCM, les tables dx et order permettent un petit gain
+    de temps (pour les resolutions elevees).
+
+    La production de la colonne peut etre effectuee en amont eventuellement.
+
+    Cette fonction retourne la grille de transmittance dans une maille cylindrique I[bande,r,theta].
+
+"""
+
+########################################################################################################################
+########################################################################################################################
+
+
+def trans2fert3D (k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,Rp,h,g0,r_step,theta_step,gauss_val,dim_bande,data,\
+                  P_rmd,T_rmd,Q_rmd,dx_grid,order_grid,pdx_grid,z_grid,t,\
+                  name_file,n_species,single,rmind,lim_alt,rupt_alt,rank,rank_ref,\
+                  Tracer=False,Continuum=True,Isolated=False,Scattering=True,Clouds=True,Kcorr=True,\
+                  Rupt=False,Module=False,Integral=False,TimeSel=False) :
+
+    r_size,theta_size,x_size = np.shape(dx_grid)
+    number_size,t_size,z_size,lat_size,long_size = np.shape(data)
+
+    if TimeSel == True :
+        data = data[:,t,:,:,:]
+
+    Itot = np.ones((dim_bande,r_size-1,theta_size))
+
+    if rank == rank_ref :
+        bar = ProgressBar(theta_size,'Radiative transfert progression')
+
+    for i in range(theta_size) :
+
+        theta_line = i
+        fail = 0
+
+        if Rupt == True :
+
+            dep = int(rupt_alt/r_step)
+
+            Itot[:, 0:dep, theta_line] = np.zeros((dim_bande,dep))
+
+        else :
+
+            dep = 0
+
+        for j in range(dep,r_size) :
+
+            r = Rp + j*r_step
+            r_line = j
+
+            dx = dx_grid[r_line,theta_line,:]
+            order = order_grid[:,r_line,theta_line,:]
+            if Integral == True :
+                pdx = pdx_grid[r_line,theta_line,:]
+
+            if r < Rp + lim_alt :
+
+                zone, = np.where((order[0] > 0)*(order[0] < z_size))
+                dx_ref = dx[zone]
+                if Integral == True :
+                    pdx_ref = pdx[zone]
+                else :
+                    pdx_ref = np.array([])
+                data_ref = data[:,order[0,zone],order[1,zone],order[2,zone]]
+                P_ref, T_ref = data_ref[0], data_ref[1]
+
+                if Tracer == True :
+
+                    Q_ref = data_ref[2]
+
+                    k_inter,k_cont_inter,k_sca_inter,k_cloud_inter,fail = \
+                    k_correlated_interp_remind3D_M(k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,P_ref.size,\
+                    P_rmd,P_ref,T_rmd,T_ref,Q_rmd,Q_ref,n_species,fail,rmind,Continuum,Isolated,Scattering,Clouds,Kcorr)
+
+                else :
+
+                    k_inter,k_cont_inter,k_sca_inter,k_cloud_inter,fail = \
+                    k_correlated_interp_remind3D(k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,P_ref.size,\
+                    P_rmd,P_ref,T_rmd,T_ref,n_species,fail,rmind,Continuum,Isolated,Scattering,Clouds,Kcorr)
+
+                if Module == True :
+                    z_ref = z_grid[r_line,theta_line,order[3,zone]]
+                    P_ref = module_density(P_ref,T_ref,z_ref,Rp,g0,data_ref[number_size-1],r_step,type,True)
+                Cn_mol_ref = P_ref/(R_gp*T_ref)*N_A
+
+                I_out = radiative_transfert_remind3D(dx_ref,pdx_ref,Cn_mol_ref,k_inter,k_cont_inter,k_sca_inter,\
+                    k_cloud_inter,gauss_val,single,Continuum,Isolated,Scattering,Clouds,Kcorr,Integral)
+
+                Itot[:, r_line, theta_line] = I_out
+
+        if rank == rank_ref :
+            bar.animate(i+1)
+
+        if fail !=0 :
+
+            print("%i failure(s) at this latitude" %(fail))
+
+    return Itot
+
+
 ########################################################################################################################
 ########################################################################################################################
 
@@ -169,116 +280,6 @@ def trans2fert1D (k_corr_data_grid,k_cont,Q_cloud,Rp,h,g0,r_step,theta_step,\
                     Itot[:, r_line, 0] = I_out[:]
 
                 bar.animate(j+1)
-
-    return Itot
-
-
-########################################################################################################################
-########################################################################################################################
-
-"""
-    TRANS2FERT3D
-
-    Cette fonction exploite l'ensemble des outils developpes precedemment afin de produire une carte de transmittance
-    dans une maille cylindrique. Cette routine peut effectuer une interpolation sur les donnees, toutefois le temps de
-    calcul est tres nettement augmente (plusieurs dizaines d'heure)
-    L'utilisation des donnees brutes peut etre traite en utilisant ou non les tables dx_grid et order_grid pre-etablie.
-    En fonction de la resolution initiale adoptee pour les donnees GCM, les tables dx et order permettent un petit gain
-    de temps (pour les resolutions elevees).
-
-    La production de la colonne peut etre effectuee en amont eventuellement.
-
-    Cette fonction retourne la grille de transmittance dans une maille cylindrique I[bande,r,theta].
-
-"""
-
-########################################################################################################################
-########################################################################################################################
-
-
-def trans2fert3D (k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,Rp,h,g0,r_step,theta_step,gauss_val,dim_bande,data,\
-                  P_rmd,T_rmd,Q_rmd,dx_grid,order_grid,pdx_grid,z_grid,t,\
-                  name_file,n_species,single,rmind,lim_alt,rupt_alt,rank,rank_ref,\
-                  Tracer=False,Continuum=True,Isolated=False,Scattering=True,Clouds=True,Kcorr=True,\
-                  Rupt=False,Module=False,Integral=False,TimeSel=False) :
-
-    r_size,theta_size,x_size = np.shape(dx_grid)
-    number_size,t_size,z_size,lat_size,long_size = np.shape(data)
-
-    if TimeSel == True :
-        data = data[:,t,:,:,:]
-
-    Itot = np.ones((dim_bande,r_size-1,theta_size))
-
-    if rank == rank_ref :
-        bar = ProgressBar(theta_size,'Radiative transfert progression')
-
-    for i in range(theta_size) :
-
-        theta_line = i
-        fail = 0
-
-        if Rupt == True :
-
-            dep = int(rupt_alt/r_step)
-
-            Itot[:, 0:dep, theta_line] = np.zeros((dim_bande,dep))
-
-        else :
-
-            dep = 0
-
-        for j in range(dep,r_size) :
-
-            r = Rp + j*r_step
-            r_line = j
-
-            dx = dx_grid[r_line,theta_line,:]
-            order = order_grid[:,r_line,theta_line,:]
-            if Integral == True :
-                pdx = pdx_grid[r_line,theta_line,:]
-
-            if r < Rp + lim_alt :
-
-                zone, = np.where((order[0] > 0)*(order[0] < z_size))
-                dx_ref = dx[zone]
-                if Integral == True :
-                    pdx_ref = pdx[zone]
-                else :
-                    pdx_ref = np.array([])
-                data_ref = data[:,order[0,zone],order[1,zone],order[2,zone]]
-                P_ref, T_ref = data_ref[0], data_ref[1]
-
-                if Tracer == True :
-
-                    Q_ref = data_ref[2]
-
-                    k_inter,k_cont_inter,k_sca_inter,k_cloud_inter,fail = \
-                    k_correlated_interp_remind3D_M(k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,P_ref.size,\
-                    P_rmd,P_ref,T_rmd,T_ref,Q_rmd,Q_ref,n_species,fail,rmind,Continuum,Isolated,Scattering,Clouds,Kcorr)
-
-                else :
-
-                    k_inter,k_cont_inter,k_sca_inter,k_cloud_inter,fail = \
-                    k_correlated_interp_remind3D(k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,P_ref.size,\
-                    P_rmd,P_ref,T_rmd,T_ref,n_species,fail,rmind,Continuum,Isolated,Scattering,Clouds,Kcorr)
-
-                if Module == True :
-                    z_ref = z_grid[r_line,theta_line,order[3,zone]]
-                    P_ref = module_density(P_ref,T_ref,z_ref,Rp,g0,data_ref[number_size-1],r_step,type,True)
-                Cn_mol_ref = P_ref/(R_gp*T_ref)*N_A
-
-                I_out = radiative_transfert_remind3D(dx_ref,pdx_ref,Cn_mol_ref,k_inter,k_cont_inter,k_sca_inter,\
-                    k_cloud_inter,gauss_val,single,Continuum,Isolated,Scattering,Clouds,Kcorr,Integral)
-
-                Itot[:, r_line, theta_line] = I_out
-
-        if rank == rank_ref :
-            bar.animate(i+1)
-
-        if fail !=0 :
-
-            print("%i failure(s) at this latitude" %(fail))
 
     return Itot
 

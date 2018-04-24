@@ -749,129 +749,6 @@ def Mean1Dmaker(I_all,I,bande_sample,R_s,Rp,r_step,theta_number,extra,name,Kcorr
 
 
 ########################################################################################################################
-########################################################################################################################
-
-"""
-    PROFIL_CYLCART
-
-    Cette fonction transpose une ligne de la grille cartesienne dans la grille cylindrique et produit un profil de
-    transmittance. A partir de ce profil (qui est construit par estimation de la position des points de variations
-    de la transmittance) elle genere un tableau aux dimensions necessaires pour remplir la zone de transmittance
-    associee a l'atmosphere dans la grille cartesienne. Elle realise ces profils de chaque cote de la planete. L'
-    interpolation utilisee est ici lineaire mais peut etre modifiee.
-
-    La fonction retourne les deux tableaux a coller dans la grille cartesienne pour chaque cote de l'hemisphere. Cette
-    technique permet d'interpoler la grille cylindrique sans en augmenter la resolution.
-
-"""
-
-########################################################################################################################
-########################################################################################################################
-
-
-def profil_cylcart(I,Rp,h,B,r_step,theta_step,theta_number,param,pas,Climu,Climd) :
-
-    X_u = np.arange(Climd,Climu + param, param)
-    X_d = np.arange(-Climu,-Climd+param, param)
-
-    x_slice = np.arange(0,h,pas)
-
-    if abs(B) < Rp :
-        lim_ud = np.sqrt(Rp**2 - B**2)
-    else :
-        lim_ud = 0
-
-    I_ref_u = np.array([])
-    x_ref_u = np.array([])
-    pond_u = np.array([])
-    I_ref_d = np.array([])
-    x_ref_d = np.array([])
-    pond_d = np.array([])
-    i = 0
-
-    for x in x_slice :
-
-        C_u = lim_ud + x
-        theta_u = math.atan2(B,C_u)
-
-        if theta_u >= 0 :
-
-            i_theta_u = int(round(theta_u/theta_step))
-            theta_d = np.pi - theta_u
-            i_theta_d = int(round(theta_d/theta_step))
-
-            if i_theta_u == theta_number :
-                i_theta_u = 0
-
-            if i_theta_d == theta_number :
-                i_theta_d = 0
-
-        if theta_u < 0 :
-
-            i_theta_u = theta_number + int(round(theta_u/theta_step))
-            theta_d = - np.pi - theta_u
-            i_theta_d = theta_number + int(round(theta_d/theta_step))
-
-            if i_theta_u == theta_number :
-                i_theta_u = 0
-
-            if i_theta_d == theta_number :
-                i_theta_d = 0
-
-        if x == 0 :
-            i_z = 0
-        else :
-            i_z = int(round((np.sqrt((lim_ud+x)**2 + B**2) - Rp)/float(r_step)))
-
-        if x == x_slice[0] :
-
-            i_theta_comp_u = i_theta_u
-            i_theta_comp_d = i_theta_d
-
-            i_z_comp_u = i_z
-            i_z_comp_d = i_z
-
-            deb_u = 0
-            deb_d = 0
-
-        else :
-
-            if i_theta_u != i_theta_comp_u or i_z != i_z_comp_u :
-
-                fin_u = i
-
-                I_ref_u = np.append(I_ref_u, np.array(I[i_theta_comp_u,i_z_comp_d]))
-                x_ref_u = np.append(x_ref_u, np.array(lim_ud + x_slice[int((fin_u+deb_u)/2.)]))
-                pond_u = np.append(pond_u, np.array([fin_u - deb_u + 1]))
-
-                deb_u = i + 1
-
-                i_theta_comp_u = i_theta_u
-                i_z_comp_u = i_z
-
-            if i_theta_d != i_theta_comp_d or i_z != i_z_comp_d :
-
-                fin_d = i
-
-                I_ref_d = np.append(I_ref_d, np.array(I[i_theta_comp_d,i_z_comp_d]))
-                x_ref_d = np.append(x_ref_d, np.array(-lim_ud - x_slice[int((fin_d+deb_d)/2.)]))
-                pond_d = np.append(pond_d, np.array([fin_d - deb_d + 1]))
-
-                deb_d = i + 1
-
-                i_theta_comp_d = i_theta_d
-                i_z_comp_d = i_z
-
-
-        i = i + 1
-
-    I_table_u = np.interp(X_u,x_ref_u,I_ref_u)
-    I_table_d = np.interp(-X_d,-x_ref_d,I_ref_d)
-
-    return I_table_d,I_table_u
-
-
-########################################################################################################################
 
 
 def repartition(axes,number_rank,rank,linear=False) :
@@ -1426,25 +1303,17 @@ def qoblicator_neg(theta_range,x,x_range,x_ref,theta_number,phi_obli,alpha_o,alp
 ########################################################################################################################
 ########################################################################################################################
 
+"""
+    INTERPOLATION_TOOLS
 
-def vap_sat(T) :
+    Cette serie de fonction permet d'effectuer toutes les interpolations possibles au sein du code. Les interpolations
+    sur des tableaux, sur plusieurs dimensions (doubles et triples) et meme d'effectuer des interpolations plus
+    specifiques.
 
-    T_0, r_2, r_3, r_4, P = 273.16, 661.14, np.array([17.269,21.875]), np.array([35.86,7.66]), 0.
-
-    if T > 647. :
-        P = 1.e+10
-    if T < 100. :
-        P = 0.
-    if T > T_0 and T <= 647. :
-        P = r_2*np.exp(r_3[0]*((T-T_0)/(T-r_4[0])))
-    if T > 100. and T <= T_0 :
-        P = r_2*np.exp(r_3[1]*((T-T_0)/(T-r_4[1])))
-
-    return P
-
+"""
 
 ########################################################################################################################
-
+########################################################################################################################
 
 def interpolation(x,x_sample,grid) :
 
@@ -2114,6 +1983,25 @@ def interp2olation_opti_uni(x,y,x_sample,y_sample,grid,Optimal_x=False,Optimal_y
 ########################################################################################################################
 
 
+def vap_sat(T) :
+
+    T_0, r_2, r_3, r_4, P = 273.16, 661.14, np.array([17.269,21.875]), np.array([35.86,7.66]), 0.
+
+    if T > 647. :
+        P = 1.e+10
+    if T < 100. :
+        P = 0.
+    if T > T_0 and T <= 647. :
+        P = r_2*np.exp(r_3[0]*((T-T_0)/(T-r_4[0])))
+    if T > 100. and T <= T_0 :
+        P = r_2*np.exp(r_3[1]*((T-T_0)/(T-r_4[1])))
+
+    return P
+
+########################################################################################################################
+########################################################################################################################
+
+
 def chain_pressure(iter_1,iter_2,it_1,it_2,fac,redond,redond_1,redond_2,R_mean,Rp_o,p_surf) :
 
     if iter_1[0] == 0 :
@@ -2390,6 +2278,173 @@ def H2HeO(cont_species) :
 
 
 ########################################################################################################################
+########################################################################################################################
+
+"""
+    PROFIL_CYLCART
+
+    Cette fonction transpose une ligne de la grille cartesienne dans la grille cylindrique et produit un profil de
+    transmittance. A partir de ce profil (qui est construit par estimation de la position des points de variations
+    de la transmittance) elle genere un tableau aux dimensions necessaires pour remplir la zone de transmittance
+    associee a l'atmosphere dans la grille cartesienne. Elle realise ces profils de chaque cote de la planete. L'
+    interpolation utilisee est ici lineaire mais peut etre modifiee.
+
+    La fonction retourne les deux tableaux a coller dans la grille cartesienne pour chaque cote de l'hemisphere. Cette
+    technique permet d'interpoler la grille cylindrique sans en augmenter la resolution.
+
+"""
+
+########################################################################################################################
+########################################################################################################################
+
+
+def profil_cylcart(I,Rp,h,B,r_step,theta_step,theta_number,param,pas,Climu,Climd) :
+
+    X_u = np.arange(Climd,Climu + param, param)
+    X_d = np.arange(-Climu,-Climd+param, param)
+
+    x_slice = np.arange(0,h,pas)
+
+    if abs(B) < Rp :
+        lim_ud = np.sqrt(Rp**2 - B**2)
+    else :
+        lim_ud = 0
+
+    I_ref_u = np.array([])
+    x_ref_u = np.array([])
+    pond_u = np.array([])
+    I_ref_d = np.array([])
+    x_ref_d = np.array([])
+    pond_d = np.array([])
+    i = 0
+
+    for x in x_slice :
+
+        C_u = lim_ud + x
+        theta_u = math.atan2(B,C_u)
+
+        if theta_u >= 0 :
+
+            i_theta_u = int(round(theta_u/theta_step))
+            theta_d = np.pi - theta_u
+            i_theta_d = int(round(theta_d/theta_step))
+
+            if i_theta_u == theta_number :
+                i_theta_u = 0
+
+            if i_theta_d == theta_number :
+                i_theta_d = 0
+
+        if theta_u < 0 :
+
+            i_theta_u = theta_number + int(round(theta_u/theta_step))
+            theta_d = - np.pi - theta_u
+            i_theta_d = theta_number + int(round(theta_d/theta_step))
+
+            if i_theta_u == theta_number :
+                i_theta_u = 0
+
+            if i_theta_d == theta_number :
+                i_theta_d = 0
+
+        if x == 0 :
+            i_z = 0
+        else :
+            i_z = int(round((np.sqrt((lim_ud+x)**2 + B**2) - Rp)/float(r_step)))
+
+        if x == x_slice[0] :
+
+            i_theta_comp_u = i_theta_u
+            i_theta_comp_d = i_theta_d
+
+            i_z_comp_u = i_z
+            i_z_comp_d = i_z
+
+            deb_u = 0
+            deb_d = 0
+
+        else :
+
+            if i_theta_u != i_theta_comp_u or i_z != i_z_comp_u :
+
+                fin_u = i
+
+                I_ref_u = np.append(I_ref_u, np.array(I[i_theta_comp_u,i_z_comp_d]))
+                x_ref_u = np.append(x_ref_u, np.array(lim_ud + x_slice[int((fin_u+deb_u)/2.)]))
+                pond_u = np.append(pond_u, np.array([fin_u - deb_u + 1]))
+
+                deb_u = i + 1
+
+                i_theta_comp_u = i_theta_u
+                i_z_comp_u = i_z
+
+            if i_theta_d != i_theta_comp_d or i_z != i_z_comp_d :
+
+                fin_d = i
+
+                I_ref_d = np.append(I_ref_d, np.array(I[i_theta_comp_d,i_z_comp_d]))
+                x_ref_d = np.append(x_ref_d, np.array(-lim_ud - x_slice[int((fin_d+deb_d)/2.)]))
+                pond_d = np.append(pond_d, np.array([fin_d - deb_d + 1]))
+
+                deb_d = i + 1
+
+                i_theta_comp_d = i_theta_d
+                i_z_comp_d = i_z
+
+
+        i = i + 1
+
+    I_table_u = np.interp(X_u,x_ref_u,I_ref_u)
+    I_table_d = np.interp(-X_d,-x_ref_d,I_ref_d)
+
+    return I_table_d,I_table_u
+
+
+########################################################################################################################
+
+
+def create_circle(x,R) :
+
+    wh1, =np.where((x <= 0)*(x >= -R))
+    wh2, =np.where((x <= R)*(x >= 0))
+
+    y_cir = np.array([0])
+    y_cir = np.append(y_cir,-np.sqrt(R**2 - x[wh1]**2))
+    y_cir = np.append(y_cir,np.array([-R]))
+    y_cir = np.append(y_cir,-np.sqrt(R**2 - x[wh2]**2))
+    y_cir = np.append(y_cir,np.array([0]))
+    y_cir = np.append(y_cir,np.sqrt(R**2 - x[wh2[::-1]]**2))
+    y_cir = np.append(y_cir,np.array([R]))
+    y_cir = np.append(y_cir,np.sqrt(R**2 - x[wh1[::-1]]**2))
+    y_cir = np.append(y_cir,np.array([0]))
+
+    x_cir = np.array([-R])
+    x_cir = np.append(x_cir,x[wh1])
+    x_cir = np.append(x_cir,np.array([0]))
+    x_cir = np.append(x_cir,x[wh2])
+    x_cir = np.append(x_cir,np.array([R]))
+    x_cir = np.append(x_cir,x[wh2[::-1]])
+    x_cir = np.append(x_cir,np.array([0]))
+    x_cir = np.append(x_cir,x[wh1[::-1]])
+    x_cir = np.append(x_cir,np.array([-R]))
+
+    return x_cir,y_cir
+
+
+########################################################################################################################
+########################################################################################################################
+
+"""
+    INSTRUMENTATION
+
+    Les fonctions ci-dessous permettent de generer du bruit de photon ou de l'estimer pour construire des barres d'
+    erreur associees a un instrument specifique. Les instruments sont des classes qui doivent avoir la meme structure
+    que JWST.
+
+"""
+
+########################################################################################################################
+########################################################################################################################
 
 
 def stellar_noise(star,detection,gamme,resolution,Total=False) :
@@ -2494,30 +2549,3 @@ class planet :
         self.longitude = 64
 
 ########################################################################################################################
-
-def create_circle(x,R) :
-
-    wh1, =np.where((x <= 0)*(x >= -R))
-    wh2, =np.where((x <= R)*(x >= 0))
-
-    y_cir = np.array([0])
-    y_cir = np.append(y_cir,-np.sqrt(R**2 - x[wh1]**2))
-    y_cir = np.append(y_cir,np.array([-R]))
-    y_cir = np.append(y_cir,-np.sqrt(R**2 - x[wh2]**2))
-    y_cir = np.append(y_cir,np.array([0]))
-    y_cir = np.append(y_cir,np.sqrt(R**2 - x[wh2[::-1]]**2))
-    y_cir = np.append(y_cir,np.array([R]))
-    y_cir = np.append(y_cir,np.sqrt(R**2 - x[wh1[::-1]]**2))
-    y_cir = np.append(y_cir,np.array([0]))
-
-    x_cir = np.array([-R])
-    x_cir = np.append(x_cir,x[wh1])
-    x_cir = np.append(x_cir,np.array([0]))
-    x_cir = np.append(x_cir,x[wh2])
-    x_cir = np.append(x_cir,np.array([R]))
-    x_cir = np.append(x_cir,x[wh2[::-1]])
-    x_cir = np.append(x_cir,np.array([0]))
-    x_cir = np.append(x_cir,x[wh1[::-1]])
-    x_cir = np.append(x_cir,np.array([-R]))
-
-    return x_cir,y_cir

@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/Users/caldas/Desktop/Pytmosph3R/ParaPyRouts/')
+sys.path.append('/Users/caldas/Pytmosph3R/ParaPyRouts/')
 
 from pytransfert import *
 from pyfunction import *
@@ -14,7 +14,7 @@ from pyremind import *
 
 # Informations diverses sur l'etude
 
-path = "/Users/caldas/Desktop/Pytmosph3R/"
+path = "/Users/caldas/Pytmosph3R/"
 name_file = "Files"
 name_source = "Source"
 #name_exo = "GJ1214b"
@@ -27,8 +27,8 @@ version = 6.3
 
 # Donnees de base
 
-data_base,diag_file = "/Users/caldas/Desktop/Pytmosph3R/Simulations/GJ1214b/",'diagfi'
-data_source = "/Users/caldas/Desktop/Pytmosph3R/Simulations/GJ1214b/Sources/"
+data_base,diag_file = "/Users/caldas/Pytmosph3R/Simulations/GJ1214b/",'diagfi'
+data_source = "/Users/caldas/Pytmosph3R/Simulations/GJ1214b/Sources/"
 planet = planet()
 if diag_file == '' :
     information = pickle.load(open(planet.pressure_profile_data))
@@ -36,8 +36,6 @@ if diag_file == '' :
     reso_long, reso_lat = planet.longitude, planet.latitude
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.00, 0.00, 0.00
-if inclinaison != 0. :
-    phi_obli = np.abs(phi_obli+inclinaison-np.pi/2.)
 
 Record = True
 
@@ -244,6 +242,9 @@ MassAtm = False         ###### Si on tient compte de la masse atmospherique
 compo_type = np.array(['composition'])
 
 Cylindre = False        ###### Construit la maille cylindrique
+Inclinaison = False     ###### En presence d'une inclinaison par rapport au plan ecliptique, l'angle d'inclinaison est
+                             # defini positivement si le parametre d'impact est negatif et qu'elle passe en dessous de
+                             # l'etoile
 Obliquity = False       ###### Si l'exoplanete est inclinee
 
 Corr = False            ###### Traite les parcours optiques
@@ -306,7 +307,7 @@ Flux = False            ###### Spectre flux = f(longueur d'onde)
 
 # Sauvegardes
 
-save_adress = "/Users/caldas/Desktop/Pytmosph3R/I/"
+save_adress = "/Users/caldas/Pytmosph3R/I/"
 special = ''
 stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
 save_name_1D = saving('1D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
