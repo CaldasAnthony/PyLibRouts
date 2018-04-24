@@ -1512,11 +1512,11 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
                             if long < -np.pi :
                                 long = long%(np.pi)
 
-                        lat_wh, = np.where(lat_ref >= lat)
-                        q_lat = lat_wh[0]
+                        lat_wh, = np.where(lat >= lat_ref)
+                        q_lat = lat_wh[lat_wh.size-1]
 
-                        long_wh, = np.where(long_ref >= long)
-                        q_long = long_wh[0]
+                        long_wh, = np.where(long >= long_ref)
+                        q_long = long_wh[long_wh.size-1]
 
                         if theta_range == 0 :
                             z_wh = np.where(np.round(z_level,7) == np.round((rho-Rp) - (rho-Rp)%(r_step),7))
