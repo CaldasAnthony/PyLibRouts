@@ -1411,8 +1411,8 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
         r_reso = int(h/r_step) + 1
     else :
         r_reso = int(h/r_step) + 1 + 1
-    long_ref = long_lat[0,0:reso_long+1]
-    lat_ref = long_lat[1,0:reso_lat+1]
+    lat_ref = np.linspace(-np.pi/2.-lat_step/2.,np.pi/2.+lat_step/2.,reso_lat+2)
+    long_ref = np.linspace(-np.pi-long_step/2.,np.pi+long_step/2.,reso_long+2)
 
     # On calcule la distance maximale que peut parcourir un rayon lumineux rasant comme un entier et un multiple du pas
     # en x
@@ -1512,24 +1512,11 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
                             if long < -np.pi :
                                 long = long%(np.pi)
 
-                        lat_wh = np.where(np.round(lat_ref,7) == np.round(lat-lat%(lat_step),7))
+                        lat_wh, = np.where(lat_ref >= lat)
+                        q_lat = lat_wh[0]
 
-                        if lat <= 0 :
-                            if lat%(lat_step) >= lat_step/2. :
-                                q_lat = lat_wh[0]
-                            else :
-                                q_lat = lat_wh[0]+1
-                        else :
-                            if lat%(lat_step) >= lat_step/2. :
-                                q_lat = lat_wh[0] + 1
-                            else :
-                                q_lat = lat_wh[0]
-
-                        long_wh = np.where(np.round(long_ref,7) == np.round(long-long%(long_step),7))
-                        if long%(long_step) >= long_step/2. :
-                            q_long = long_wh[0] + 1
-                        else :
-                            q_long = long_wh[0]
+                        long_wh, = np.where(long_ref >= long)
+                        q_long = long_wh[0]
 
                         if theta_range == 0 :
                             z_wh = np.where(np.round(z_level,7) == np.round((rho-Rp) - (rho-Rp)%(r_step),7))
