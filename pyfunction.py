@@ -240,22 +240,22 @@ def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,
         if phi_obli != 0. :
             incrotob += '_o%.2f'%(phi_obli)
             if phi_rot != 0. :
-                incrotob += '_r%.2f'%(phi_rot)
+                incrotob += '_r%.2f_'%(phi_rot)
         else :
             if phi_rot != 0. :
-                incrotob += '_r%.2f'%(phi_rot)
+                incrotob += '_r%.2f_'%(phi_rot)
     else :
         if phi_obli != 0. :
             incrotob += 'o%.2f'%(phi_obli)
             if phi_rot != 0. :
-                incrotob += '_r%.2f'%(phi_rot)
+                incrotob += '_r%.2f_'%(phi_rot)
         else :
             if phi_rot != 0. :
-                incrotob += 'r%.2f'%(phi_rot)
+                incrotob += 'r%.2f_'%(phi_rot)
 
     if Kcorr == True :
         if D1 == False :
-            s_m = '%sI_%s_%.1f_%s_%i_%ix%i_%i_%i%i_%s_%i_%s_%s_%s'\
+            s_m = '%sI_%s_%.1f_%s_%i_%ix%i_%i_%i%i_%s_%i_%s%s_%s'\
                 %(save_adress,s_n,version,name,D,reso_long,reso_lat,t,dim_bande,dim_gauss,h_range,r_step,incrotob,\
                   stud,domain)
         else :
