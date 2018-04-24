@@ -259,16 +259,16 @@ def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,
                 %(save_adress,s_n,version,name,D,reso_long,reso_lat,t,dim_bande,dim_gauss,h_range,r_step,incrotob,\
                   stud,domain)
         else :
-            s_m = '%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i%i_%s_%i_%s_%s_%s'\
+            s_m = '%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i%i_%s_%i_%s%s_%s'\
                 %(save_adress,s_n,version,name,D,long,lat,reso_long,reso_lat,t,dim_bande,dim_gauss,h_range,r_step,incrotob,\
                   stud,domain)
     else :
         if D1 == False :
-            s_m = "%sI_%s_%.1f_%s_%i_%ix%i_%i_%i_%s_%i_%s_%s_%s"\
+            s_m = "%sI_%s_%.1f_%s_%i_%ix%i_%i_%i_%s_%i_%s%s_%s"\
                 %(save_adress,s_n,version,name,D,reso_long,reso_lat,t,dim_bande,h_range,r_step,incrotob,\
                     stud,domain)
         else :
-            s_m = "%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i_%s_%i_%s_%s_%s"\
+            s_m = "%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i_%s_%i_%s%s_%s"\
                 %(save_adress,s_n,version,name,D,long,lat,reso_long,reso_lat,t,dim_bande,h_range,r_step,incrotob,\
                   stud,domain)
 
