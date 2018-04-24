@@ -132,7 +132,7 @@ import time
 
 
 def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x_species,M_species,c_species,m_species,ratio,Upper,composition,\
-          TopPressure,Inverse,Surf=True,Tracer=False,Clouds=False,Middle=False,LogInterp=False,TimeSelec=False,MassAtm=False,NoH2=False,TauREx=True,Rotate=True) :
+          TopPressure,Inverse,Surf=True,Tracer=False,Clouds=False,Middle=False,LogInterp=False,TimeSelec=False,MassAtm=False,NoH2=False,TauREx=True,Rotate=False) :
 
     if data != '' :
         file = Dataset("%s.nc"%(data))
@@ -760,7 +760,7 @@ def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x
 
 
 def NBoxes(data,n_layers,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x_species,M_species,c_species,m_species,ratio,Upper,composition,\
-          TopPressure,Inverse,Surf=True,Tracer=False,Clouds=False,Middle=False,LogInterp=False,TimeSelec=False,MassAtm=False,NoH2=False,TauREx=True,Rotate=True) :
+          TopPressure,Inverse,Surf=True,Tracer=False,Clouds=False,Middle=False,LogInterp=False,TimeSelec=False,MassAtm=False,NoH2=False,TauREx=True,Rotate=False) :
 
     if data != '' :
         file = Dataset("%s.nc"%(data))
@@ -1461,13 +1461,15 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
 
                     # x est la distance au centre et peut donc etre negatif comme positif, le 0 etant au terminateur
 
-                    if repeat == 1 :
-                        x = x_pos*x_step
+                    if Inclinaison == False :
+                        x = x_pos*x_step*(-1)**(repeat)
+                        x_range = int((x_reso-1)/2.) + x_pos*(-1)**(repeat)
+                    else :
+                        if repeat == 2 :
+                            x = x_pos*x_step
+                        if repeat == 1 :
+                            x = (x_pos)*x_step - int((x_reso-1)/2 -1)*x_step
                         x_range = int((x_reso-1)/2.) + x_pos
-                    if repeat == 2 :
-                        x = (x_pos)*x_step - int((x_reso-1)/2 -1)*x_step
-                        x_range = x_pos
-
 
                     # rho est la distance au centre de l'exoplanete du point de maille considere
                     rho = np.sqrt(r**2 + x**2)

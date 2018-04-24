@@ -463,7 +463,7 @@ def Boxes_interpolation(P,T,Q,Rp,g0,number,P_comp,T_comp,Q_comp,species,x_specie
 
 
 def Boxes_conversion(P,T,Q,gen,z,compo,delta_z,Rp,h,hmax,dim,g0,M_atm,number,T_comp,P_comp,Q_comp,x_species,M_species,ratio,rank,Upper,\
-                     species,m_species,composition,Tracer=False,Clouds=False,Middle=False,LogInterp=False,MassAtm=False,NoH2=False,Rotate=True) :
+                     species,m_species,composition,Tracer=False,Clouds=False,Middle=False,LogInterp=False,MassAtm=False,NoH2=False,Rotate=False) :
 
     n_t,n_l,n_lat,n_long = np.shape(P)
     data_convert = np.zeros((number,n_t,dim,n_lat,n_long),dtype=np.float64)
@@ -791,13 +791,15 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
 
                     # x est la distance au centre et peut donc etre negatif comme positif, le 0 etant au terminateur
 
-                    if repeat == 1 :
-                        x = x_pos*x_step
+                    if Inclinaison == False :
+                        x = x_pos*x_step*(-1)**(repeat)
+                        x_range = int((x_reso-1)/2.) + x_pos*(-1)**(repeat)
+                    else :
+                        if repeat == 2 :
+                            x = x_pos*x_step
+                        if repeat == 1 :
+                            x = (x_pos)*x_step - int((x_reso-1)/2 -1)*x_step
                         x_range = int((x_reso-1)/2.) + x_pos
-                    if repeat == 2 :
-                        x = (x_pos)*x_step - int((x_reso-1)/2 -1)*x_step
-                        x_range = x_pos
-
 
                     # rho est la distance au centre de l'exoplanete du point de maille considere
                     rho = np.sqrt(r**2 + x**2)
@@ -1306,7 +1308,7 @@ def dx_correspondance(p_grid,q_grid,z_grid,data,x_step,r_step,theta_step,Rp,g0,h
                                         center = 0
                                         z_1 = r
 
-                                    if mid == 1 and center == 2 :
+                                    elif mid == 1 and center == 2 :
                                         mid = 0
                                         center = 1
 
