@@ -75,7 +75,7 @@ else :
     long_lat[1,0:reso_lat+1] = np.linspace(-90*degpi,90.*degpi,reso_lat+1,dtype=np.float64)
     Inverse = 'False'
 
-alpha_step, delta_step = 2*np.pi/np.float(reso_long), np.pi/np.float(reso_lat)
+long_step, lat_step = 2*np.pi/np.float(reso_long), np.pi/np.float(reso_lat)
 
 # Proprietes de l'atmosphere
 
@@ -243,7 +243,7 @@ compo_type = np.array(['composition'])
 
 Cylindre = False        ###### Construit la maille cylindrique
 Inclinaison = False     ###### En presence d'une inclinaison par rapport au plan ecliptique, l'angle d'inclinaison est
-                             # defini positivement si le parametre d'impact est negatif et qu'elle passe en dessous de
+                             # defini positivement si le parametre d'impact est positif et qu'elle passe au dessus de
                              # l'etoile
 Obliquity = False       ###### Si l'exoplanete est inclinee
 

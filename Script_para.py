@@ -253,7 +253,7 @@ Parameters = True
 
 Cylindre = True        ###### Construit la maille cylindrique
 Inclinaison = False     ###### En presence d'une inclinaison par rapport au plan ecliptique, l'angle d'inclinaison est
-                             # defini positivement si le parametre d'impact est negatif et qu'elle passe en dessous de
+                             # defini positivement si le parametre d'impact est positif et qu'elle passe au dessus de
                              # l'etoile
 Obliquity = False       ###### Si l'exoplanete est inclinee
 

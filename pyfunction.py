@@ -35,6 +35,12 @@ import sys, time, os
     >> Fonctions d'accompagnement des fonctions de pygcmtreat (rendre la bibliotheque plus lisible et pouvoir ainsi
     la mettre a jour plus aisement)
 
+    Date de derniere modification : 23.03.2018
+
+    >> Allegement des noms de fichiers
+
+    Date de derniere modification : 23.04.2018
+
 """
 
 ########################################################################################################################
@@ -228,23 +234,42 @@ def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,
     if dimension == '3D' :
         D = 3
 
+    incrotob = ''
+    if inclinaison != 0. :
+        incrotob += 'i%.2f'%(inclinaison)
+        if phi_obli != 0. :
+            incrotob += '_o%.2f'%(phi_obli)
+            if phi_rot != 0. :
+                incrotob += '_r%.2f'%(phi_rot)
+        else :
+            if phi_rot != 0. :
+                incrotob += '_r%.2f'%(phi_rot)
+    else :
+        if phi_obli != 0. :
+            incrotob += 'o%.2f'%(phi_obli)
+            if phi_rot != 0. :
+                incrotob += '_r%.2f'%(phi_rot)
+        else :
+            if phi_rot != 0. :
+                incrotob += 'r%.2f'%(phi_rot)
+
     if Kcorr == True :
         if D1 == False :
-            s_m = '%sI_%s_%.1f_%s_%i_%ix%i_%i_%i%i_%s_%i_%.2f_%.2f_%.2f_%s_%s'\
-                %(save_adress,s_n,version,name,D,reso_long,reso_lat,t,dim_bande,dim_gauss,h_range,r_step,inclinaison,phi_rot,phi_obli,\
+            s_m = '%sI_%s_%.1f_%s_%i_%ix%i_%i_%i%i_%s_%i_%s_%s_%s'\
+                %(save_adress,s_n,version,name,D,reso_long,reso_lat,t,dim_bande,dim_gauss,h_range,r_step,incrotob,\
                   stud,domain)
         else :
-            s_m = '%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i%i_%s_%i_%.2f_%.2f_%.2f_%s_%s'\
-                %(save_adress,s_n,version,name,D,long,lat,reso_long,reso_lat,t,dim_bande,dim_gauss,h_range,r_step,inclinaison,phi_rot,phi_obli,\
+            s_m = '%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i%i_%s_%i_%s_%s_%s'\
+                %(save_adress,s_n,version,name,D,long,lat,reso_long,reso_lat,t,dim_bande,dim_gauss,h_range,r_step,incrotob,\
                   stud,domain)
     else :
         if D1 == False :
-            s_m = "%sI_%s_%.1f_%s_%i_%ix%i_%i_%i_%s_%i_%.2f_%.2f_%.2f_%s_%s"\
-                %(save_adress,s_n,version,name,D,reso_long,reso_lat,t,dim_bande,h_range,r_step,inclinaison,phi_rot,phi_obli,\
+            s_m = "%sI_%s_%.1f_%s_%i_%ix%i_%i_%i_%s_%i_%s_%s_%s"\
+                %(save_adress,s_n,version,name,D,reso_long,reso_lat,t,dim_bande,h_range,r_step,incrotob,\
                     stud,domain)
         else :
-            s_m = "%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i_%s_%i_%.2f_%.2f_%.2f_%s_%s"\
-                %(save_adress,s_n,version,name,D,long,lat,reso_long,reso_lat,t,dim_bande,h_range,r_step,inclinaison,phi_rot,phi_obli,\
+            s_m = "%sI_%s_%.1f_%s_%i_%i_%i_%ix%i_%i_%i_%s_%i_%s_%s_%s"\
+                %(save_adress,s_n,version,name,D,long,lat,reso_long,reso_lat,t,dim_bande,h_range,r_step,incrotob,\
                   stud,domain)
 
     return s_m
