@@ -70,23 +70,24 @@ def data_record(path,name_source,data_base,name_exo,aerosol,continuum,kcorr,cros
                     Q_fin[:,sh_1[1]:sh_1[1]+sh_2[1]] = Q_2
                     np.save('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo),Q_fin)
                     np.save('%sbande_cloud_%s.npy'%(directory,name_exo),bande_cloud)
+                else :
+                    print 'Aerosol data already recorded : %s'%(aerosol.nspecies[i_c])
                 i_dec += 1
             else :
                 if os.path.isfile('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo)) == False :
                     aerosol_file = '%saerosol_properties/optprop_%s.dat'%(data_base,aerosol.file_name[i_dec+i_c])
                     aerosol_data_read(aerosol_file,0,13,aerosol.nspecies[i_c],name_exo,directory,Save=True)
+                else :
+                    print 'Aerosol data already recorded : %s'%(aerosol.nspecies[i_c])
         all_species = ''
         for i_c in range(aerosol.number):
             all_species += '%s_'%(aerosol.nspecies[i_c])
-        if os.path.isfile('%sQ_%s%s.npy'%(directory,all_species,name_exo)) == False :
-            Q_f = np.load('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[0],name_exo))
-            sh = np.shape(Q_f)
-            Q_ext = np.zeros((aerosol.number,sh[0],sh[1]))
-            for i_c in range(aerosol.number):
-                Q_ext[i_c] = np.load('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo))
-            np.save('%sQ_%s%s.npy'%(directory,all_species,name_exo),Q_ext)
-        else :
-            print 'Aerosol data already recorded : %s'%(aerosol.nspecies[i_c])
+        Q_f = np.load('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[0],name_exo))
+        sh = np.shape(Q_f)
+        Q_ext = np.zeros((aerosol.number,sh[0],sh[1]))
+        for i_c in range(aerosol.number):
+            Q_ext[i_c] = np.load('%sQ_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo))
+        np.save('%sQ_%s%s.npy'%(directory,all_species,name_exo),Q_ext)
 
     k_cont_number = continuum.number
     if k_cont_number != 0 :
