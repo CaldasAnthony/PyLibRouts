@@ -300,7 +300,7 @@ ErrOr = False           ###### Si calculons le bruit de photon pour un instrumen
 detection = JWST()
 Noise = False           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
 resolution = 'low'
-Push = np.array([False,False,False,False])
+Push = np.array([True,True,True,True])
 ###### Si nous voulons forcer le code a faire les spcectres intermediaires meme s'ils existent
 
 ########################################################################################################################
