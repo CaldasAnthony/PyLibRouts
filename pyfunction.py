@@ -617,33 +617,34 @@ def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,nam
 
     bar = ProgressBar(2*dim+1,'Image generation')
 
-    for i in range(-dim,dim) :
+    for y in range(-dim,dim) :
 
-        for j in range(-dim,dim) :
-            rho = np.sqrt((i*param)**2 + (j*param)**2)
+        for x in range(-dim,dim) :
+            rho = np.sqrt((x*param)**2 + (y*param)**2)
 
             if rho <= R + h :
 
                 if rho >= R :
 
-                    theta = -math.atan2(i*param,j*param)
+                    theta = np.arctan2(y*param,x*param)
+                    if theta < 0 :
+                        theta = 2*np.pi + theta
 
-                    if theta >= 0 :
-                        theta_line = int(round(theta/theta_step))
-                    else :
-                        theta_line = theta_number + int(round(theta/theta_step))
-                        if theta_line == theta_number :
-                            theta_line = 0
+                    theta_line = int(round(theta/theta_step))
+                    if theta_line == theta_number :
+                        theta_line = 0
 
                     r = rho - R
                     r_line = int(round(r/r_step))
-                    I_png[i+dim,j+dim] = I[r_line,theta_line]
+                    if r_line >= int(h/r_step) :
+                        r_line = int(h/r_step)-1
+                    I_png[y+dim,x+dim] = I[r_line,theta_line]
 
                 else :
 
-                    I_png[i+dim,j+dim] = 'nan'
+                    I_png[y+dim,x+dim] = 'nan'
 
-        bar.animate(i+dim+1)
+        bar.animate(y+dim+1)
 
     x = np.arange(-dim*param,dim*param,param)
     y = -np.arange(-dim*param,dim*param,param)
