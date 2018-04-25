@@ -57,7 +57,6 @@ Record = False
 #Mp = 220.*M_T
 
 Rp = 0.246384689105*R_J
-print Rp/R_T
 Mp = 0.0206006322445*M_J
 g0 = G*Mp/(Rp**2)
 
@@ -474,7 +473,7 @@ for beta_rad in beta_rad_array :
 
     if Parameters == True :
 
-        if Cylindre == True :
+        if Cylindre == True and beta_rad == 0. :
 
             z_array = np.arange(h/np.float(delta_z)+1)*float(delta_z)
 
@@ -583,7 +582,7 @@ for beta_rad in beta_rad_array :
 
 ########################################################################################################################
 
-        if Corr == True :
+        if Corr == True and beta_rad == 0. :
 
                                         ###### Parallele encoding init ######
 
