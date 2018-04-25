@@ -1122,6 +1122,11 @@ for beta_rad in beta_rad_array :
 
         rank_ref = 0
 
+        Molecular = True       ###### Ne tiens pas compte de l'absorption moleculaire
+        Continuum = True       ###### Tiens compte de l'absorption par les collisions
+        Scattering = True      ###### Tiens compte de l'absorption par la diffusion
+        Clouds = False          ###### Tiens compte de l'absoprtion par les nuages
+
         # Le simulateur de spectre va decouper en bande de facon a limiter au maximum la saturation en memoire
         # Une option permet un decoupage supplementaire en the ta ou exclusivement en theta si les tableaux de donnees ne
         # sont pas trop importants.
