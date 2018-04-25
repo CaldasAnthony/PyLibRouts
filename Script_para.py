@@ -47,7 +47,7 @@ if diag_file == '' :
     information = information['params']
     reso_long, reso_lat = planet.longitude, planet.latitude
 
-t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.00, 0.00, 0.00
+t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.45, 0.00, 0.00
 
 Record = True
 
