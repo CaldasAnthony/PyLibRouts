@@ -254,7 +254,7 @@ compo_type = np.array(['tracer_other'])
 
 Parameters = True
 
-Corr = False            ###### Traite les parcours optiques
+Corr = True            ###### Traite les parcours optiques
 Integral = True        ###### Effectue l'integration sur les chemins optiques
 Cylindre = True        ###### Construit la maille cylindrique
 Gravity = False         ###### Pour travailler a gravite constante
@@ -277,7 +277,7 @@ TimeSelec = True       ###### Si nous etudions un temps precis de la simulation
 Cylindric_transfert_3D = True
 
 Molecular = True       ###### Ne tiens pas compte de l'absorption moleculaire
-Continuum = False       ###### Tiens compte de l'absorption par les collisions
+Continuum = True       ###### Tiens compte de l'absorption par les collisions
 Scattering = True      ###### Tiens compte de l'absorption par la diffusion
 Clouds = True          ###### Tiens compte de l'absoprtion par les nuages
 Single = "no"           ###### Isole une espece de nuage
