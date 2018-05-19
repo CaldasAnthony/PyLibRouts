@@ -546,12 +546,12 @@ if Parameters == True :
 
                                         ###### Parallele encoding end ######
 
-                if rank == 0 :
-                    np.save("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"
-                        %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]),pdx_grid)
-                    print 'Reconstitution of the integrated density grid finished with success'
-                    del pdx_grid, pdx_grid_ne
-                del pdx_grid_n
+            if rank == 0 :
+                np.save("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"
+                    %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]),pdx_grid)
+                print 'Reconstitution of the integrated density grid finished with success'
+                del pdx_grid, pdx_grid_ne
+            del pdx_grid_n
 
 
     comm.Barrier()
