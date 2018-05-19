@@ -377,6 +377,7 @@ if Parameters == True :
             if rank == 0 :
                 np.save("%s%s/%s/q_lat_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                     reso_alt,r_step,obs[0],obs[1]),q_lat_grid)
+                print 'Reconstitution of the latitude grid finished with success'
                 del q_lat_grid, q_lat_grid_ne
             del q_lat_grid_n
 
@@ -409,6 +410,7 @@ if Parameters == True :
             if rank == 0 :
                 np.save("%s%s/%s/q_long_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                         reso_alt,r_step,obs[0],obs[1]),q_long_grid)
+                print 'Reconstitution of the longitude grid finished with success'
                 del q_long_grid, q_long_grid_ne
             del q_long_grid_n
 
@@ -441,6 +443,7 @@ if Parameters == True :
             if rank == 0 :
                 np.save("%s%s/%s/q_z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                         reso_alt,r_step,phi_rot,phi_obli),q_z_grid)
+                print 'Reconstitution of the altitude grid finished with success'
                 del q_z_grid, q_z_grid_ne
             del q_z_grid_n
 
@@ -456,7 +459,7 @@ if Parameters == True :
                 elif rank == 0 and r_n == 0 :
                     sh_grid = np.shape(q_zh_grid_n)
                     q_zh_grid = np.ones((n_layers+1,theta_number,x_size),dtype=np.float64)
-                    q_zh_grid[n_level_rank,:,:sh_grid[2]] = q_z_grid_n
+                    q_zh_grid[n_level_rank,:,:sh_grid[2]] = q_zh_grid_n
                 elif r_n != 0 and rank == 0 :
                     sh_grid_ne = np.zeros(3,dtype=np.int)
                     comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=30)
@@ -471,6 +474,7 @@ if Parameters == True :
             if rank == 0 :
                 np.save("%s%s/%s/q_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                         reso_alt,r_step,phi_rot,phi_obli),q_zh_grid)
+                print 'Reconstitution of the integral altitude grid finished with success'
                 del q_zh_grid, q_zh_grid_ne
             del q_zh_grid_n
 
@@ -508,6 +512,8 @@ if Parameters == True :
                             reso_lat,reso_alt,r_step,obs[0],obs[1]),dx_grid_opt)
                 np.save("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
                             reso_lat,reso_alt,r_step,obs[0],obs[1]),order_grid)
+                print 'Reconstitution of the sub-path length grid finished with success'
+                print 'Reconstitution of the order grid finished with success'
                 del dx_grid_opt, dx_grid_opt_ne
                 del order_grid, order_grid_ne
             del dx_grid_opt_n
@@ -543,6 +549,7 @@ if Parameters == True :
                 if rank == 0 :
                     np.save("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"
                         %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]),pdx_grid)
+                    print 'Reconstitution of the integrated density grid finished with success'
                     del pdx_grid, pdx_grid_ne
                 del pdx_grid_n
 
