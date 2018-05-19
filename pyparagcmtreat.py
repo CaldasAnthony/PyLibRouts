@@ -1231,8 +1231,8 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                 if size_max < size :
                     size_max = size
 
-            if rank == 0 :
-                bar.animate(i_r)
+        if rank == 0 :
+            bar.animate(i_r)
 
         q_lat_grid = q_lat_grid[:,:,:size_max]
         q_long_grid = q_long_grid[:,:,:size_max]
