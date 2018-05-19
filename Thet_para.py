@@ -344,10 +344,6 @@ if Parameters == True :
 
         if rank == 0 :
             x_size = np.amax(length)
-            dx_grid_opt = np.zeros((n_layers+1,theta_number,x_size),dtype=np.float64)
-            order_grid = np.zeros((3,n_layers+1,theta_number,x_size),dtype=np.int)
-            dx_grid_opt[n_level_rank,:,:length[0]] = dx_grid_opt_n
-            order_grid[:,n_level_rank,:,:length[0]] = order_grid_n
 
         comm.Barrier()
 
@@ -365,6 +361,7 @@ if Parameters == True :
                     sh_grid = np.array(np.shape(q_lat_grid_n),dtype=np.int)
                     comm.Send([sh_grid,MPI.INT],dest=0,tag=3)
                     comm.Send([n_level_rank,MPI.INT],dest=0,tag=4)
+                    print q_lat_grid_n
                     comm.Send([q_lat_grid_n,MPI.INT],dest=0,tag=5)
                 elif rank == 0 and r_n != 0 :
                     sh_grid_ne = np.zeros(3,dtype=np.int)

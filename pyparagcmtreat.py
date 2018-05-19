@@ -923,7 +923,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
     q_lat_grid = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
     q_long_grid = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
     q_z_grid = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
-    q_zh_grid = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
+    q_zh_grid = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.float64)*(-1)
     dx_grid_opt = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.float64)*(-1)
 
     size_max = 0
