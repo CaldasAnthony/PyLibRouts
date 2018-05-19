@@ -930,7 +930,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
 
     if Cylindric == True :
         if rank == 0 :
-        bar = ProgressBar(n_lay_rank.size,'Transposition on the cylindric stitch : ')
+            bar = ProgressBar(n_lay_rank.size,'Transposition on the cylindric stitch : ')
 
         for i_r in range(n_lay_rank.size) :
 
