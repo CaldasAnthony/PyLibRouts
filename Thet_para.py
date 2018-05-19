@@ -387,6 +387,7 @@ if Parameters == True :
             for r_n in range(number_rank) :
                 if rank != 0 and r_n == 0 :
                     sh_grid = np.array(np.shape(q_long_grid_n),dtype=np.int)
+                    q_long_grid_n = np.array(q_long_grid_n,dtype=np.int)
                     comm.Send([sh_grid,MPI.INT],dest=0,tag=20)
                     comm.Send([n_level_rank,MPI.INT],dest=0,tag=21)
                     comm.Send([q_long_grid_n,MPI.INT],dest=0,tag=22)
@@ -418,6 +419,7 @@ if Parameters == True :
             for r_n in range(number_rank) :
                 if rank != 0 and r_n == 0 :
                     sh_grid = np.array(np.shape(q_z_grid_n),dtype=np.int)
+                    q_z_grid_n = np.array(q_z_grid_n,dtype=np.int)
                     comm.Send([sh_grid,MPI.INT],dest=0,tag=10)
                     comm.Send([n_level_rank,MPI.INT],dest=0,tag=11)
                     comm.Send([q_z_grid_n,MPI.INT],dest=0,tag=12)
@@ -447,6 +449,7 @@ if Parameters == True :
             for r_n in range(number_rank) :
                 if rank != 0 and r_n == 0 :
                     sh_grid = np.array(np.shape(q_zh_grid_n),dtype=np.int)
+                    q_long_grid_n = np.array(q_long_grid_n,dtype=np.float64)
                     comm.Send([sh_grid,MPI.INT],dest=0,tag=30)
                     comm.Send([n_level_rank,MPI.INT],dest=0,tag=31)
                     comm.Send([q_zh_grid_n,MPI.DOUBLE],dest=0,tag=32)
