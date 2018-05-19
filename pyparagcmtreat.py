@@ -953,6 +953,8 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                 delta = B**2. - 4.*A*C
                 if delta < 0. :
                     delta = 0
+                    if rank == 0 :
+                        print 'Correction on delta'
 
                 if long_obs > -np.pi/2. and long_obs < np.pi/2. :
                     if theta >= 0. and theta <= np.pi :
@@ -1050,19 +1052,25 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                             C_phi = r**2*np.sin(lat_o)**2 - Z[i_theta]**2
                             Delta = B_phi**2 - 4*A_phi*C_phi
                             if lat_o > np.pi/2. :
-                                d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                                if mod == 1 :
-                                    if lat_o < np.pi :
-                                        d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                                    if lat_o < lat_lim_init :
-                                        d_lat[i_la] = 'nan'
+                                if Delta >= 0. :
+                                    d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                    if mod == 1 :
+                                        if lat_o < np.pi :
+                                            d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                        if lat_o < lat_lim_init :
+                                            d_lat[i_la] = 'nan'
+                                else :
+                                    d_lat[i_la] = 'nan'
                             else :
-                                d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                                if mod == 1 :
-                                    if lat_o < 0. :
-                                        d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                                    if lat_o < lat_lim_end :
-                                        d_lat[i_la] = 'nan'
+                                if Delta >= 0. :
+                                    d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                    if mod == 1 :
+                                        if lat_o < 0. and Delta >= 0. :
+                                            d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                        if lat_o < lat_lim_end :
+                                            d_lat[i_la] = 'nan'
+                                else :
+                                    d_lat[i_la] = 'nan'
 
                             #print reso_lat - lat_obs*reso_lat/np.pi
 
@@ -1072,19 +1080,25 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                         C_phi = r**2*np.sin(lat_o)**2 - Z[i_theta]**2
                         Delta = B_phi**2 - 4*A_phi*C_phi
                         if lat_o > np.pi/2. :
-                            d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                            if mod == 1 :
-                                if lat_o < np.pi :
-                                    d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                                if lat_o < lat_lim_init :
-                                    d_lat[i_la] = 'nan'
+                            if Delta >= 0. :
+                                d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                if mod == 1 :
+                                    if lat_o < np.pi :
+                                        d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                    if lat_o < lat_lim_init :
+                                        d_lat[i_la] = 'nan'
+                            else :
+                                d_lat[i_la] = 'nan'
                         else :
-                            d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                            if mod == 1 :
-                                if lat_o < 0. :
-                                    d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
-                                if lat_o < lat_lim_end :
-                                    d_lat[i_la] = 'nan'
+                            if Delta >= 0. :
+                                d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                if mod == 1 :
+                                    if lat_o < 0. :
+                                        d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                    if lat_o < lat_lim_end :
+                                        d_lat[i_la] = 'nan'
+                            else :
+                                d_lat[i_la] = 'nan'
 
                         #print reso_lat - lat_obs*reso_lat/np.pi
                     if d_lat[i_la] > L or d_lat[i_la] < -L :
