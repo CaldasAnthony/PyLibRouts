@@ -361,7 +361,7 @@ if Parameters == True :
                     sh_grid = np.array(np.shape(q_lat_grid_n),dtype=np.int)
                     comm.Send([sh_grid,MPI.INT],dest=0,tag=3)
                     comm.Send([n_level_rank,MPI.INT],dest=0,tag=4)
-                    wh, = np.where(q_lat_grid_n == 'nan')
+                    wh, = np.where(np.str(q_lat_grid_n) == 'nan')
                     print wh
                     comm.Send([q_lat_grid_n,MPI.INT],dest=0,tag=5)
                 elif rank == 0 and r_n != 0 :
