@@ -78,7 +78,6 @@ def trans2fert3D (k_rmd,k_cont_rmd,k_sca_rmd,k_cloud_rmd,Rp,h,g0,r_step,theta_st
                   Tracer=False,Continuum=True,Molecular=False,Scattering=True,Clouds=True,Kcorr=True,\
                   Rupt=False,Module=False,Integral=False,TimeSel=False) :
 
-    print np.shape(dx_grid)
     r_size,theta_size,x_size = np.shape(dx_grid)
     number_size,t_size,z_size,lat_size,long_size = np.shape(data)
 
