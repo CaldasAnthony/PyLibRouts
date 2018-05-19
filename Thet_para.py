@@ -362,10 +362,6 @@ if Parameters == True :
                     q_lat_grid_n = np.array(q_lat_grid_n,dtype=np.int)
                     comm.Send([sh_grid,MPI.INT],dest=0,tag=3)
                     comm.Send([n_level_rank,MPI.INT],dest=0,tag=4)
-                    for i in range(sh_grid[0]) :
-                        for j in range(sh_grid[1]) :
-                            for k in range(sh_grid[2]) :
-                                print q_lat_grid_n[i,j,k]
                     comm.Send([q_lat_grid_n,MPI.INT],dest=0,tag=5)
                 elif rank == 0 and r_n != 0 :
                     sh_grid_ne = np.zeros(3,dtype=np.int)
