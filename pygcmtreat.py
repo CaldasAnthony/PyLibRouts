@@ -762,6 +762,7 @@ def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x
 def NBoxes(data,n_layers,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x_species,M_species,c_species,m_species,ratio,Upper,composition,\
           TopPressure,Inverse,Surf=True,Tracer=False,Clouds=False,Middle=False,LogInterp=False,TimeSelec=False,MassAtm=False,NoH2=False,TauREx=True,Rotate=False) :
 
+    print TauREx
     if data != '' :
         file = Dataset("%s.nc"%(data))
         variables = file.variables
@@ -1107,8 +1108,6 @@ def NBoxes(data,n_layers,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species
 
     delta_z = h/np.float(n_layers)
     dim = n_layers+2
-
-    np.save('/Users/caldas/Desktop/Pytmosph3R/ParaCompare/z.npy',z)
 
     if TopPressure == 'Mean' or TopPressure == 'No' :
         M_mean = np.nansum(M[:,n_l-1,:,:])/(n_t*n_lat*n_long)
@@ -1575,1225 +1574,410 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
 ########################################################################################################################
 
 
-def dx_correspondance(p_grid,q_grid,z_grid,data,x_step,r_step,theta_step,Rp,g0,h,t,reso_long,reso_lat,Middle=False,\
-                      Integral=True,Discret=True,Gravity=False,Ord=False) :
+def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,Middle=False,Cylindric=True,Integral=True,Gravity=False) :
 
-    r_size,theta_size,x_size = np.shape(p_grid)
-    number,t_size,z_size,lat_size,long_size = np.shape(data)
-    # Sur le parcours d'un rayon lumineux, dx indique les distances parcourue dans chaque cellule de la maille spherique
-    # qu'il traverse, order permet de retrouver l'indice des cellules traversees, dx_opt fourni une evaluation plus
-    # precise de ces distances (dx donnant des distances en multiple de x_step)
-    dx_init = np.ones((r_size,theta_size,x_size),dtype = 'int')*(-1)
-    order_init = np.ones((6,r_size,theta_size,x_size),dtype = 'int')*(-1)
-    dx_init_opt = np.ones((r_size,theta_size,x_size),dtype = 'float')*(-1)
-    if Integral == True :
-        pdx_init = np.ones((r_size,theta_size,x_size),dtype = 'float')*(-1)
+    lat_obs,long_obs = obs[0], obs[1]
 
-    len_ref = 0
+    Z = np.zeros(theta_number)
+    Y = np.zeros(theta_number)
+    X = np.zeros(theta_number)
 
-    bar = ProgressBar(r_size,'Correspondance for the optical path progression')
+    q_lat_grid = np.ones((n_layers+1,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
+    q_long_grid = np.ones((n_layers+1,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
+    q_z_grid = np.ones((n_layers+1,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
+    q_zh_grid = np.ones((n_layers+1,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
+    dx_grid_opt = np.ones((n_layers+1,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.float64)*(-1)
 
-    for i in range(r_size) :
+    bar = ProgressBar(n_layers,'Transposition on the cylindric stitch : ')
+    size_max = 0
 
-        r = (i+0.5)*r_step
+    if Cylindric == True :
+        for i_r in range(n_layers) :
 
-        for j in range(theta_size) :
+            if Middle == True :
+                r = Rp + (i_r+0.5)*delta_r
+            else :
+                r = Rp + (i_r)*delta_r
+            L = np.sqrt((Rp+h)**2 - r**2)
 
-            x = 0
-            y = 0
-            zone, = np.where(p_grid[i,j,:] >= 0)
-            # L est la moitie de la distance totale que peux parcourir le rayon dans l'atmosphere a r et theta donne
-            L = np.sqrt((Rp+h)**2 - (Rp+r)**2)
-            Lmax = zone.size*x_step/2.
-            # dist nous permet de localiser si le rayon a depasse ou non le terminateur
-            dist = 0
+            for i_theta in range(theta_number) :
 
-            for k in zone :
+                theta = i_theta*np.pi/np.float(reso_lat)
 
-                # On incremente dist de x_step sauf pour le premier indice, de cette maniere, les formules pour dist < Lmax
-                # restent valables dans le cas ou soit z, soit lat, soit long au terminateur est different au terminateur
-                # des pas precedents. Si ce n'est pas le cas, alors on passera automatiquement sur les formules dist > Lmax
+                Z[i_theta] = r*np.cos(theta)*np.cos(lat_obs)
 
-                dist += x_step
+                A = 1.
+                B = 2*r*np.cos(theta)*np.sin(lat_obs)*np.sin(long_obs)
+                C = r**2*(np.cos(theta)**2*(np.sin(lat_obs)**2 + np.cos(lat_obs)**2*np.cos(long_obs)**2) - np.cos(long_obs)**2)
 
-                if dist < Lmax :
-                    mid = 0
-                    mid_y = 0
-                    passe = 0
-                else :
-                    if dist == Lmax + x_step/2. :
-                        mid = 2
-                        mid_y = 2
-                        passe = 1
+                delta = B**2. - 4.*A*C
+                if delta < 0. :
+                    delta = 0
+
+                if long_obs > -np.pi/2. and long_obs < np.pi/2. :
+                    if theta >= 0. and theta <= np.pi :
+                        Y[i_theta] = (-B - np.sqrt(delta))/(2.*A)
                     else :
-                        passe = 0
-
-                if k == zone[0] :
-
-                    deb = int(zone[0])
-                    z_2 = h
-
+                        Y[i_theta] = (-B + np.sqrt(delta))/(2.*A)
                 else :
-
-                    # Si z, lat ou long du pas k est different de z, lat ou long du pas precedent
-
-                    if p_grid[i,j,k] != p_grid[i,j,k-1] or q_grid[i,j,k] != q_grid[i,j,k-1] or z_grid[i,j,k] != z_grid[i,j,k-1] or passe == 1 :
-
-                        mess = ''
-                        fin = int(k - 1)
-                        dx_init[i,j,x] = fin - deb + 1
-                        deb = int(k)
-
-                        if Integral == True :
-
-                            if dist < Lmax :
-
-                                if z_grid[i,j,k] != z_grid[i,j,k-1] :
-
-                                    z_1 = z_grid[i,j,k]*r_step
-                                    mess += 'z'
-
-                                    if p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                        z_1_2 = (Rp+r)*(np.sin(j*theta_step)/(np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat))))-Rp
-                                        mess += 'and p'
-
-                                    else :
-
-                                        z_1_2 = -1
-
-
-                                    if q_grid[i,j,k] != q_grid[i,j,k-1] :
-
-                                        z_1_3 = np.sqrt(1+(np.cos(j*theta_step)/np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi))**2)*(Rp+r) - Rp
-                                        mess += 'and q'
-
-                                    else :
-
-                                        z_1_3 = -1
-
-                                    if z_1_2 != -1 or z_1_3 != -1 :
-                                        if z_1_2 != -1 :
-                                            if z_1_3 != -1 :
-                                                z_ref = np.array([z_1,z_1_2,z_1_3])
-                                                ind = np.zeros((3,3),dtype='int')
-
-                                                wh, = np.where(z_ref == np.amax(z_ref))
-                                                z_1 = z_ref[wh[0]]
-                                                ind[wh[0],:] = np.array([0,1,1])
-                                                wh, = np.where(z_ref == np.amin(z_ref))
-                                                z_1_3 = z_ref[wh[0]]
-                                                wh, = np.where((z_ref!=np.amax(z_ref))*(z_ref!=np.amin(z_ref)))
-                                                z_1_2 = z_ref[wh[0]]
-                                                ind[wh[0],:] = np.array([0,0,1])
-
-                                                z_ref = np.array([z_1,z_1_2,z_1_3])
-
-                                                for i_z in range(3) :
-
-                                                    M_1 = data[number-1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]
-                                                    T_1 = data[1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]
-
-                                                    if Gravity == False :
-                                                        g_1 = g0/(1+z_ref[i_z]/Rp)**2
-                                                        g_0 = g0/((1+(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step/Rp)*(1+z_ref[i_z]/Rp))
-                                                        P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_ref[i_z])))*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-                                                    else :
-                                                        g_1 = g0
-                                                        P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-
-                                                    if np.str(integ[0]) == 'inf' :
-                                                        pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2))
-                                                        print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                    else :
-                                                        pdx_init[i,j,x] += integ[0]
-
-                                                    z_2 = z_ref[i_z]
-
-                                                    if Ord == True :
-                                                        order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]],k,ind[:,i_z],[1,1,1])
-
-                                                    x = x + 1
-                                                x = x - 1
-
-                                            else :
-
-                                                z_ref = np.array([z_1,z_1_2])
-                                                ind = np.zeros((2,2),dtype='int')
-
-                                                wh, = np.where(z_ref == np.amax(z_ref))
-                                                z_1 = z_ref[wh[0]]
-                                                ind[wh[0],:] = np.array([0,1])
-                                                wh, = np.where(z_ref == np.amin(z_ref))
-                                                z_1_2 = z_ref[wh[0]]
-
-                                                z_ref = np.array([z_1,z_1_2])
-
-                                                for i_z in range(2) :
-
-                                                    M_1 = data[number-1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]
-                                                    T_1 = data[1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]
-
-                                                    if Gravity == False :
-                                                        g_1 = g0/(1+z_ref[i_z]/Rp)**2
-                                                        g_0 = g0/((1+(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step/Rp)*(1+z_ref[i_z]/Rp))
-                                                        P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_ref[i_z])))*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-                                                    else :
-                                                        g_1 = g0
-                                                        P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-
-                                                    if np.str(integ[0]) == 'inf' :
-                                                        pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2))
-                                                        print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                    else :
-                                                        pdx_init[i,j,x] += integ[0]
-
-                                                    z_2 = z_ref[i_z]
-
-                                                    if Ord == True :
-                                                        order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1],k,ind[:,i_z],[1,1,0])
-
-                                                    x = x + 1
-                                                x = x - 1
-
-                                        else :
-
-                                            z_ref = np.array([z_1,z_1_3])
-                                            ind = np.zeros((2,2),dtype='int')
-
-                                            wh, = np.where(z_ref == np.amax(z_ref))
-                                            z_1 = z_ref[wh[0]]
-                                            ind[wh[0],:] = np.array([0,1])
-                                            wh, = np.where(z_ref == np.amin(z_ref))
-                                            z_1_3 = z_ref[wh[0]]
-
-                                            z_ref = np.array([z_1,z_1_3])
-
-                                            for i_z in range(2) :
-
-                                                M_1 = data[number-1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]
-                                                T_1 = data[1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]
-
-                                                if Gravity == False :
-                                                    g_1 = g0/(1+z_ref[i_z]/Rp)**2
-                                                    g_0 = g0/((1+(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step/Rp)*(1+z_ref[i_z]/Rp))
-                                                    P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_ref[i_z])))*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-                                                else :
-                                                    g_1 = g0
-                                                    P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-
-                                                if np.str(integ[0]) == 'inf' :
-                                                    pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2))
-                                                    print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                else :
-                                                    pdx_init[i,j,x] += integ[0]
-
-                                                z_2 = z_ref[i_z]
-
-                                                if Ord == True :
-                                                    order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]],k,ind[:,i_z],[1,0,1])
-
-                                                x = x + 1
-                                            x = x - 1
-
-                                    else :
-
-                                        M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                        T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                        if Gravity == False :
-                                            g_1 = g0/(1+z_1/Rp)**2
-                                            g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                        else :
-                                            g_1 = g0
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                        if np.str(integ[0]) == 'inf' :
-                                            pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                            print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                        else :
-                                            pdx_init[i,j,x] = integ[0]
-
-                                        z_2 = z_1
-
-                                        if Ord == True :
-                                            order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                else :
-
-                                    if p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                        z_1 = (Rp+r)*(np.sin(j*theta_step)/(np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat))))-Rp
-                                        mess += 'p'
-
-                                        if q_grid[i,j,k] != q_grid[i,j,k-1] :
-
-                                            z_1_2 = np.sqrt(1+(np.cos(j*theta_step)/np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi))**2)*(Rp+r) - Rp
-                                            mess += 'and q'
-                                            z_ref = np.array([z_1,z_1_2])
-                                            ind = np.zeros((2,2),dtype='int')
-
-                                            wh, = np.where(z_ref == np.amax(z_ref))
-                                            z_1 = z_ref[wh[0]]
-                                            ind[wh[0],:] = np.array([0,1])
-                                            wh, = np.where(z_ref == np.amin(z_ref))
-                                            z_1_2 = z_ref[wh[0]]
-
-                                            z_ref = np.array([z_1,z_1_2])
-
-                                            for i_z in range(2) :
-
-                                                M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]
-                                                T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]
-
-                                                if Gravity == False :
-                                                    g_1 = g0/(1+z_ref[i_z]/Rp)**2
-                                                    g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_ref[i_z]/Rp))
-                                                    P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_ref[i_z])))*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-                                                else :
-                                                    g_1 = g0
-                                                    P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_ref[i_z]-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_ref[i_z]+z)/(np.sqrt((Rp+z_ref[i_z]+z)**2-(Rp+r)**2)),0,z_2-z_ref[i_z])
-
-                                                if np.str(integ[0]) == 'inf' :
-                                                    pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2))
-                                                    print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                else :
-                                                    pdx_init[i,j,x] += integ[0]
-
-                                                z_2 = z_ref[i_z]
-
-                                                if Ord == True :
-                                                    order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]],k,ind[:,i_z],[0,1,1])
-
-                                                x = x + 1
-                                            x = x - 1
-
-                                        else :
-
-                                            M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                            T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                            if Gravity == False :
-                                                g_1 = g0/(1+z_1/Rp)**2
-                                                g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                            else :
-                                                g_1 = g0
-                                                P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                            if np.str(integ[0]) == 'inf' :
-                                                pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                            else :
-                                                pdx_init[i,j,x] = integ[0]
-
-                                            z_2 = z_1
-
-                                            if Ord == True :
-                                                order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                    else :
-
-                                        z_1 = np.sqrt(1+(np.cos(j*theta_step)/np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi))**2)*(Rp+r) - Rp
-                                        mess += 'q'
-                                        M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                        T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                        if Gravity == False :
-                                            g_1 = g0/(1+z_1/Rp)**2
-                                            g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                        else :
-                                            g_1 = g0
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                        if np.str(integ[0]) == 'inf' :
-                                            pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                            print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                        else :
-                                            pdx_init[i,j,x] = integ[0]
-
-                                        z_2 = z_1
-
-                                        if Ord == True :
-                                            order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
+                    if theta >= 0. and theta <= np.pi :
+                        Y[i_theta] = (-B + np.sqrt(delta))/(2.*A)
+                    else :
+                        Y[i_theta] = (-B - np.sqrt(delta))/(2.*A)
+
+                X[i_theta] = -(r*np.sin(lat_obs)*np.cos(theta)/(np.cos(long_obs)) + Y[i_theta]*np.tan(long_obs))
+
+                # Calcul des points de reference de l'entree dans l'atmosphere
+                rho_ref = Rp + h
+
+                lat_ref_init = np.arcsin((Z[i_theta] - L*np.sin(lat_obs))/(rho_ref))
+                lat_ref_end = np.arcsin((Z[i_theta] + L*np.sin(lat_obs))/(rho_ref))
+                lat_lim_init = np.pi - (Z[i_theta]/(np.cos(lat_obs)))/(rho_ref)
+                lat_lim_end = (Z[i_theta]/(np.cos(lat_obs)))/(rho_ref)
+                q_lat_ref_init = np.int(np.round((lat_ref_init)/(np.pi/np.float(reso_lat)))) + reso_lat/2
+                q_lat_ref_end = np.int(np.round((lat_ref_end)/(np.pi/np.float(reso_lat)))) + reso_lat/2
+
+                long_ref_end = np.arctan2(Y[i_theta] + L*np.cos(lat_obs)*np.sin(long_obs),X[i_theta] + L*np.cos(lat_obs)*np.cos(long_obs))
+                long_ref_init = np.arctan2(Y[i_theta] - L*np.cos(lat_obs)*np.sin(long_obs),X[i_theta] - L*np.cos(lat_obs)*np.cos(long_obs))
+                q_long_ref_init = np.int(np.round((long_ref_init)/(2*np.pi/np.float(reso_long))))
+                q_long_ref_end = np.int(np.round((long_ref_end)/(2*np.pi/np.float(reso_long))))
+                if q_long_ref_init < 0 :
+                    q_long_ref_init += reso_long
+                if q_long_ref_end < 0 :
+                    q_long_ref_end += reso_long
+
+                if long_ref_end >= np.pi/2. or long_ref_end <= -np.pi/2. :
+                    q_lat_ref_end = 2*reso_lat - q_lat_ref_end - 1
+                if long_ref_init >= np.pi/2. or long_ref_init <= -np.pi/2. :
+                    q_lat_ref_init = 2*reso_lat - q_lat_ref_init - 1
+
+                ############################### Resolution des positions des niveaux ###########################################
+
+                d_z = np.zeros(n_layers+1)
+                n_l = np.ones(n_layers+1,dtype=np.int)*(-1)
+                for i_l in range(i_r+1,n_layers+1) :
+                    d_z[i_l] = np.sqrt((Rp + i_l*delta_r)**2 - r**2)
+                    n_l[i_l] = i_l
+
+                wh, = np.where(d_z != 0)
+                d_z = d_z[wh]
+                n_l = n_l[wh]
+
+                ############################### Resolution des positions de la latitude ########################################
+
+                d_lat = np.ones(reso_lat*2)*(-1)
+                n_lat = np.ones(reso_lat*2,dtype=np.int)*(-1)
+                mod = 0
+
+                if np.sin(lat_ref_init)*np.sin(lat_ref_end) >= 0. :
+                    if np.abs(q_lat_ref_end-q_lat_ref_init) < reso_lat :
+                        q_init = np.amin(np.array([q_lat_ref_init,q_lat_ref_end])) - 1
+                        q_end = np.amax(np.array([q_lat_ref_init,q_lat_ref_end])) + 1
+                        q_range = np.arange(q_init,q_end+1,1,dtype=np.int)
+                    if np.abs(q_lat_ref_end-q_lat_ref_init) > reso_lat :
+                        q_init = np.amin(np.array([q_lat_ref_init,q_lat_ref_end])) + 1
+                        q_end = np.amax(np.array([q_lat_ref_init,q_lat_ref_end])) - 1
+                        q_range = np.append(np.arange(q_end,2*reso_lat,1,dtype=np.int), np.arange(0,q_init+1,1,dtype=np.int))
+                else :
+                    if q_lat_ref_init == reso_lat/2 or q_lat_ref_end == reso_lat/2 :
+                        if np.abs(q_lat_ref_end-q_lat_ref_init) < reso_lat :
+                            q_init = np.amin(np.array([q_lat_ref_init,q_lat_ref_end])) - 1
+                            q_end = np.amax(np.array([q_lat_ref_init,q_lat_ref_end])) + 1
+                            q_range = np.arange(q_init,q_end+1,1,dtype=np.int)
+                        if np.abs(q_lat_ref_end-q_lat_ref_init) > reso_lat :
+                            q_init = np.amin(np.array([q_lat_ref_init,q_lat_ref_end])) + 1
+                            q_end = np.amax(np.array([q_lat_ref_init,q_lat_ref_end])) - 1
+                            q_range = np.append(np.arange(q_end,2*reso_lat,1,dtype=np.int), np.arange(0,q_init+1,1,dtype=np.int))
+                    else :
+                        q_init = np.amin(np.array([q_lat_ref_init,q_lat_ref_end]))
+                        q_init_mir = 2*reso_lat - q_init - 1
+                        q_end = np.amax(np.array([q_lat_ref_init,q_lat_ref_end]))
+                        q_end_mir = 2*reso_lat - q_end - 1
+                        q_range = np.append(np.arange(np.amin(np.array([q_end_mir,q_init])),np.amax(np.array([q_end_mir,q_init]))+1,1,dtype=np.int),\
+                                            np.arange(np.amin(np.array([q_init_mir,q_end])),np.amax(np.array([q_init_mir,q_end]))+1,1,dtype=np.int))
+                        mod = 1
+
+                for i_la in q_range :
+                    lat_o = -np.pi/2. + (i_la + 0.5)*np.pi/np.float(reso_lat)
+                    if theta == np.pi/2. or theta == 3*np.pi/2. :
+                        if lat_obs == 0 :
+                            if i_la == 0 :
+                                d_lat = np.array([])
+                                n_lat = np.array([])
+                        else:
+                            A_phi = np.sin(lat_o)**2 - np.sin(lat_obs)**2
+                            B_phi = -2*Z[i_theta]*np.sin(lat_obs)
+                            C_phi = r**2*np.sin(lat_o)**2 - Z[i_theta]**2
+                            Delta = B_phi**2 - 4*A_phi*C_phi
+                            if lat_o > np.pi/2. :
+                                d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                if mod == 1 :
+                                    if lat_o < np.pi :
+                                        d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                    if lat_o < lat_lim_init :
+                                        d_lat[i_la] = 'nan'
                             else :
-
-                                if mid == 2 :
-
-                                    if p_grid[i,j,k] != p_grid[i,j,k-1] or q_grid[i,j,k] != q_grid[i,j,k-1] or z_grid[i,j,k] != z_grid[i,j,k-1] :
-
-                                        if p_grid[i,j,k] != p_grid[i,j,k+1] or q_grid[i,j,k] != q_grid[i,j,k+1] or z_grid[i,j,k] != z_grid[i,j,k+1] :
-                                            z_1 = np.sqrt((Rp+r)**2+(x_step/2.)**2) - Rp
-                                            mid = 1
-                                            center = 2
-                                        else :
-                                            z_1 = np.sqrt((Rp+r)**2+(x_step/2.)**2) - Rp
-                                            mid = 1
-                                            center = 1
-
-                                    else :
-
-                                        z_1 = r
-                                        mid = 1
-                                        center = 0
-
-                                else :
-
-                                    if mid == 1 and center != 2 :
-                                        mid = 0
-                                        center = 0
-                                        z_1 = r
-
-                                    if mid == 1 and center == 2 :
-                                        mid = 0
-                                        center = 1
-
-                                if mid == 1 :
-
-                                    if center == 1 or center == 2 :
-
-                                        M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                        T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                        if Gravity == False :
-                                            g_1 = g0/(1+z_1/Rp)**2
-                                            g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                        else :
-                                            g_1 = g0
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                        if np.str(integ[0]) == 'inf' :
-                                            pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                            print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                        else :
-                                            pdx_init[i,j,x] = integ[0]
-
-                                        if Ord == True :
-                                            order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                        x = x + 1
-
-                                        z_2 = z_1
-                                        z_1 = r
-
-                                        T_1 = data[1,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
-                                        P_1 = data[0,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
-                                        M_1 = data[number-1,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
-                                        if Gravity == False :
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                        else :
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                        if np.str(integ[0]) == 'inf' :
-                                            pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                            print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                        else :
-                                            pdx_init[i,j,x] += integ[0]
-
-                                        if Ord == True :
-                                            order_init[:,i,j,x] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
-
-                                        if center == 2 :
-
-                                            x = x + 1
-
-                                            T_1 = data[1,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
-                                            P_1 = data[0,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
-                                            M_1 = data[number-1,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
-                                            if Gravity == False :
-                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                            else :
-                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                            if np.str(integ[0]) == 'inf' :
-                                                pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                            else :
-                                                pdx_init[i,j,x] += integ[0]
-
-                                            if Ord == True :
-                                                order_init[:,i,j,x] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
-
-                                    else :
-
-                                        M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                        T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                        if Gravity == False :
-                                            g_1 = g0/(1+z_1/Rp)**2
-                                            g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                        else :
-                                            g_1 = g0
-                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                        if np.str(integ[0]) == 'inf' :
-                                            pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                            print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                        else :
-                                            pdx_init[i,j,x] = integ[0]
-
-                                        if Ord == True :
-                                            order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                    z_1 = z_2
-
-                                else :
-
-                                    if center != 1 :
-
-                                        if z_grid[i,j,k] != z_grid[i,j,k-1] :
-                                            z_2 = z_grid[i,j,k-1]*r_step
-                                            mess += 'z'
-
-                                            if p_grid[i,j,k] != p_grid[i,j,k-1] :
-                                                z_2_2 = (Rp+r)*(np.sin(j*theta_step)/(np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat))))-Rp
-                                                mess += 'and p'
-                                            else :
-                                                z_2_2 = -1
-
-                                            if q_grid[i,j,k] != q_grid[i,j,k-1] :
-                                                z_2_3 = np.sqrt(1+(np.cos(j*theta_step)/np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi))**2)*(Rp+r) - Rp
-                                                mess += 'and q'
-                                            else :
-                                                z_2_3 = -1
-
-                                            if z_2_2 != -1 or z_2_3 != -1 :
-                                                if z_2_2 != -1 :
-                                                    if z_2_3 != -1 :
-                                                        z_ref = np.array([z_2,z_2_2,z_2_3])
-                                                        ind = np.zeros((3,3),dtype='int')
-
-                                                        wh, = np.where(z_ref == np.amin(z_ref))
-                                                        z_2 = z_ref[wh[0]]
-                                                        ind[wh[0],:] = np.array([0,1,1])
-                                                        wh, = np.where(z_ref == np.amax(z_ref))
-                                                        z_2_3 = z_ref[wh[0]]
-                                                        wh, = np.where((z_ref!=np.amax(z_ref))*(z_ref!=np.amin(z_ref)))
-                                                        z_2_2 = z_ref[wh[0]]
-                                                        ind[wh[0],:] = np.array([0,0,1])
-
-                                                        z_ref = np.array([z_2,z_2_2,z_2_3])
-
-                                                        for i_z in range(3) :
-
-                                                            M_1 = data[number-1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]
-                                                            T_1 = data[1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]
-
-                                                            if Gravity == False :
-                                                                g_1 = g0/(1+z_1/Rp)**2
-                                                                g_0 = g0/((1+(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                                P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-                                                            else :
-                                                                g_1 = g0
-                                                                P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-
-                                                            if np.str(integ[0]) == 'inf' :
-                                                                pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                                print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                            else :
-                                                                pdx_init[i,j,x] += integ[0]
-
-                                                            z_1 = z_ref[i_z]
-
-                                                            if Ord == True :
-                                                                order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1+ind[2,i_z]],k,ind[:,i_z],[1,1,1])
-
-                                                            x = x + 1
-                                                        x = x - 1
-
-                                                    else :
-
-                                                        z_ref = np.array([z_2,z_2_2])
-                                                        ind = np.zeros((2,2),dtype='int')
-
-                                                        wh, = np.where(z_ref == np.amin(z_ref))
-                                                        z_2 = z_ref[wh[0]]
-                                                        ind[wh[0],:] = np.array([0,1])
-                                                        wh, = np.where(z_ref == np.amax(z_ref))
-                                                        z_2_2 = z_ref[wh[0]]
-
-                                                        z_ref = np.array([z_2,z_2_2])
-
-                                                        for i_z in range(2) :
-
-                                                            M_1 = data[number-1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]
-                                                            T_1 = data[1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]
-
-                                                            if Gravity == False :
-                                                                g_1 = g0/(1+z_1/Rp)**2
-                                                                g_0 = g0/((1+(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                                P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-                                                            else :
-                                                                g_1 = g0
-                                                                P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-
-                                                            if np.str(integ[0]) == 'inf' :
-                                                                pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                                print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                            else :
-                                                                pdx_init[i,j,x] += integ[0]
-
-                                                            z_1 = z_ref[i_z]
-
-                                                            if Ord == True :
-                                                                order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1+ind[1,i_z]],q_grid[i,j,k-1],k,ind[:,i_z],[1,1,0])
-
-                                                            x = x + 1
-                                                        x = x - 1
-
-                                                else :
-
-                                                    z_ref = np.array([z_2,z_2_3])
-                                                    ind = np.zeros((2,2),dtype='int')
-
-                                                    wh, = np.where(z_ref == np.amin(z_ref))
-                                                    z_2 = z_ref[wh[0]]
-                                                    ind[wh[0],:] = np.array([0,1])
-                                                    wh, = np.where(z_ref == np.amax(z_ref))
-                                                    z_2_3 = z_ref[wh[0]]
-
-                                                    z_ref = np.array([z_2,z_2_3])
-
-                                                    for i_z in range(2) :
-
-                                                        M_1 = data[number-1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]
-                                                        T_1 = data[1,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]
-
-                                                        if Gravity == False :
-                                                            g_1 = g0/(1+z_1/Rp)**2
-                                                            g_0 = g0/((1+(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                            P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-                                                        else :
-                                                            g_1 = g0
-                                                            P_1 = data[0,t,z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1+ind[0,i_z]]-0.5)*r_step))
-                                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-
-                                                        if np.str(integ[0]) == 'inf' :
-                                                            pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                            print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                        else :
-                                                            pdx_init[i,j,x] += integ[0]
-
-                                                        z_1 = z_ref[i_z]
-
-                                                        if Ord == True :
-                                                            order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1+ind[0,i_z]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,i_z]],k,ind[:,i_z],[1,0,1])
-
-                                                        x = x + 1
-                                                    x = x - 1
-
-                                            else :
-
-                                                M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                                T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                                if Gravity == False :
-                                                    g_1 = g0/(1+z_1/Rp)**2
-                                                    g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                    P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                                else :
-                                                    g_1 = g0
-                                                    P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                                if np.str(integ[0]) == 'inf' :
-                                                    pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                    print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                else :
-                                                    pdx_init[i,j,x] = integ[0]
-
-                                                z_1 = z_2
-
-                                                if Ord == True :
-                                                    order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                        else :
-
-                                            if p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                                z_2 = (Rp+r)*(np.sin(j*theta_step)/(np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat))))-Rp
-                                                mess += 'p'
-
-                                                if q_grid[i,j,k] != q_grid[i,j,k-1] :
-
-                                                    z_2_2 = np.sqrt(1+(np.cos(j*theta_step)/np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi))**2)*(Rp+r) - Rp
-                                                    mess += 'and q'
-
-                                                    z_ref = np.array([z_2,z_2_2])
-                                                    ind = np.zeros((2,2),dtype='int')
-
-                                                    wh, = np.where(z_ref == np.amin(z_ref))
-                                                    z_2 = z_ref[wh[0]]
-                                                    ind[wh[0],:] = np.array([0,1])
-                                                    wh, = np.where(z_ref == np.amax(z_ref))
-                                                    z_2_2 = z_ref[wh[0]]
-
-                                                    z_ref = np.array([z_2,z_2_2])
-
-                                                    for i_z in range(2) :
-
-                                                        M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]
-                                                        T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]
-
-                                                        if Gravity == False :
-                                                            g_1 = g0/(1+z_1/Rp)**2
-                                                            g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-                                                        else :
-                                                            g_1 = g0
-                                                            P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                            integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_ref[i_z]-z_1)
-
-                                                        if np.str(integ[0]) == 'inf' :
-                                                            pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_ref[i_z])**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                            print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                        else :
-                                                            pdx_init[i,j,x] += integ[0]
-
-                                                        z_1 = z_ref[i_z]
-
-                                                        if Ord == True :
-                                                            order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,i_z]],q_grid[i,j,k-1+ind[1,i_z]],k,ind[:,i_z],[0,1,1])
-
-                                                        x = x + 1
-                                                    x = x - 1
-
-                                                else :
-
-                                                    M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                                    T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                                    if Gravity == False :
-                                                        g_1 = g0/(1+z_1/Rp)**2
-                                                        g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                        P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                                    else :
-                                                        g_1 = g0
-                                                        P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                                    if np.str(integ[0]) == 'inf' :
-                                                        pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                        print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                    else :
-                                                        pdx_init[i,j,x] = integ[0]
-
-                                                    z_1 = z_2
-
-                                                    if Ord == True :
-                                                        order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                            else :
-
-                                                z_2 = np.sqrt(1+(np.cos(j*theta_step)/np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi))**2)*(Rp+r) - Rp
-                                                mess += 'q'
-
-                                                M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                                                T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                                                if Gravity == False :
-                                                    g_1 = g0/(1+z_1/Rp)**2
-                                                    g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                                    P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                                                else :
-                                                    g_1 = g0
-                                                    P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                                    integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                                                if np.str(integ[0]) == 'inf' :
-                                                    pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                                    print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                                                else :
-                                                    pdx_init[i,j,x] = integ[0]
-
-                                                z_1 = z_2
-
-                                                if Ord == True :
-                                                    order_init[:,i,j,x] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                    else :
-
-                                        x = x - 1
-                                        center = 0
-
-
-                        if Discret == True :
-
-                            if dist < Lmax :
-                                # Comme z(k) < z(k-1), on resoud pythagore avec la distance au centre de l'exoplanete egale a
-                                # Rp + z(k)*r_step et r = Rp + (i+0.5)*r_step puisque les rayons sont tires au milieu des couches
-
-                                if z_grid[i,j,k] != z_grid[i,j,k-1] :
-
-                                    if q_grid[i,j,k] != q_grid[i,j,k-1] and p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                        x_pre_1 = np.sqrt(2*Rp*r_step*(z_grid[i,j,k] - i - 0.5) + r_step**2*(z_grid[i,j,k]**2 - (i+0.5)**2))
-                                        x_pre_2 = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-                                        x_pre_3 = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                        x_ref = np.array([x_pre_1,x_pre_2,x_pre_3])
-                                        ind = np.zeros((3,3),dtype='int')
-
-                                        max, = np.where(x_ref == np.amax(x_ref))
-                                        ind[max,:] = np.array([0,1,1])
-                                        min, = np.where(x_ref == np.amin(x_ref))
-                                        mid, = np.where((x_ref != np.amax(x_ref))*(x_ref != np.amin(x_ref)))
-                                        ind[mid,:] = np.array([0,0,1])
-
-                                        dx_init_opt[i,j,y] = L - x_ref[max]
-                                        L -= dx_init_opt[i,j,y]
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,0]],p_grid[i,j,k-1+ind[1,0]],q_grid[i,j,k-1+ind[2,0]],k,ind[:,0],[1,1,1])
-                                        y = y + 1
-
-                                        dx_init_opt[i,j,y] = L - x_ref[mid]
-                                        delta = L - x_ref[mid]
-                                        L -= delta
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,1]],p_grid[i,j,k-1+ind[1,1]],q_grid[i,j,k-1+ind[2,1]],k,ind[:,1],[1,1,1])
-                                        y = y + 1
-
-                                        dx_init_opt[i,j,y] = L - x_ref[min]
-                                        delta = L - x_ref[min]
-                                        L -= delta
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,2]],p_grid[i,j,k-1+ind[1,2]],q_grid[i,j,k-1+ind[2,2]],k,ind[:,2],[1,1,1])
-
-                                    else :
-
-                                        if q_grid[i,j,k] != q_grid[i,j,k-1] :
-
-                                            x_pre_1 = np.sqrt(2*Rp*r_step*(z_grid[i,j,k] - i - 0.5) + r_step**2*(z_grid[i,j,k]**2 - (i+0.5)**2))
-                                            x_pre_2 = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                            x_ref = np.array([x_pre_1,x_pre_2])
-                                            ind = np.zeros((2,2),dtype='int')
-
-                                            max, = np.where(x_ref == np.amax(x_ref))
-                                            ind[max,:] = np.array([0,1])
-                                            min, = np.where(x_ref == np.amin(x_ref))
-
-                                            dx_init_opt[i,j,y] = L - x_ref[max]
-                                            L -= dx_init_opt[i,j,y]
-                                            order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,0]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,0]],k,ind[:,0],[1,0,1])
-                                            y = y + 1
-
-                                            dx_init_opt[i,j,y] = L - x_ref[min]
-                                            delta = L - x_ref[min]
-                                            L -= delta
-                                            order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,1]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,1]],k,ind[:,1],[1,0,1])
-
-                                        else :
-
-                                            if p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                                x_pre_1 = np.sqrt(2*Rp*r_step*(z_grid[i,j,k] - i - 0.5) + r_step**2*(z_grid[i,j,k]**2 - (i+0.5)**2))
-                                                x_pre_2 = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-
-                                                x_ref = np.array([x_pre_1,x_pre_2])
-                                                ind = np.zeros((2,2),dtype='int')
-
-                                                max, = np.where(x_ref == np.amax(x_ref))
-                                                ind[max,:] = np.array([0,1])
-                                                min, = np.where(x_ref == np.amin(x_ref))
-
-                                                dx_init_opt[i,j,y] = L - x_ref[max]
-                                                L -= dx_init_opt[i,j,y]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,0]],p_grid[i,j,k-1+ind[1,0]],q_grid[i,j,k-1],k,ind[:,0],[1,1,0])
-                                                y = y + 1
-
-                                                dx_init_opt[i,j,y] = L - x_ref[min]
-                                                delta = L - x_ref[min]
-                                                L -= delta
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,1]],p_grid[i,j,k-1+ind[1,1]],q_grid[i,j,k-1],k,ind[:,1],[1,1,0])
-
-                                            else :
-
-                                                x_pre = np.sqrt(2*Rp*r_step*(z_grid[i,j,k] - i - 0.5) + r_step**2*(z_grid[i,j,k]**2 - (i+0.5)**2))
-
-                                                dx_init_opt[i,j,y] = L - x_pre
-                                                L -= dx_init_opt[i,j,y]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                else :
-
-                                    if q_grid[i,j,k] != q_grid[i,j,k-1] and p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                        x_pre_1 = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-                                        x_pre_2 = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                        x_ref = np.array([x_pre_1,x_pre_2])
-                                        ind = np.zeros((2,2),dtype='int')
-
-                                        max, = np.where(x_ref == np.amax(x_ref))
-                                        ind[max,:] = np.array([0,1])
-                                        min, = np.where(x_ref == np.amin(x_ref))
-
-                                        dx_init_opt[i,j,y] = L - x_ref[max]
-                                        L -= dx_init_opt[i,j,y]
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,0]],q_grid[i,j,k-1+ind[1,0]],k,ind[:,0],[0,1,1])
-                                        y = y + 1
-
-                                        dx_init_opt[i,j,y] = L - x_ref[min]
-                                        delta = L - x_ref[min]
-                                        L -= delta
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,1]],q_grid[i,j,k-1+ind[1,1]],k,ind[:,1],[0,1,1])
-
-                                    else :
-
-                                        if q_grid[i,j,k] != q_grid[i,j,k-1] :
-
-                                            x_pre = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                            dx_init_opt[i,j,y] = L - x_pre
-                                            L -= dx_init_opt[i,j,y]
-                                            order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                        else :
-
-                                            if p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                                x_pre = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-
-                                                dx_init_opt[i,j,y] = L - x_pre
-                                                L -= dx_init_opt[i,j,y]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                            else :
-                                # Lorsque le rayon a passe le terminateur, le premier changement de cellule permet de
-                                # calculer la distance parcourue au sein de la cellule du terminateur, comme z(k) > z(k-1)
-                                # on resoud pythagore avec Rp + z(k-1)*r_step
-
-                                if mid_y == 2 :
-
-                                    if p_grid[i,j,k] != p_grid[i,j,k-1] or q_grid[i,j,k] != q_grid[i,j,k-1] or z_grid[i,j,k] != z_grid[i,j,k-1] :
-
-                                        dx_init_opt[i,j,y] = L - x_step/2.
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-                                        y = y + 1
-
-                                        dx_init_opt[i,j,y] = x_step/2.
-                                        dx_init[i,j,y] = 1
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
-                                        y = y + 1
-
-                                        dx_init_opt[i,j,y] = x_step/2.
-                                        dx_init[i,j,y] = 1
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
-                                        mid_y = 1
-
-                                        if p_grid[i,j,k] != p_grid[i,j,k+1] or q_grid[i,j,k] != q_grid[i,j,k+1] or z_grid[i,j,k] != z_grid[i,j,k+1] :
-                                            center_y = 2
-                                        else :
-                                            center_y = 1
-
-                                    else :
-                                        # Au premier passage, le x_pre n'est que la moitie du parcours dans la cellule du
-                                        # terminateur, donc on double x_pre
-                                        dx_init_opt[i,j,y] = L
-                                        order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-                                        mid_y = 1
-
-                                        if p_grid[i,j,k] != p_grid[i,j,k+1] or q_grid[i,j,k] != q_grid[i,j,k+1] or z_grid[i,j,k] != z_grid[i,j,k+1] :
-                                            center_y = 2
-                                        else :
-                                            center_y = 0
-                                else :
-
-                                    if mid_y == 0 :
-
-                                        center_y = 0
-
-                                    if mid_y == 1 :
-
-                                        if center_y == 0 :
-                                            ex = 0
-                                            mid_y = 0
-
-                                        if center_y == 1 :
-                                            ex = x_step/2.
-                                            mid_y = 0
-
-                                        if center_y == 2 :
-                                            y = y - 1
-                                            ex = x_step/2.
-                                            mid_y = 0
-
-                                    if z_grid[i,j,k] != z_grid[i,j,k-1] and center_y != 2 :
-
-                                        if q_grid[i,j,k] != q_grid[i,j,k-1] or p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                            if q_grid[i,j,k] != q_grid[i,j,k-1] and p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                                x_pre_1 = np.sqrt(2*Rp*r_step*(z_grid[i,j,k-1] - i - 0.5) + r_step**2*(z_grid[i,j,k-1]**2 - (i+0.5)**2))
-                                                x_pre_2 = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-                                                x_pre_3 = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                                x_ref = np.array([x_pre_1,x_pre_2,x_pre_3])
-                                                ind = np.zeros((3,3),dtype='int')
-
-                                                max, = np.where(x_ref == np.amax(x_ref))
-                                                min, = np.where(x_ref == np.amin(x_ref))
-                                                ind[min,:] = np.array([0,1,1])
-                                                mid, = np.where((x_ref != np.amax(x_ref))*(x_ref != np.amin(x_ref)))
-                                                ind[mid,:] = np.array([0,0,1])
-
-                                                dx_init_opt[i,j,y] = x_ref[min] - ex
-                                                ex = x_ref[min]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,0]],p_grid[i,j,k-1+ind[1,0]],q_grid[i,j,k-1+ind[2,0]],k,ind[:,0],[1,1,1])
-                                                y = y + 1
-
-                                                dx_init_opt[i,j,y] = x_ref[mid] - ex
-                                                ex = x_ref[mid]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,1]],p_grid[i,j,k-1+ind[1,1]],q_grid[i,j,k-1+ind[2,1]],k,ind[:,1],[1,1,1])
-                                                y = y + 1
-
-                                                dx_init_opt[i,j,y] = x_ref[max] - ex
-                                                ex = x_ref[max]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,2]],p_grid[i,j,k-1+ind[1,2]],q_grid[i,j,k-1+ind[2,2]],k,ind[:,2],[1,1,1])
-
-                                            else :
-
-                                                if q_grid[i,j,k] != q_grid[i,j,k-1] :
-
-                                                    x_pre_1 = np.sqrt(2*Rp*r_step*(z_grid[i,j,k-1] - i - 0.5) + r_step**2*(z_grid[i,j,k-1]**2 - (i+0.5)**2))
-                                                    x_pre_2 = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                                    x_ref = np.array([x_pre_1,x_pre_2])
-                                                    ind = np.zeros((2,2),dtype='int')
-
-                                                    max, = np.where(x_ref == np.amax(x_ref))
-                                                    min, = np.where(x_ref == np.amin(x_ref))
-                                                    ind[min,:] = np.array([0,1])
-
-                                                    dx_init_opt[i,j,y] = x_ref[min] - ex
-                                                    ex = x_ref[min]
-                                                    order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,0]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,0]],k,ind[:,0],[1,0,1])
-                                                    y = y + 1
-
-                                                    dx_init_opt[i,j,y] = x_ref[max] - ex
-                                                    ex = x_ref[max]
-                                                    order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,1]],p_grid[i,j,k-1],q_grid[i,j,k-1+ind[1,1]],k,ind[:,1],[1,0,1])
-
-                                                else :
-
-                                                    x_pre_1 = np.sqrt(2*Rp*r_step*(z_grid[i,j,k-1] - i - 0.5) + r_step**2*(z_grid[i,j,k-1]**2 - (i+0.5)**2))
-                                                    x_pre_2 = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-
-                                                    x_ref = np.array([x_pre_1,x_pre_2])
-                                                    ind = np.zeros((2,2),dtype='int')
-
-                                                    max, = np.where(x_ref == np.amax(x_ref))
-                                                    min, = np.where(x_ref == np.amin(x_ref))
-                                                    ind[min,:] = np.array([0,1])
-
-                                                    dx_init_opt[i,j,y] = x_ref[min] - ex
-                                                    ex = x_ref[min]
-                                                    order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,0]],p_grid[i,j,k-1+ind[1,0]],q_grid[i,j,k-1],k,ind[:,0],[1,1,0])
-                                                    y = y + 1
-
-                                                    dx_init_opt[i,j,y] = x_ref[max] - ex
-                                                    ex = x_ref[max]
-                                                    order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1+ind[0,1]],p_grid[i,j,k-1+ind[1,1]],q_grid[i,j,k-1],k,ind[:,1],[1,1,0])
-
-                                        else :
-
-                                            x_pre = np.sqrt(2*Rp*r_step*(z_grid[i,j,k-1] - i - 0.5) + r_step**2*(z_grid[i,j,k-1]**2 - (i+0.5)**2))
-
-                                            dx_init_opt[i,j,y] = x_pre - ex
-                                            ex = x_pre
-                                            order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                    else :
-
-                                        if center_y != 2 :
-
-                                            if q_grid[i,j,k] != q_grid[i,j,k-1] and p_grid[i,j,k] != p_grid[i,j,k-1] :
-
-                                                x_pre_1 = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-                                                x_pre_2 = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                                x_ref = np.array([x_pre_1,x_pre_2])
-                                                ind = np.zeros((2,2),dtype='int')
-
-                                                max, = np.where(x_ref == np.amax(x_ref))
-                                                min, = np.where(x_ref == np.amin(x_ref))
-                                                ind[min,:] = np.array([0,1])
-
-                                                dx_init_opt[i,j,y] = x_ref[min] - ex
-                                                ex = x_ref[min]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,0]],q_grid[i,j,k-1+ind[1,0]],k,ind[:,0],[0,1,1])
-                                                y = y + 1
-
-                                                dx_init_opt[i,j,y] = x_ref[max] - ex
-                                                ex = x_ref[max]
-                                                order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1+ind[0,1]],q_grid[i,j,k-1+ind[1,1]],k,ind[:,1],[0,1,1])
-
-                                            else :
-
-                                                if q_grid[i,j,k] != q_grid[i,j,k-1] :
-
-                                                    x_pre = np.abs((Rp+(i+0.5)*r_step)*np.cos(j*theta_step)/(np.tan(((q_grid[i,j,k]+q_grid[i,j,k-1])/np.float(reso_long)-1)*np.pi)))
-
-                                                    dx_init_opt[i,j,y] = x_pre - ex
-                                                    ex = x_pre
-                                                    order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                                                else :
-
-                                                    x_pre = np.sqrt(((np.sin(j*theta_step)/np.sin((p_grid[i,j,k]+p_grid[i,j,k-1]-reso_lat)/2.*np.pi/np.float(reso_lat)))**2 - 1)*(Rp+(i+0.5)*r_step)**2)
-
-                                                    dx_init_opt[i,j,y] = x_pre - ex
-                                                    ex = x_pre
-                                                    order_init[:,i,j,y] = order_assign(z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1],k,np.array([]),[0,0,0])
-
-                        y = y + 1
-                        x = x + 1
-
-                        # Les calculs sur z sont privilegies lorsque a la fois z et lat et/ou long changent entre deux pas
-                        # successifs
-
-                if k == zone[zone.size - 1] :
-
-                    # Si le dernier point n'appartient pas a la meme cellule de la maille spherique que le precedent, nous
-                    # avons alors calcule la distance parcourue dans l'autre cellule, mais pas la distance parcourue dans celle
-                    # -ci, donc il faut ajouter un dernier dx
-
-                    if p_grid[i,j,k] != p_grid[i,j,k-1] or q_grid[i,j,k] != q_grid[i,j,k-1] or z_grid[i,j,k] != z_grid[i,j,k-1] and k != zone[0]:
-
-                        dx_init[i,j,x] = 1
-
-                        if Integral == True :
-
-                            z_2 = h
-
-                            M_1 = data[number-1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-                            T_1 = data[1,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]
-
-                            if Gravity == False :
-                                g_1 = g0/(1+z_1/Rp)**2
-                                g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                            else :
-                                g_1 = g0
-                                P_1 = data[0,t,z_grid[i,j,k-1],p_grid[i,j,k-1],q_grid[i,j,k-1]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k-1]-0.5)*r_step))
-                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-
-                            if np.str(integ[0]) == 'inf' :
-                                pdx_init[i,j,x] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                            else :
-                                pdx_init[i,j,x] = integ[0]
-
-                            if Ord == True :
-                                order_init[:,i,j,x] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
-
-                            #print(mess,i,j,k,z_1,z_2,integ[0])
-
-                        if Discret == True :
-
-                            L = np.sqrt((Rp+h)**2 - (Rp+r)**2)
-
-                            dx_init_opt[i,j,y] = L - ex
-                            order_init[:,i,j,y] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
-
-                        # Si le dernier point appartient a la meme cellule que le precedent, nous n'avons pas encore calcule
-                        # la distance parcourue dans cette cellule, elle est donc egale a Lmax moins le x_pre calcule
-                        # au dernier changement de cellule
+                                d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                if mod == 1 :
+                                    if lat_o < 0. :
+                                        d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                    if lat_o < lat_lim_end :
+                                        d_lat[i_la] = 'nan'
+
+                            #print reso_lat - lat_obs*reso_lat/np.pi
 
                     else :
+                        A_phi = np.sin(lat_o)**2 - np.sin(lat_obs)**2
+                        B_phi = -2*Z[i_theta]*np.sin(lat_obs)
+                        C_phi = r**2*np.sin(lat_o)**2 - Z[i_theta]**2
+                        Delta = B_phi**2 - 4*A_phi*C_phi
+                        if lat_o > np.pi/2. :
+                            d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                            if mod == 1 :
+                                if lat_o < np.pi :
+                                    d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                if lat_o < lat_lim_init :
+                                    d_lat[i_la] = 'nan'
+                        else :
+                            d_lat[i_la] = np.amax(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                            if mod == 1 :
+                                if lat_o < 0. :
+                                    d_lat[i_la] = np.amin(np.array([(-B_phi - np.sqrt(Delta))/(2.*A_phi),(-B_phi + np.sqrt(Delta))/(2.*A_phi)]))
+                                if lat_o < lat_lim_end :
+                                    d_lat[i_la] = 'nan'
 
-                        fin = int(k)
-                        dx_init[i,j,x] = fin - deb + 1
+                        #print reso_lat - lat_obs*reso_lat/np.pi
+                    if d_lat[i_la] > L or d_lat[i_la] < -L :
+                        d_lat[i_la] = 'nan'
+                    if np.str(d_lat[i_la]) == 'nan' :
+                        n_lat[i_la] = -1
+                    else :
+                        n_lat[i_la] = i_la
 
-                        if Integral == True :
+                wh, = np.where(n_lat != -1)
+                n_lat = n_lat[wh]
+                d_lat = d_lat[wh]
 
-                            z_2 = h
+                qq = np.argsort(d_lat)
+                d_lat = np.sort(d_lat)
+                n_lat = n_lat[qq]
 
-                            M_1 = data[number-1,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
-                            T_1 = data[1,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]
+                wh_la, = np.where(n_lat >= reso_lat)
+                n_lat[wh_la] = 2*reso_lat - 1 - n_lat[wh_la]
 
-                            if Gravity == False :
-                                g_1 = g0/(1+z_1/Rp)**2
-                                g_0 = g0/((1+(z_grid[i,j,k-1]-0.5)*r_step/Rp)*(1+z_1/Rp))
-                                P_1 = data[0,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]*np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(z_grid[i,j,k]-1.5)*r_step))
-                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
-                            else :
-                                g_1 = g0
-                                P_1 = data[0,t,z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k]]*np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(z_grid[i,j,k]-1.5)*r_step))
-                                integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*(Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
+                ############################### Resolution des positions de la latitude ########################################
 
-                            if np.str(integ[0]) == 'inf' :
-                                pdx_init[i,j,x] += P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                                print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i,j,k,pdx_init[i,j,x])), 'initial result', integ[0]
-                            else :
-                                pdx_init[i,j,x] += integ[0]
+                d_long = np.ones(reso_long)*(-1)
+                n_long = np.ones(reso_long,dtype=np.int)*(-1)
+                q_init = np.amin(np.array([q_long_ref_init,q_long_ref_end]))
+                q_end = np.amax(np.array([q_long_ref_init,q_long_ref_end]))
+                for i_lo in range(q_init,q_end+1) :
+                    long_o = (i_lo + 0.5)*2*np.pi/np.float(reso_long)
 
-                            if Ord == True :
-                                order_init[:,i,j,x] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
+                    if theta == 0. or theta == np.pi :
+                        if i_lo == 0 :
+                            d_long[i_lo] = -L
+                            d_long[i_lo+1] = 0.
+                            d_long[i_lo+2] = L
 
-                            mess += 'end'
+                            n_long[i_lo] = q_long_ref_init
+                            n_long[i_lo+1] = q_long_ref_end
+                            n_long[i_lo+2] = q_long_ref_end
+                    else :
+                        d_long[i_lo] = (Y[i_theta] - X[i_theta]*np.tan(long_o))/(np.cos(lat_obs)*(np.cos(long_obs)*np.tan(long_o)-np.sin(long_obs)))
 
-                            #print(mess,i,j,k,z_1,z_2,integ[0])
+                        if d_long[i_lo] > L or d_long[i_lo] < -L :
+                            d_long[i_lo] = 'nan'
+                        if np.str(d_long[i_lo]) == 'nan' :
+                            n_long[i_lo] = -1
+                        else :
+                            n_long[i_lo] = i_lo
 
-                        if Discret == True :
+                wh, = np.where(n_long != -1)
 
-                            L = np.sqrt((Rp+h)**2 - (Rp+r)**2)
+                if wh.size != 0 :
+                    d_long = d_long[wh]
+                    n_long = n_long[wh]
+                else :
+                    d_long = np.array([])
+                    n_long = np.array([])
 
-                            if x != 1 :
-                                dx_init_opt[i,j,y] = L - ex
-                            else :
-                                dx_init_opt[i,j,y] = L
-                            order_init[:,i,j,y] = order_assign(z_grid[i,j,k],p_grid[i,j,k],q_grid[i,j,k],k+1,np.array([]),[0,0,0])
+                ####################################### Assignation des coordonnees ############################################
 
-            # len_ref permet de redimensionner les tableaux
+                d = np.append(-d_z,np.append(d_z,np.append(d_long,d_lat)))
+                n = np.append(n_l,np.append(n_l+1,np.append(1000+n_long,100+n_lat)))
 
-            len = np.where(order_init[0,i,j,:] != -1)[0].size
+                q_ind = np.argsort(d)
+                d = np.sort(d)
+                n = n[q_ind]
 
-            if len > len_ref :
+                if q_lat_ref_init >= reso_lat :
+                    q_lat_ref_init = 2*reso_lat - 1 - q_lat_ref_init
+                if q_lat_ref_end >= reso_lat :
+                    q_lat_ref_end = 2*reso_lat - 1 - q_lat_ref_end
 
-                len_ref = len
+                q_z = np.ones(d.size,dtype=np.int)*(-1)
+                q_zh = np.ones(d.size,dtype=np.int)*(-1)
+                dx_opt = np.ones(d.size,dtype=np.float64)*(-1)
+                q_lat = np.ones(d.size,dtype=np.int)*(-1)
+                q_long = np.ones(d.size,dtype=np.int)*(-1)
 
-        bar.animate(i+1)
+                q_z[0] = n_layers
+                q_long[0] = q_long_ref_init
+                q_lat[0] = q_lat_ref_init
+                q_zh[0] = n_layers*delta_r
 
-    dx_grid = dx_init[:,:,0:len_ref]
-    order_grid = order_init[:,:,:,0:len_ref]
-    dx_grid_opt = dx_init_opt[:,:,0:len_ref]
-    if Integral == True :
-        pdx_grid = pdx_init[:,:,0:len_ref]
+                for i_d in range(1,d.size) :
+                    if n[i_d] < 100 :
+                        q_z[i_d] = n[i_d]
+                        q_zh[i_d] = n[i_d]*delta_r
+
+                        lat_step = np.arcsin((Z[i_theta]+(d[i_d]-10)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-10)**2)))
+                        q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
+
+                        long_step = np.arctan2(Y[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.cos(long_obs))
+                        q_long[i_d] = np.int(np.round((long_step)/(2*np.pi)*reso_long))
+                        if q_long[i_d] < 0 :
+                            q_long[i_d] += reso_long
+
+                    else :
+                        lat_step = np.arcsin((Z[i_theta]+(d[i_d]-10)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-10)**2)))
+                        q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
+
+                        long_step = np.arctan2(Y[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.cos(long_obs))
+                        q_long[i_d] = np.int(np.round((long_step)/(2*np.pi)*reso_long))
+                        if q_long[i_d] < 0 :
+                            q_long[i_d] += reso_long
+
+                        q_zh[i_d] = (Z[i_theta]+d[i_d]*np.sin(lat_obs))/(np.sin(lat_step)) - Rp
+
+                        q_z[i_d] = q_z[i_d - 1]
+
+                    if q_long[i_d] == reso_long :
+                        q_long[i_d] = 0
+
+                    dx_opt[i_d] = np.abs(d[i_d]-d[i_d - 1])
+
+
+                wh, = np.where((dx_opt < 1.e-6)*(dx_opt != -1.))
+
+                if wh.size != 0 :
+                    q_lat = np.delete(q_lat,wh)
+                    q_z = np.delete(q_z,wh)
+                    q_zh = np.delete(q_zh,wh)
+                    q_long = np.delete(q_long,wh)
+                    dx_opt = np.delete(dx_opt,wh)
+
+                wh = np.array([])
+                for i_d in range(q_lat.size-1) :
+                    if q_lat[i_d] == q_lat[i_d+1] and q_long[i_d] == q_long[i_d+1] and q_z[i_d] == q_z[i_d+1] :
+                        wh = np.append(wh,np.array([i_d+1]))
+                        dx_opt[i_d] = dx_opt[i_d] + dx_opt[i_d+1]
+
+                if wh.size != 0 :
+                    q_lat = np.delete(q_lat,wh)
+                    q_z = np.delete(q_z,wh)
+                    q_zh = np.delete(q_zh,wh)
+                    q_long = np.delete(q_long,wh)
+                    dx_opt = np.delete(dx_opt,wh)
+
+                size = dx_opt.size
+
+                q_lat_grid[i_r,i_theta,0:size] = q_lat
+                q_z_grid[i_r,i_theta,0:size] = q_z
+                q_zh_grid[i_r,i_theta,0:size] = q_zh
+                dx_grid_opt[i_r,i_theta,0:size] = dx_opt
+                q_long_grid[i_r,i_theta,0:size] = q_long
+
+                if size_max < size :
+                    size_max = size
+
+            bar.animate(i_r)
+
+        q_lat_grid = q_lat_grid[:,:,:size_max]
+        q_long_grid = q_long_grid[:,:,:size_max]
+        q_z_grid = q_z_grid[:,:,:size_max]
+        q_zh_grid = q_zh_grid[:,:,:size_max]
+        dx_grid_opt = dx_grid_opt[:,:,:size_max]
+
+        order_grid = np.ones((3,n_layers+1,theta_number,size_max),dtype=np.int)*(-1)
+
+        order_grid[0] = q_z_grid
+        order_grid[1] = q_lat_grid
+        order_grid[2] = q_long_grid
+
+        np.save("%sq_lat_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
+                    reso_alt,delta_r,obs[0],obs[1]),q_lat_grid)
+        np.save("%sq_long_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
+                    reso_alt,delta_r,obs[0],obs[1]),q_long_grid)
+        np.save("%sq_z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
+                    reso_alt,delta_r,obs[0],obs[1]),q_z_grid)
+        np.save("%sq_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
+                    reso_alt,delta_r,obs[0],obs[1]),q_z_grid)
+
+        del q_lat_grid, q_long_grid, q_z_grid
+
     else :
-        pdx_grid = 0
 
-    return dx_grid*x_step,dx_grid_opt,order_grid,pdx_grid
+        q_zh_grid = np.load('%sq_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy'%(path,theta_number,reso_long,reso_lat,\
+                reso_alt,delta_r,obs[0],obs[1]))
+        order_grid = np.load('%sorder_grid_%i_%i%i%i_%i_%.2f_%.2f.npy'%(path,theta_number,reso_long,reso_lat,\
+                reso_alt,delta_r,obs[0],obs[1]))
+
+    ###################################### Calcul integral des sous-parcours ###########################################
+
+    pdx_grid = np.ones((n_layers+1,theta_number,size_max),dtype=np.float64)*(-1)
+    size = order_grid[0,0,0,:].size
+    if Integral == True :
+        data = np.load(data)
+        sh = np.shape(data)
+        number = sh[0]
+
+        bar = ProgressBar(n_layers,'Integration of pathes progression : ')
+
+        for i_r in range(n_layers) :
+            if Middle == True :
+                r = (i_r+0.5)*delta_r
+            else :
+                r = (i_r)*delta_r
+
+            for i_theta in range(theta_number) :
+                for i_d in range(size) :
+
+                    z_1 = q_zh_grid[i_r,i_theta,i_d]
+                    if i_d != size-1 :
+                        z_2 = q_zh_grid[i_r,i_theta,i_d+1]
+                    else :
+                        z_2 = h
+                    M_1 = data[number-1,t,order_grid[0,i_r,i_theta,i_d],order_grid[1,i_r,i_theta,i_d],order_grid[2,i_r,i_theta,i_d]]
+                    T_1 = data[1,t,order_grid[0,i_r,i_theta,i_d],order_grid[1,i_r,i_theta,i_d],order_grid[2,i_r,i_theta,i_d]]
+
+                    if Gravity == False :
+                        g_1 = g0/(1+z_1/Rp)**2
+                        g_0 = g0/((1+(order_grid[0,i_r,i_theta,i_d]-0.5)*delta_r/Rp)*(1+z_1/Rp))
+                        P_1 = data[0,t,order_grid[0,i_r,i_theta,i_d],order_grid[1,i_r,i_theta,i_d],order_grid[2,i_r,i_theta,i_d]]\
+                              *np.exp(-M_1*g_0/(R_gp*T_1)*(z_1-(order_grid[0,i_r,i_theta,i_d]-0.5)*delta_r))
+
+                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z/(1+z/(Rp+z_1)))*\
+                              (Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
+                    else :
+                        g_1 = g0
+                        P_1 = data[0,t,order_grid[0,i_r,i_theta,i_d],order_grid[1,i_r,i_theta,i_d],order_grid[2,i_r,i_theta,i_d]]\
+                              *np.exp(-M_1*g_1/(R_gp*T_1)*(z_1-(order_grid[0,i_r,i_theta,i_d]-0.5)*delta_r))
+
+                        integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*\
+                              (Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
+
+                    if np.str(integ[0]) == 'inf' :
+                        pdx_grid[i_r,i_theta,i_d] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
+                        print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i_r,i_theta,i_d,pdx_grid[i_r,i_theta,i_d])), 'initial result', integ[0]
+                    else :
+                        pdx_grid[i_r,i_theta,i_d] = integ[0]
+
+            bar.animate(i_r)
+    else :
+        pdx_grid = np.array([])
+
+    return dx_grid_opt, pdx_grid, order_grid
 
 

@@ -263,7 +263,7 @@ if Profil == True :
                                     ###### Parallele encoding end ######
 
             data_convert_part = Boxes_conversion(P,T,Q,gen,z_sphe,composition,delta_z,Rp,h,hmax,dim,g0,M_molar,number,T_comp,P_comp,\
-                 Q_comp,X_species,M_species,ratio_HeH2,rank,Upper,n_species,m_species,compo_type,Tracer,Cloudy,Middle,LogInterp,MassAtm,NoH2)
+                 Q_comp,X_species,M_species,ratio_HeH2,rank,Upper,n_species,m_species,compo_type,Tracer,Cloudy,Middle,LogInterp,MassAtm,NoH2,Rotate)
 
                                     ###### Parallele encoding init ######
 
@@ -314,230 +314,216 @@ if Profil == True :
 
 if Parameters == True : 
 
-    if Cylindre == True :
-
-        z_array = np.arange(h/np.float(delta_z)+1)*float(delta_z)
-
-        p_grid_n,q_grid_n,z_grid_n,n_level_rank = cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,theta_number,\
-                            x_step,z_array,phi_rot,inclinaison,phi_obli,reso_long,reso_lat,long_lat,rank,number_rank,Inclinaison,Obliquity,Middle)
-
-                                    ###### Parallele encoding init ######
-
-        if rank == 0 :
-            sh_grid = np.shape(p_grid_n)
-            p_grid = np.ones((n_layers+1,sh_grid[1],sh_grid[2]),dtype=np.int)*(-1)
-            p_grid[n_level_rank,:,:] = p_grid_n
-
-        comm.Barrier()
-
-        for r_n in range(number_rank) :
-            if rank != 0 and r_n == rank :
-                sh_grid = np.array(np.shape(p_grid_n),dtype=np.int)
-                comm.Send([sh_grid,MPI.INT],dest=0,tag=3)
-                comm.Send([n_level_rank,MPI.INT],dest=0,tag=4)
-                comm.Send([p_grid_n,MPI.INT],dest=0,tag=5)
-            elif rank == 0 and r_n != 0 :
-                sh_grid_ne = np.zeros(3,dtype=np.int)
-                comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=3)
-                n_level_rank_ne = np.zeros(sh_grid_ne[0],dtype=np.int)
-                comm.Recv([n_level_rank_ne,MPI.INT],source=r_n,tag=4)
-                p_grid_ne = np.zeros((sh_grid_ne),dtype=np.int)
-                comm.Recv([p_grid_ne,MPI.INT],source=r_n,tag=5)
-                p_grid[n_level_rank_ne,:,:sh_grid_ne[2]] = p_grid_ne
-
-                                    ###### Parallele encoding end ######
-
-        if rank == 0 :
-            np.save("%s%s/%s/p_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
-                reso_alt,r_step,phi_rot,phi_obli),p_grid)
-            del p_grid, p_grid_ne
-        del p_grid_n
-
-        comm.Barrier()
-
-                                    ###### Parallele encoding init ######
-
-        for r_n in range(number_rank) :
-            if rank != 0 and r_n == 0 :
-                sh_grid = np.array(np.shape(q_grid_n),dtype=np.int)
-                comm.Send([sh_grid,MPI.INT],dest=0,tag=20)
-                comm.Send([n_level_rank,MPI.INT],dest=0,tag=21)
-                comm.Send([q_grid_n,MPI.INT],dest=0,tag=22)
-            elif rank == 0 and r_n == 0 :
-                sh_grid = np.shape(q_grid_n)
-                q_grid = np.ones((n_layers+1,sh_grid[1],sh_grid[2]),dtype=np.int)*(-1)
-                q_grid[n_level_rank,:,:] = q_grid_n
-            elif rank == 0 and r_n !=0 :
-                sh_grid_ne = np.zeros(3,dtype=np.int)
-                comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=20)
-                n_level_rank_ne = np.zeros(sh_grid_ne[0],dtype=np.int)
-                comm.Recv([n_level_rank_ne,MPI.INT],source=r_n,tag=21)
-                q_grid_ne = np.zeros((sh_grid_ne),dtype=np.int)
-                comm.Recv([q_grid_ne,MPI.INT],source=r_n,tag=22)
-                q_grid[n_level_rank_ne,:,:sh_grid_ne[2]] = q_grid_ne
-
-                                    ###### Parallele encoding end ######
-
-        if rank == 0 :
-            np.save("%s%s/%s/q_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
-                    reso_alt,r_step,phi_rot,phi_obli),q_grid)
-            del q_grid, q_grid_ne
-        del q_grid_n
-
-        comm.Barrier()
-
-                                    ###### Parallele encoding init ######
-
-        for r_n in range(number_rank) :
-            if rank != 0 and r_n == 0 :
-                sh_grid = np.array(np.shape(z_grid_n),dtype=np.int)
-                comm.Send([sh_grid,MPI.INT],dest=0,tag=10)
-                comm.Send([n_level_rank,MPI.INT],dest=0,tag=11)
-                comm.Send([z_grid_n,MPI.INT],dest=0,tag=12)
-            elif rank == 0 and r_n == 0 :
-                sh_grid = np.shape(z_grid_n)
-                z_grid = np.ones((n_layers+1,sh_grid[1],sh_grid[2]),dtype=np.int)*(-1)
-                z_grid[n_level_rank,:,:] = z_grid_n
-            elif r_n != 0 and rank == 0 :
-                sh_grid_ne = np.zeros(3,dtype=np.int)
-                comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=10)
-                n_level_rank_ne = np.zeros(sh_grid_ne[0],dtype=np.int)
-                comm.Recv([n_level_rank_ne,MPI.INT],source=r_n,tag=11)
-                z_grid_ne = np.zeros((sh_grid_ne),dtype=np.int)
-                comm.Recv([z_grid_ne,MPI.INT],source=r_n,tag=12)
-                z_grid[n_level_rank_ne,:,:sh_grid_ne[2]] = z_grid_ne
-
-                                    ###### Parallele encoding end ######
-
-        if rank == 0 :
-            np.save("%s%s/%s/z_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
-                    reso_alt,r_step,phi_rot,phi_obli),z_grid)
-            del z_grid, z_grid_ne
-        del z_grid_n
-
-        if rank == 0 :
-                print 'Computation of the cylindrical stictch finished with success'
-
-    comm.Barrier()
-
-
-########################################################################################################################
-
     if Corr == True :
 
                                     ###### Parallele encoding init ######
 
-        n_lay_rank = repartition(n_layers+1,number_rank,rank,False)
+        n_level_rank = repartition(n_layers+1,number_rank,rank,False)
 
                                     ###### Parallele encoding end ######
 
-        p_grid = np.load("%s%s/%s/p_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
-                        reso_lat,reso_alt,r_step,phi_rot,phi_obli))
-        p_grid = p_grid[n_lay_rank,:,:]
-        q_grid = np.load("%s%s/%s/q_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
-                        reso_lat,reso_alt,r_step,phi_rot,phi_obli))
-        q_grid = q_grid[n_lay_rank,:,:]
-        z_grid = np.load("%s%s/%s/z_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
-                        reso_lat,reso_alt,r_step,phi_rot,phi_obli))
-        z_grid = z_grid[n_lay_rank,:,:]
-
-        data_convert = np.load("%s%s/%s/%s_data_convert_%i%i%i.npy"%(path,name_file,param_file,name_exo,reso_alt,\
-                    reso_long,reso_lat))
-
-        dx_grid_n,dx_grid_opt_n,order_grid_n,pdx_grid_n = dx_correspondance(p_grid,q_grid,z_grid,data_convert,x_step,r_step,\
-                        theta_step,Rp,g0,h,t,reso_long,reso_lat,n_lay_rank,Middle,Integral,Discret,Gravity,Ord)
-
-        comm.Barrier()
+        path_cyl = '%s%s/%s/'%(path,name_file,stitch_file)
+        data = '%s%s/%s/%s_data_convert_%i%i%i.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat)
+        q_lat_grid_n, q_long_grid_n, q_z_grid_n, q_zh_grid_n, dx_grid_opt_n, pdx_grid_n, order_grid_n = \
+            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,n_level_rank,\
+                          Middle,Cylindre,Integral,Gravity)
 
                                     ###### Parallele encoding init ######
 
         for r_n in range(number_rank) :
             if r_n == 0 and rank == 0 :
                 length = np.zeros(number_rank,dtype=np.int)
-                length[0] = np.shape(dx_grid_n)[2]
+                length[0] = np.shape(dx_grid_opt_n)[2]
             elif r_n == 0 and rank != 0 :
-                sh_dx_n = np.array(np.shape(dx_grid_n)[2],dtype=np.int)
+                sh_dx_n = np.array(np.shape(dx_grid_opt_n)[2],dtype=np.int)
                 comm.Send([sh_dx_n,MPI.INT],dest=0,tag=0)
             elif r_n != 0 and rank == 0 :
                 sh_dx = np.zeros(1,dtype=np.int)
                 comm.Recv([sh_dx,MPI.INT],source=r_n,tag=0)
                 length[r_n] = sh_dx[0]
 
-        comm.Barrier()
-
         if rank == 0 :
             x_size = np.amax(length)
-            dx_grid = np.zeros((n_layers+1,theta_number,x_size),dtype=np.float64)
-            order_grid = np.zeros((6,n_layers+1,theta_number,x_size),dtype=np.int)
-            dx_grid[n_lay_rank,:,:length[0]] = dx_grid_n
-            order_grid[:,n_lay_rank,:,:length[0]] = order_grid_n
-
-        for r_n in range(number_rank) :
-            if r_n == 0 and rank != 0 :
-                order_grid_n = np.array(order_grid_n,dtype=np.int)
-                comm.Send([dx_grid_n,MPI.DOUBLE],dest=0,tag=rank+1)
-                comm.Send([order_grid_n,MPI.INT],dest=0,tag=rank+2)
-            elif r_n != 0 and rank == 0 :
-                n_lay_rank_ne = repartition(n_layers+1,number_rank,r_n,False)
-                dx_grid_ne = np.zeros((n_lay_rank_ne.size,theta_number,length[r_n]),dtype=np.float64)
-                comm.Recv([dx_grid_ne,MPI.DOUBLE],source=r_n,tag=r_n+1)
-                order_grid_ne = np.zeros((6,n_lay_rank_ne.size,theta_number,length[r_n]),dtype=np.int)
-                comm.Recv([order_grid_ne,MPI.INT],source=r_n,tag=r_n+2)
-                dx_grid[n_lay_rank_ne,:,:length[r_n]] = dx_grid_ne
-                order_grid[:,n_lay_rank_ne,:,:length[r_n]] = order_grid_ne
-                if length[r_n] != x_size :
-                    dx_grid[n_lay_rank_ne,:,length[r_n]:x_size] = np.ones((n_lay_rank_ne.size,theta_number,x_size-length[r_n]))*(-1)*x_step
-                    order_grid[:,n_lay_rank_ne,:,length[r_n]:x_size] = np.ones((6,n_lay_rank_ne.size,theta_number,x_size-length[r_n]))*(-1)
-
-                                    ###### Parallele encoding end ######
-
-        if rank == 0 :
-            np.save("%s%s/%s/dx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
-                        reso_lat,reso_alt,r_step,phi_rot,phi_obli),dx_grid)
-            np.save("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
-                        reso_lat,reso_alt,r_step,phi_rot,phi_obli),order_grid)
-            del dx_grid, dx_grid_ne
-            del order_grid, order_grid_ne
-        del dx_grid_n
-        del order_grid_n
+            dx_grid_opt = np.zeros((n_layers+1,theta_number,x_size),dtype=np.float64)
+            order_grid = np.zeros((3,n_layers+1,theta_number,x_size),dtype=np.int)
+            dx_grid_opt[n_level_rank,:,:length[0]] = dx_grid_opt_n
+            order_grid[:,n_level_rank,:,:length[0]] = order_grid_n
 
         comm.Barrier()
 
-                                    ###### Parallele encoding init ######
+        if Cylindre == True :
 
-        if Discret == True :
             if rank == 0 :
-                dx_grid_opt = np.zeros((n_layers+1,theta_number,x_size),dtype=np.float64)
-                dx_grid_opt[n_lay_rank,:,:length[0]] = dx_grid_opt_n
-
-            for r_n in range(number_rank) :
-                if r_n == 0 and rank != 0 :
-                    dx_grid_opt_n = np.array(dx_grid_opt_n, dtype=np.float64)
-                    comm.Send([dx_grid_opt_n,MPI.DOUBLE],dest=0,tag=rank)
-                elif r_n != 0 and rank == 0 :
-                    n_lay_rank_ne = repartition(n_layers+1,number_rank,r_n,False)
-                    dx_grid_opt_ne = np.zeros((n_lay_rank_ne.size,theta_number,length[r_n]),dtype=np.float64)
-                    comm.Recv([dx_grid_opt_ne,MPI.DOUBLE],source=r_n,tag=r_n)
-                    dx_grid_opt[n_lay_rank_ne,:,:length[r_n]] = dx_grid_opt_ne
-                    if length[r_n] != x_size :
-                        dx_grid_opt[n_lay_rank_ne,:,length[r_n]:x_size] = np.ones((n_lay_rank_ne.size,theta_number,x_size-length[r_n]))*(-1)
-
-                                    ###### Parallele encoding end ######
-             
-            if rank == 0 :
-                np.save("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"
-                    %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli),dx_grid_opt)
-                del dx_grid_opt, dx_grid_opt_ne
-            del dx_grid_opt_n
+                sh_grid = np.shape(q_lat_grid_n)
+                q_lat_grid = np.ones((n_layers+1,theta_number,x_size),dtype=np.int)*(-1)
+                q_lat_grid[n_level_rank,:,:sh_grid[2]] = q_lat_grid_n
 
             comm.Barrier()
 
-                                    ###### Parallele encoding init ######
+            for r_n in range(number_rank) :
+                if rank != 0 and r_n == rank :
+                    sh_grid = np.array(np.shape(q_lat_grid_n),dtype=np.int)
+                    comm.Send([sh_grid,MPI.INT],dest=0,tag=3)
+                    comm.Send([n_level_rank,MPI.INT],dest=0,tag=4)
+                    comm.Send([q_lat_grid_n,MPI.INT],dest=0,tag=5)
+                elif rank == 0 and r_n != 0 :
+                    sh_grid_ne = np.zeros(3,dtype=np.int)
+                    comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=3)
+                    n_level_rank_ne = np.zeros(sh_grid_ne[0],dtype=np.int)
+                    comm.Recv([n_level_rank_ne,MPI.INT],source=r_n,tag=4)
+                    q_lat_grid_ne = np.zeros((sh_grid_ne),dtype=np.int)
+                    comm.Recv([q_lat_grid_ne,MPI.INT],source=r_n,tag=5)
+                    q_lat_grid[n_level_rank_ne,:,:sh_grid_ne[2]] = q_lat_grid_ne
+
+                                        ###### Parallele encoding end ######
+
+            if rank == 0 :
+                np.save("%s%s/%s/q_lat_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                    reso_alt,r_step,obs[0],obs[1]),q_lat_grid)
+                del q_lat_grid, q_lat_grid_ne
+            del q_lat_grid_n
+
+            comm.Barrier()
+
+                                        ###### Parallele encoding init ######
+
+            for r_n in range(number_rank) :
+                if rank != 0 and r_n == 0 :
+                    sh_grid = np.array(np.shape(q_long_grid_n),dtype=np.int)
+                    comm.Send([sh_grid,MPI.INT],dest=0,tag=20)
+                    comm.Send([n_level_rank,MPI.INT],dest=0,tag=21)
+                    comm.Send([q_long_grid_n,MPI.INT],dest=0,tag=22)
+                elif rank == 0 and r_n == 0 :
+                    sh_grid = np.shape(q_long_grid_n)
+                    q_long_grid = np.ones((n_layers+1,theta_number,x_size),dtype=np.int)*(-1)
+                    q_long_grid[n_level_rank,:,:sh_grid[2]] = q_long_grid_n
+                elif rank == 0 and r_n !=0 :
+                    sh_grid_ne = np.zeros(3,dtype=np.int)
+                    comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=20)
+                    n_level_rank_ne = np.zeros(sh_grid_ne[0],dtype=np.int)
+                    comm.Recv([n_level_rank_ne,MPI.INT],source=r_n,tag=21)
+                    q_long_grid_ne = np.zeros((sh_grid_ne),dtype=np.int)
+                    comm.Recv([q_long_grid_ne,MPI.INT],source=r_n,tag=22)
+                    q_long_grid[n_level_rank_ne,:,:sh_grid_ne[2]] = q_long_grid_ne
+
+                                        ###### Parallele encoding end ######
+
+            if rank == 0 :
+                np.save("%s%s/%s/q_long_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                        reso_alt,r_step,obs[0],obs[1]),q_long_grid)
+                del q_long_grid, q_long_grid_ne
+            del q_long_grid_n
+
+            comm.Barrier()
+
+                                        ###### Parallele encoding init ######
+
+            for r_n in range(number_rank) :
+                if rank != 0 and r_n == 0 :
+                    sh_grid = np.array(np.shape(q_z_grid_n),dtype=np.int)
+                    comm.Send([sh_grid,MPI.INT],dest=0,tag=10)
+                    comm.Send([n_level_rank,MPI.INT],dest=0,tag=11)
+                    comm.Send([q_z_grid_n,MPI.INT],dest=0,tag=12)
+                elif rank == 0 and r_n == 0 :
+                    sh_grid = np.shape(q_z_grid_n)
+                    q_z_grid = np.ones((n_layers+1,theta_number,x_size),dtype=np.int)*(-1)
+                    q_z_grid[n_level_rank,:,:sh_grid[2]] = q_z_grid_n
+                elif r_n != 0 and rank == 0 :
+                    sh_grid_ne = np.zeros(3,dtype=np.int)
+                    comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=10)
+                    n_level_rank_ne = np.zeros(sh_grid_ne[0],dtype=np.int)
+                    comm.Recv([n_level_rank_ne,MPI.INT],source=r_n,tag=11)
+                    q_z_grid_ne = np.zeros((sh_grid_ne),dtype=np.int)
+                    comm.Recv([q_z_grid_ne,MPI.INT],source=r_n,tag=12)
+                    q_z_grid[n_level_rank_ne,:,:sh_grid_ne[2]] = q_z_grid_ne
+
+                                        ###### Parallele encoding end ######
+
+            if rank == 0 :
+                np.save("%s%s/%s/q_z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                        reso_alt,r_step,phi_rot,phi_obli),q_z_grid)
+                del q_z_grid, q_z_grid_ne
+            del q_z_grid_n
+
+                                        ###### Parallele encoding init ######
+
+            for r_n in range(number_rank) :
+                if rank != 0 and r_n == 0 :
+                    sh_grid = np.array(np.shape(q_zh_grid_n),dtype=np.int)
+                    comm.Send([sh_grid,MPI.INT],dest=0,tag=30)
+                    comm.Send([n_level_rank,MPI.INT],dest=0,tag=31)
+                    comm.Send([q_zh_grid_n,MPI.DOUBLE],dest=0,tag=32)
+                elif rank == 0 and r_n == 0 :
+                    sh_grid = np.shape(q_z_grid_n)
+                    q_zh_grid = np.ones((n_layers+1,theta_number,x_size),dtype=np.float64)
+                    q_zh_grid[n_level_rank,:,:sh_grid[2]] = q_z_grid_n
+                elif r_n != 0 and rank == 0 :
+                    sh_grid_ne = np.zeros(3,dtype=np.int)
+                    comm.Recv([sh_grid_ne,MPI.INT],source=r_n,tag=30)
+                    n_level_rank_ne = np.zeros(sh_grid_ne[0],dtype=np.int)
+                    comm.Recv([n_level_rank_ne,MPI.INT],source=r_n,tag=31)
+                    q_zh_grid_ne = np.zeros((sh_grid_ne),dtype=np.int)
+                    comm.Recv([q_zh_grid_ne,MPI.DOUBLE],source=r_n,tag=32)
+                    q_zh_grid[n_level_rank_ne,:,:sh_grid_ne[2]] = q_zh_grid_ne
+
+                                        ###### Parallele encoding end ######
+
+            if rank == 0 :
+                np.save("%s%s/%s/q_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                        reso_alt,r_step,phi_rot,phi_obli),q_zh_grid)
+                del q_zh_grid, q_zh_grid_ne
+            del q_zh_grid_n
+
+                                        ###### Parallele encoding init ######
+
+            if rank == 0 :
+                x_size = np.amax(length)
+                dx_grid_opt = np.zeros((n_layers+1,theta_number,x_size),dtype=np.float64)
+                order_grid = np.zeros((3,n_layers+1,theta_number,x_size),dtype=np.int)
+                dx_grid_opt[n_level_rank,:,:length[0]] = dx_grid_opt_n
+                order_grid[:,n_level_rank,:,:length[0]] = order_grid_n
+
+            for r_n in range(number_rank) :
+                if r_n == 0 and rank != 0 :
+                    order_grid_n = np.array(order_grid_n,dtype=np.int)
+                    comm.Send([dx_grid_opt_n,MPI.DOUBLE],dest=0,tag=rank+1)
+                    comm.Send([order_grid_n,MPI.INT],dest=0,tag=rank+2)
+                elif r_n != 0 and rank == 0 :
+                    n_level_rank_ne = repartition(n_layers+1,number_rank,r_n,False)
+                    dx_grid_opt_ne = np.zeros((n_level_rank_ne.size,theta_number,length[r_n]),dtype=np.float64)
+                    comm.Recv([dx_grid_opt_ne,MPI.DOUBLE],source=r_n,tag=r_n+1)
+                    order_grid_ne = np.zeros((3,n_level_rank_ne.size,theta_number,length[r_n]),dtype=np.int)
+                    comm.Recv([order_grid_ne,MPI.INT],source=r_n,tag=r_n+2)
+                    dx_grid_opt[n_level_rank_ne,:,:length[r_n]] = dx_grid_opt_ne
+                    order_grid[:,n_level_rank_ne,:,:length[r_n]] = order_grid_ne
+                    if length[r_n] != x_size :
+                        dx_grid_opt[n_level_rank_ne,:,length[r_n]:x_size] = np.ones((n_level_rank_ne.size,theta_number,x_size-length[r_n]))*(-1)
+                        order_grid[:,n_level_rank_ne,:,length[r_n]:x_size] = np.ones((3,n_level_rank_ne.size,theta_number,x_size-length[r_n]))*(-1)
+
+                                        ###### Parallele encoding end ######
+
+            if rank == 0 :
+                np.save("%s%s/%s/dx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
+                            reso_lat,reso_alt,r_step,obs[0],obs[1]),dx_grid_opt)
+                np.save("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
+                            reso_lat,reso_alt,r_step,obs[0],obs[1]),order_grid)
+                del dx_grid_opt, dx_grid_opt_ne
+                del order_grid, order_grid_ne
+            del dx_grid_opt_n
+            del order_grid_n
+
+        comm.Barrier()
+
+        if rank == 0 :
+            print 'Computation of the cylindrical stictch finished with success'
 
         if Integral == True :
+
+                                        ###### Parallele encoding init ######
+
             if rank == 0 :
                 pdx_grid = np.zeros((n_layers+1,theta_number,x_size),dtype=np.float64)
-                pdx_grid[n_lay_rank,:,:length[0]] = pdx_grid_n
+                pdx_grid[n_level_rank,:,:length[0]] = pdx_grid_n
 
             for r_n in range(number_rank) :
                 if r_n == rank and rank != 0 :
@@ -547,22 +533,24 @@ if Parameters == True :
                     n_lay_rank_ne = repartition(n_layers+1,number_rank,r_n,False)
                     pdx_grid_ne = np.zeros((n_lay_rank_ne.size,theta_number,length[r_n]),dtype=np.float64)
                     comm.Recv([pdx_grid_ne,MPI.DOUBLE],source=r_n,tag=r_n)
-                    pdx_grid[n_lay_rank_ne,:,:length[r_n]] = pdx_grid_ne
+                    pdx_grid[n_level_rank_ne,:,:length[r_n]] = pdx_grid_ne
                     if length[r_n] != x_size :
-                        pdx_grid[n_lay_rank_ne,:,length[r_n]:x_size] = np.ones((n_lay_rank_ne.size,theta_number,x_size-length[r_n]))*(-1)
+                        pdx_grid[n_level_rank_ne,:,length[r_n]:x_size] = np.ones((n_level_rank_ne.size,theta_number,x_size-length[r_n]))*(-1)
 
-                                    ###### Parallele encoding end ######
+                                        ###### Parallele encoding end ######
 
-            if rank == 0 :
-                np.save("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"
-                    %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli),pdx_grid)
-                del pdx_grid, pdx_grid_ne
-            del pdx_grid_n
+                if rank == 0 :
+                    np.save("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"
+                        %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]),pdx_grid)
+                    del pdx_grid, pdx_grid_ne
+                del pdx_grid_n
 
-        if rank == 0 :
-            print 'Computation of optical pathes finished with success'
 
     comm.Barrier()
+
+    if rank == 0 :
+        print 'Computation of optical pathes finished with success'
+
 
 ########################################################################################################################
 
@@ -576,7 +564,7 @@ if Parameters == True :
                     reso_lat))
 
         order_grid = np.load("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,\
-                    reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli))
+                    reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
 
         order_grid = order_grid[:,n_lay_rank,:,:]
 
@@ -654,26 +642,26 @@ if Parameters == True :
         if rank == 0 :
 
             np.save("%s%s/%s/%s_P_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
-                    t_selec,r_step,phi_rot,phi_obli),result_P)
+                    t_selec,r_step,obs[0],obs[1]),result_P)
             del result_P,result_n_P
             np.save("%s%s/%s/%s_T_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
-                    t_selec,r_step,phi_rot,phi_obli),result_T)
+                    t_selec,r_step,obs[0],obs[1]),result_T)
             del result_T,result_n_T
             np.save("%s%s/%s/%s_Q_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
-                t_selec,r_step,phi_rot,phi_obli),result_Cn)
+                t_selec,r_step,obs[0],obs[1]),result_Cn)
             del result_Cn,result_n_Cn
             np.save("%s%s/%s/%s_compo_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
-                t_selec,r_step,phi_rot,phi_obli),result_comp)
+                t_selec,r_step,obs[0],obs[1]),result_comp)
             del result_comp,result_n_comp
 
             if Tracer == True :
                 np.save("%s%s/%s/%s_Cn_%i%i%i_%i_%i_%.2f_%.2f.npy"%\
-                        (path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,phi_rot,phi_obli),\
+                        (path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]),\
                         result_Q)
                 del result_Q,result_n_Q
             if Cloudy == True :
                 np.save("%s%s/%s/%s_gen_%i%i%i_%i_%i_%.2f_%.2f.npy"%\
-                        (path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,phi_rot,phi_obli),\
+                        (path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]),\
                         result_gen)
                 del result_gen,result_n_gen
 
@@ -686,21 +674,21 @@ if Parameters == True :
     if Convert == True :
 
         P = np.load("%s%s/%s/%s_P_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,\
-            reso_alt,t_selec,r_step,phi_rot,phi_obli))
+            reso_alt,t_selec,r_step,obs[0],obs[1]))
         T = np.load("%s%s/%s/%s_T_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,\
-            reso_alt,t_selec,r_step,phi_rot,phi_obli))
+            reso_alt,t_selec,r_step,obs[0],obs[1]))
         if Tracer == True :
             Q = np.load("%s%s/%s/%s_Q_%i%i%i_%i_%i_%.2f_%.2f.npy"\
-            %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,phi_rot,phi_obli))
+            %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]))
         else :
             Q = np.array([])
         if Cloudy == True :
             gen = np.load("%s%s/%s/%s_gen_%i%i%i_%i_%i_%.2f_%.2f.npy"\
-            %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,phi_rot,phi_obli))
+            %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]))
         else :
             gen = np.array([])
         comp = np.load("%s%s/%s/%s_compo_%i%i%i_%i_%i_%.2f_%.2f.npy"\
-            %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,phi_rot,phi_obli))
+            %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]))
 
 
 ########################################################################################################################
@@ -745,17 +733,17 @@ if Parameters == True :
                                     ###### Parallele encoding end ######
 
         convertator_save(P_rmd,T_rmd,rmind,Q_rmd,gen_cond_rmd,composit_rmd,path,direc,reso_long,reso_lat,name_exo,t,\
-                        x_step,phi_rot,phi_obli,domain,dim_bande,dim_gauss,rank,Kcorr,Tracer,Cloudy,True)
+                        x_step,obs[0],obs[1],domain,dim_bande,dim_gauss,rank,Kcorr,Tracer,Cloudy,True)
 
         del P,T,Q,gen,comp,P_rmd,T_rmd,Q_rmd,gen_cond_rmd,composit_rmd,rmind
 
         if Kcorr == True :
             rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
         else :
             rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
 
             comm.Barrier()
 
@@ -765,23 +753,23 @@ if Parameters == True :
 
             rmind = np.array(rmind,dtype=np.int)
             T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                         domain,rank))
             P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
             composit_rmd = np.load("%s%s/%s/Temp/compo_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
             if Cl == True :
                 gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
             else :
                 gen_rmd = np.array([])
             if Tracer == True :
                 Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
             else :
                 Q_rmd = np.array([])
@@ -790,19 +778,19 @@ if Parameters == True :
 
             rmind = np.array(rmind,dtype=np.int)
             T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             composit_rmd = np.load("%s%s/%s/Temp/compo_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             if Cl :
                 gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 gen_rmd = np.array([])
             if Tracer == True :
                 Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 Q_rmd = np.array([])
 
@@ -865,7 +853,7 @@ if Parameters == True :
 
         convertator (P_rmd,T_rmd,gen_rmd,c_species,Q_rmd,composit_rmd,ind_active,ind_cross,k_corr_data_grid,K_cont,\
                     Q_cloud,P_sample,T_sample,Q_sample,bande_sample,bande_cloud,x_step,r_eff,r_cloud,rho_p,direc,\
-                    t,phi_rot,phi_obli,n_species,domain,ratio,path,name_exo,reso_long,reso_lat,rank,0,number_rank,name_source,\
+                    t,obs[0],obs[1],n_species,domain,ratio,path,name_exo,reso_long,reso_lat,rank,0,number_rank,name_source,\
                     Tracer,Molecul,Cont,Cl,Scatt,Kcorr,Optimal,True)
 
 ########################################################################################################################
@@ -884,28 +872,28 @@ if Cylindric_transfert_3D == True :
         print('Download of stiches array')
     
     order_grid = np.load("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"\
-                %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli))
+                %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
     order_grid = order_grid[:,:,dom_rank,:]
     if Module == True :
         z_grid = np.load("%s%s/%s/z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"\
-                %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli))
+                %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         z_grid = z_grid[:,dom_rank,:]
     else :
         z_grid = np.array([])
 
     if Discreet == True :
         dx_grid = np.load("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"\
-                %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli))
+                %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         dx_grid = dx_grid[:,dom_rank,:]
         pdx_grid = np.array([])
 
     else :
     
         pdx_grid = np.load("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"\
-                       %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli))
+                       %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         pdx_grid = pdx_grid[:,dom_rank,:]
         dx_grid = np.load("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"\
-                      %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,phi_rot,phi_obli))
+                      %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         dx_grid = dx_grid[:,dom_rank,:]
 
     data_convert = np.load("%s%s/%s/%s_data_convert_%i%i%i.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
@@ -918,43 +906,43 @@ if Cylindric_transfert_3D == True :
 
     if Kcorr == True :
         T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
         P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
         if Clouds == True :
             gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
         else :
             gen_rmd = np.array([])
         if Tracer == True :
             Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
         else :
             Q_rmd = np.array([])
         rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
     else :
         T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
         P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
         if Clouds == True :
             gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
         else :
             gen_rmd = np.array([])
         if Tracer == True :
             Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
         else :
             Q_rmd = np.array([])
         rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
 
 ########################################################################################################################
     
@@ -988,31 +976,31 @@ if Cylindric_transfert_3D == True :
 
         stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
         save_name_3D_step = saving('3D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
-                inclinaison,phi_rot,phi_obli,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
+                obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
 
         if os.path.isfile('%s.npy'%(save_name_3D_step)) != True or Push[i_ca] == True :
 
             if Molecular == True :
                 if Kcorr == True :
                     k_rmd = np.load("%s%s/%s/Temp/k_corr_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                     gauss_val = np.load("%s%s/gauss_sample.npy"%(path,name_source))
                 else :
                     if Optimal == True :
                         k_rmd = np.load("%s%s/%s/Temp/k_cross_opt_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                        %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                        %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
                     else :
                         k_rmd = np.load("%s%s/%s/Temp/k_cross_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                        %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                        %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
                     gauss_val = np.array([])
             else :
                 if Kcorr == True :
                     k_rmd = np.load("%s%s/%s/Temp/k_corr_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                     k_rmd = np.shape(k_rmd)
                 else :
                     k_rmd = np.load("%s%s/%s/Temp/k_cross_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                        %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                        %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
                     k_rmd = np.shape(k_rmd)
                 gauss_val = np.array([])
                 if rank == 0 :
@@ -1021,10 +1009,10 @@ if Cylindric_transfert_3D == True :
             if Continuum == True :
                 if Kcorr == True :
                     k_cont_rmd = np.load("%s%s/%s/Temp/k_cont_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                 else :
                     k_cont_rmd = np.load("%s%s/%s/Temp/k_cont_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 k_cont_rmd = np.array([])
                 if rank == 0 :
@@ -1033,10 +1021,10 @@ if Cylindric_transfert_3D == True :
             if Scattering == True :
                 if Kcorr == True :
                     k_sca_rmd = np.load("%s%s/%s/Temp/k_sca_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                 else :
                     k_sca_rmd = np.load("%s%s/%s/Temp/k_sca_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 k_sca_rmd = np.array([])
                 if rank == 0 :
@@ -1051,11 +1039,11 @@ if Cylindric_transfert_3D == True :
                         r_enn += '%.2f'%(r_eff[i_r]*10**6)
                 if Kcorr == True :
                     k_cloud_rmd = np.load("%s%s/%s/Temp/k_cloud_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%s_%i.npy" \
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,\
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                     r_enn,domain,rank))
                 else :
                     k_cloud_rmd = np.load("%s%s/%s/Temp/k_cloud_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%s_%i.npy" \
-                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,r_enn,domain,rank))
+                    %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],r_enn,domain,rank))
             else :
                 k_cloud_rmd = np.array([])
                 if rank == 0 :
@@ -1153,7 +1141,7 @@ if Cylindric_transfert_3D == True :
             Molecular, Continuum, Scattering, Clouds = proc[0],proc[1],proc[2],proc[3]
             stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
             save_name_3D_step = saving('3D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
-                    inclinaison,phi_rot,phi_obli,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
+                    obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
             I_step = np.load('%s.npy'%(save_name_3D_step))
             if i_ca == 0 :
                 Itot = I_step

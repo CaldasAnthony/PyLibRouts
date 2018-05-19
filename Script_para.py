@@ -48,6 +48,8 @@ if diag_file == '' :
     reso_long, reso_lat = planet.longitude, planet.latitude
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.45, 0.00, 0.00
+lat_obs, long_obs = 0.00, 0.00
+obs = np.array([lat_obs,long_obs])
 
 Record = True
 
@@ -245,23 +247,17 @@ Box = True             ###### Transpose la maille spherique en altitude
 Surf = True            ###### Si des donnees de surface sont accessibles
 LogInterp = False       ###### Interpolation de la pression via le logarithme
 N_fixe = True          ###### Si nous voulons imposer le nombre de couche atmospherique
+Rotate = False
 TopPressure = 'Up'    ###### Si nous voulons fixer le toit de l'atmosphere par rapport a une pression minimale
 MassAtm = False         ###### Si on tient compte de la masse atmospherique
 compo_type = np.array(['tracer_other'])
 
 Parameters = True
 
-Cylindre = True        ###### Construit la maille cylindrique
-Inclinaison = False     ###### En presence d'une inclinaison par rapport au plan ecliptique, l'angle d'inclinaison est
-                             # defini positivement si le parametre d'impact est positif et qu'elle passe au dessus de
-                             # l'etoile
-Obliquity = False       ###### Si l'exoplanete est inclinee
-
-Corr = True            ###### Traite les parcours optiques
-Gravity = False         ###### Pour travailler a gravite constante
-Discret = True         ###### Calcul les distances discretes
+Corr = False            ###### Traite les parcours optiques
 Integral = True        ###### Effectue l'integration sur les chemins optiques
-Ord = False             ###### Si Discreet == False, Ord permet de calculer les indices avec l'integration
+Cylindre = True        ###### Construit la maille cylindrique
+Gravity = False         ###### Pour travailler a gravite constante
 
 Matrix = True          ###### Transposition de la maille spherique dans la maille cylindrique
 
@@ -322,9 +318,9 @@ special = ''
 if rank == 0 : 
     stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
     save_name_1D = saving('1D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
-            inclinaison,phi_rot,phi_obli,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
+            obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
     save_name_3D = saving('3D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
-            inclinaison,phi_rot,phi_obli,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
+            obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
 
 ########################################################################################################################
 

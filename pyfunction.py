@@ -186,7 +186,7 @@ def stud_type(r_eff,single,Continuum=False,Molecular=False,Scattering=False,Clou
 ########################################################################################################################
 
 
-def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,inclinaison,phi_rot,phi_obli,r_eff,\
+def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,obs,r_eff,\
            domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,D1) :
 
     s_n = special
@@ -235,23 +235,15 @@ def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,
         D = 3
 
     incrotob = ''
-    if inclinaison != 0. :
-        incrotob += 'i%.2f'%(inclinaison)
-        if phi_obli != 0. :
-            incrotob += '_o%.2f'%(phi_obli)
-            if phi_rot != 0. :
-                incrotob += '_r%.2f_'%(phi_rot)
+    if obs[0] != 0. :
+        incrotob += 'la%.2f'%(obs[0])
+        if obs[1] != 0. :
+            incrotob += '_lo%.2f_'%(obs[1])
         else :
-            if phi_rot != 0. :
-                incrotob += '_r%.2f_'%(phi_rot)
+            incrotob += '_'
     else :
-        if phi_obli != 0. :
-            incrotob += 'o%.2f'%(phi_obli)
-            if phi_rot != 0. :
-                incrotob += '_r%.2f_'%(phi_rot)
-        else :
-            if phi_rot != 0. :
-                incrotob += 'r%.2f_'%(phi_rot)
+        if obs[1] != 0. :
+            incrotob += 'lo%.2f_'%(obs[1])
 
     if Kcorr == True :
         if D1 == False :
@@ -600,7 +592,7 @@ def mixing_contribution_HR(adress,version,name,reso_long,reso_lat,dim_bande,lim_
 ########################################################################################################################
 
 
-def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,name,Rp,R_s,extra,trans,Kcorr,Middle) :
+def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,name,Rp,R_s,extra,where,trans,Kcorr,Middle,Cache) :
 
     theta_step = 2*np.pi/np.float(theta_number)
     R = Rp/np.float(factor)
@@ -612,14 +604,15 @@ def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,nam
     i_bande = ind[0]
     print 'Selected wavelength : %.3f'%(wl_sample_micron[i_bande])
 
-    I_png = np.ones((2*dim,2*dim))
+    I_png = np.ones((2*dim+1,2*dim+1))
+    center = np.ones((2*dim+1,2*dim+1))
     I = I_tot[i_bande,:,:]
 
     bar = ProgressBar(2*dim+1,'Image generation')
 
-    for y in range(-dim,dim) :
+    for y in range(-dim,dim+1) :
 
-        for x in range(-dim,dim) :
+        for x in range(-dim,dim+1) :
             rho = np.sqrt((x*param)**2 + (y*param)**2)
 
             if rho <= R + h :
@@ -643,29 +636,35 @@ def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,nam
                 else :
 
                     I_png[y+dim,x+dim] = 'nan'
+                    center[y+dim,x+dim] = 'nan'
 
         bar.animate(y+dim+1)
 
-    x = np.arange(-dim*param,dim*param,param)
-    y = -np.arange(-dim*param,dim*param,param)
+    x = np.linspace(-dim*param,dim*param,2*dim+1)
+    y = np.linspace(-dim*param,dim*param,2*dim+1)
     X,Y = np.meshgrid(x,y)
+    if Cache == True :
+        I_png[where[0],where[1]] = 1.
+        wh = np.where(center != 1.)
+        I_png[wh[0],wh[1]] = 'nan'
     Z = I_png
     R_eff_bar,R_e,ratio_bar,ratR_bar,bande_bar,flux_bar,flux = atmospectre(I_tot,bande_sample,R_s,Rp,r_step*factor,extra,trans,Kcorr,Middle)
     R_eff = (R_e[i_bande]/factor - Rp/factor + R)
 
-    plt.imshow(I_png, extent = [-dim*param*factor/1000.,dim*param*factor/1000.,-dim*param*factor/1000.,dim*param*factor/1000.])
+    plt.figure(figsize=(12, 9))
+    plt.imshow(I_png, extent = [-dim*param/1000.,dim*param/1000.,-dim*param/1000.,dim*param/1000.],origin='lower')
     plt.colorbar()
     lev = np.array([0,np.exp(-1),0.73,0.99])
-    CS = plt.contour(X*factor/1000.,Y*factor/1000.,Z,levels=lev,colors='k')
+    CS = plt.contour(X/1000.,Y/1000.,Z,levels=lev,colors='k')
     plt.clabel(CS,frontsize = 3, inline = 0)
 
     wh_R, = np.where((x >= -R-h)*(x <= R+h))
-    line_b = np.sqrt(((R+h)**2 - (x[wh_R])**2))*factor/1000.
+    line_b = np.sqrt(((R+h)**2 - (x[wh_R])**2))/1000.
     line_black = np.zeros(line_b.size+2)
     line_black[1:line_black.size-1] = line_b
 
     wh_Reff, = np.where((x >= -R_eff)*(x <= R_eff))
-    line_r = np.sqrt(((R_eff)**2 - (x[wh_Reff])**2))*factor/1000.
+    line_r = np.sqrt(((R_eff)**2 - (x[wh_Reff])**2))/1000.
     line_red = np.zeros(line_r.size+2)
     line_red[1:line_red.size-1] = line_r
 
@@ -676,10 +675,10 @@ def atmosphere_plot(I_tot,h,param,factor,r_step,theta_number,wl,bande_sample,nam
     x_R[0],x_R[x_R.size-1] = -R-h,R+h
     x_R[1:x_R.size-1] = x[wh_R]
 
-    plt.plot(x_Reff*factor/1000.,line_red,'--w',linewidth = 3)
-    plt.plot(x_Reff*factor/1000.,-line_red,'--w', linewidth = 3)
-    plt.plot(x_R*factor/1000.,line_black,'--k',linewidth = 3)
-    plt.plot(x_R*factor/1000.,-line_black,'--k', linewidth = 3)
+    plt.plot(x_Reff/1000.,line_red,'--w',linewidth = 3)
+    plt.plot(x_Reff/1000.,-line_red,'--w', linewidth = 3)
+    plt.plot(x_R/1000.,line_black,'--k',linewidth = 3)
+    plt.plot(x_R/1000.,-line_black,'--k', linewidth = 3)
     plt.xlabel("x (km)")
     plt.ylabel("y (km)")
 

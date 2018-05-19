@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/Users/caldas/Pytmosph3R/ParaPyRouts/')
+sys.path.append('/Users/caldas/Pytmosph3R/ComnPyRouts/')
 
 from pytransfert import *
 from pyfunction import *
@@ -36,6 +36,8 @@ if diag_file == '' :
     reso_long, reso_lat = planet.longitude, planet.latitude
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.00, 0.00, 0.00
+lat_obs, long_obs = 0.00, 0.00
+obs = np.array([lat_obs,long_obs])
 
 Record = True
 
@@ -68,6 +70,7 @@ error = np.array([1.e-5])
 
 if data_base != '' :
     Rp, g0, reso_long, reso_lat, long_lat, Inverse = diag('%s%s'%(data_base,diag_file))
+
 else :
     long_lat = np.zeros((2,int(np.amax(np.array([reso_long,reso_lat])))+1))
     degpi = np.pi/180.
@@ -222,7 +225,7 @@ Tracer = False          ###### S'il y a des marqueurs
 Cloudy = True          ###### S'il y a des nuages
 Middle = True          ###### Construction de la maille sur le milieu des couches
 NoH2 = False            ###### Une atmosphere sans H2 et He ou avec
-TauREx = False          ###### Une atmosphere TauREx
+TauREx = True          ###### Une atmosphere TauREx
 
 ########################################################################################################################
 
@@ -234,6 +237,7 @@ Profil = True          ###### Reproduit la maille spherique en altitude
 
 Box = True             ###### Transpose la maille spherique en altitude
 Layers = True          ###### Decoupage en nombre de couche
+Rotate = False
 Surf = True            ###### Si des donnees de surface sont accessibles
 LogInterp = False       ###### Interpolation de la pression via le logarithme
 N_fixe = True          ###### Si nous voulons imposer le nombre de couche atmospherique
@@ -241,26 +245,19 @@ TopPressure = 'Up'    ###### Si nous voulons fixer le toit de l'atmosphere par r
 MassAtm = False         ###### Si on tient compte de la masse atmospherique
 compo_type = np.array(['composition'])
 
-Cylindre = False        ###### Construit la maille cylindrique
-Inclinaison = False     ###### En presence d'une inclinaison par rapport au plan ecliptique, l'angle d'inclinaison est
-                             # defini positivement si le parametre d'impact est positif et qu'elle passe au dessus de
-                             # l'etoile
-Obliquity = False       ###### Si l'exoplanete est inclinee
-
 Corr = False            ###### Traite les parcours optiques
-Gravity = False         ###### Pour travailler a gravite constante
-Discret = True         ###### Calcul les distances discretes
 Integral = True        ###### Effectue l'integration sur les chemins optiques
-Ord = False             ###### Si Discreet == False, Ord permet de calculer les indices avec l'integration
+Cylindre = True        ###### Construit la maille cylindrique
+Gravity = False         ###### Pour travailler a gravite constante
 
 Matrix = False          ###### Transposition de la maille spherique dans la maille cylindrique
 
 Convert = False       ###### Lance la fonction convertator qui assure l'interpolation des sections efficaces
 Kcorr = False           ###### Sections efficaces ou k-correles
-Molecul = False       ###### Effectue les calculs pour l'absorption moleculaire
-Cont = False            ###### Effectue les calculs pour l'absorption par les collisions
+Molecul = True       ###### Effectue les calculs pour l'absorption moleculaire
+Cont = True            ###### Effectue les calculs pour l'absorption par les collisions
 Scatt = True           ###### Effectue les calculs pour l'absorption par diffusion Rayleigh
-Cl = False              ###### Effectue les calculs pour l'absorption par les nuages
+Cl = True              ###### Effectue les calculs pour l'absorption par les nuages
 Optimal = False         ###### Interpolation optimal (Waldmann et al.)
 TimeSelec = True       ###### Si nous etudions un temps precis de la simulation
 
@@ -273,7 +270,7 @@ Cylindric_transfert_3D = True
 Molecular = True       ###### Ne tiens pas compte de l'absorption moleculaire
 Continuum = True       ###### Tiens compte de l'absorption par les collisions
 Scattering = True      ###### Tiens compte de l'absorption par la diffusion
-Clouds = False          ###### Tiens compte de l'absoprtion par les nuages
+Clouds = True          ###### Tiens compte de l'absoprtion par les nuages
 Single = "no"           ###### Isole une espece de nuage
 Rupt = False            ###### Si l'atmosphere est tronquee
 Discreet = True        ###### Calcul discret
@@ -290,7 +287,7 @@ ErrOr = False           ###### Si calculons le bruit de photon pour un instrumen
 detection = JWST()
 Noise = False           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
 resolution = 'low'
-Push = np.array([False,False,False,False])
+Push = np.array([True,True,True,False])
 ###### Si nous voulons forcer le code a faire les spcectres intermediaires meme s'ils existent
 
 ########################################################################################################################
@@ -311,8 +308,8 @@ save_adress = "/Users/caldas/Pytmosph3R/I/"
 special = ''
 stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
 save_name_1D = saving('1D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
-            inclinaison,phi_rot,phi_obli,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
+            obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
 save_name_3D = saving('3D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
-            inclinaison,phi_rot,phi_obli,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
+            obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
 
 ########################################################################################################################
