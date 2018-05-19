@@ -926,11 +926,12 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
     q_zh_grid = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.int)*(-1)
     dx_grid_opt = np.ones((n_lay_rank.size,theta_number,reso_long+2*reso_lat+2*n_layers+3),dtype=np.float64)*(-1)
 
-    if rank == 0 :
-        bar = ProgressBar(n_lay_rank,'Transposition on the cylindric stitch : ')
     size_max = 0
 
     if Cylindric == True :
+        if rank == 0 :
+        bar = ProgressBar(n_lay_rank.size,'Transposition on the cylindric stitch : ')
+
         for i_r in range(n_lay_rank.size) :
 
             if Middle == True :
@@ -1231,8 +1232,8 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                 if size_max < size :
                     size_max = size
 
-        if rank == 0 :
-            bar.animate(i_r)
+            if rank == 0 :
+                bar.animate(i_r)
 
         q_lat_grid = q_lat_grid[:,:,:size_max]
         q_long_grid = q_long_grid[:,:,:size_max]
