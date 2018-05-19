@@ -1249,8 +1249,8 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                     if size_max < size :
                         size_max = size
 
-                if rank == 0 :
-                    bar.animate(i_r+1)
+            if rank == 0 :
+                bar.animate(i_r+1)
 
         q_lat_grid = q_lat_grid[:,:,:size_max]
         q_long_grid = q_long_grid[:,:,:size_max]
@@ -1325,8 +1325,8 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                         else :
                             pdx_grid[i_r,i_theta,i_d] = integ[0]
 
-                if rank == 0 :
-                    bar.animate(i_r+1)
+            if rank == 0 :
+                bar.animate(i_r+1)
     else :
         pdx_grid = np.array([])
 
