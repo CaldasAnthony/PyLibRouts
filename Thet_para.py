@@ -326,7 +326,7 @@ if Parameters == True :
         data = '%s%s/%s/%s_data_convert_%i%i%i.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat)
 
         q_lat_grid_n, q_long_grid_n, q_z_grid_n, q_zh_grid_n, dx_grid_opt_n, pdx_grid_n, order_grid_n = \
-            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs_mod,n_level_rank,\
+            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,n_level_rank,\
                           Middle,Cylindre,Integral,Gravity)
 
                                     ###### Parallele encoding init ######

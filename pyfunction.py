@@ -236,6 +236,7 @@ def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,
 
     incrotob = ''
     if obs[0] != 0. :
+        print obs[0]
         incrotob += 'la%.2f'%(obs[0])
         if obs[1] != 0. :
             incrotob += '_lo%.2f_'%(obs[1])

@@ -37,7 +37,6 @@ if diag_file == '' :
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.00, 0.00, 0.00
 lat_obs, long_obs = 0.00, 0.00
-obs = np.array([lat_obs,long_obs])
 
 Record = True
 

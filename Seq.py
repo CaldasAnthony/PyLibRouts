@@ -86,7 +86,7 @@ if Parameters == True :
         data = '%s%s/%s/%s_data_convert_%i%i%i.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat)
 
         dx_grid_opt, pdx_grid, order_grid = \
-            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs_mod,\
+            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,\
                           Middle,Cylindre,Integral,Gravity)
 
         if Cylindre == True :
