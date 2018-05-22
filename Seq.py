@@ -91,6 +91,8 @@ if Parameters == True :
             obs_mod[1] = 'Modified'
             obs_mod[2] = obs[1] - obs[1]/(2*np.pi)*reso_long
             obs_mod[3] = obs[1]
+        else :
+            obs_mod = obs
 
         dx_grid_opt, pdx_grid, order_grid = \
             dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs_mod,\
