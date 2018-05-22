@@ -1939,7 +1939,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
         sh = np.shape(data)
         number = sh[0]
 
-        bar = ProgressBar(n_layers,'Integration of pathes progression : ')
+        bar = ProgressBar(n_layers*theta_number,'Integration of pathes progression : ')
 
         for i_r in range(n_layers) :
             if Middle == True :
@@ -1980,7 +1980,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                     else :
                         pdx_grid[i_r,i_theta,i_d] = integ[0]
 
-            bar.animate(i_r)
+                bar.animate(i_r*theta_number+i_theta+1)
     else :
         pdx_grid = np.array([])
 
