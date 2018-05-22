@@ -131,7 +131,7 @@ import time
 ########################################################################################################################
 
 
-def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x_species,M_species,c_species,m_species,ratio,Upper,composition,\
+def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x_species,M_species,c_species,m_species,ratio,Upper,composition,obs,\
           TopPressure,Inverse,Surf=True,Tracer=False,Clouds=False,Middle=False,LogInterp=False,TimeSelec=False,MassAtm=False,NoH2=False,TauREx=True,Rotate=False) :
 
     if data != '' :
@@ -748,8 +748,9 @@ def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x
         print 'Data needs to be reverse on latitude.'
     if Rotate == True :
         data_convert_r = np.zeros(np.shape(data_convert),dtype=np.float64)
+        long_rot = obs[1]/(2*np.pi)*n_long
         for i_l in range(n_long) :
-            i_l_r = (i_l + n_long)%(n_long)
+            i_l_r = (i_l + long_rot)%(n_long)
             data_convert_r[:,:,:,:,i_l] = data_convert[:,:,:,:,i_l_r]
         data_convert = data_convert_r
 
@@ -759,7 +760,7 @@ def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x
 ########################################################################################################################
 
 
-def NBoxes(data,n_layers,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x_species,M_species,c_species,m_species,ratio,Upper,composition,\
+def NBoxes(data,n_layers,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x_species,M_species,c_species,m_species,ratio,Upper,composition,obs,\
           TopPressure,Inverse,Surf=True,Tracer=False,Clouds=False,Middle=False,LogInterp=False,TimeSelec=False,MassAtm=False,NoH2=False,TauREx=True,Rotate=False) :
 
     print TauREx
@@ -1373,8 +1374,9 @@ def NBoxes(data,n_layers,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species
         print 'Data needs to be reverse on latitude.'
     if Rotate == True :
         data_convert_r = np.zeros(np.shape(data_convert),dtype=np.float64)
+        long_rot = obs[1]/(2*np.pi)*n_long
         for i_l in range(n_long) :
-            i_l_r = (i_l + n_long)%(n_long)
+            i_l_r = (i_l + long_rot)%(n_long)
             data_convert_r[:,:,:,:,i_l] = data_convert[:,:,:,:,i_l_r]
         data_convert = data_convert_r
 
@@ -1576,7 +1578,11 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
 
 def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,Middle=False,Cylindric=True,Integral=True,Gravity=False) :
 
-    lat_obs,long_obs = obs[0], obs[1]
+    if np.str(obs[1]) != 'Modified' :
+        lat_obs,long_obs = obs[0], obs[1]
+    else :
+        lat_obs,long_obs = obs[0], obs[2]
+        obs = np.delete(obs,np.array([1,3]))
 
     Z = np.zeros(theta_number)
     Y = np.zeros(theta_number)

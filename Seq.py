@@ -56,10 +56,10 @@ if Parameters == True :
         data_path = '%s%s'%(data_base,diag_file)
         if Layers == False :
             data_convert,h_top = Boxes(data_path,delta_z,Rp,h,P_h,t_selec,g0,M,number,T_comp,P_comp,Q_comp,n_species,X_species,\
-                M_species,c_species,m_species,ratio_HeH2,Upper,compo_type,TopPressure,Inverse,Surf,Tracer,Cloudy,Middle,LogInterp,TimeSelec,MassAtm,NoH2,TauREx,Rotate)
+                M_species,c_species,m_species,ratio_HeH2,Upper,compo_type,obs,TopPressure,Inverse,Surf,Tracer,Cloudy,Middle,LogInterp,TimeSelec,MassAtm,NoH2,TauREx,Rotate)
         else :
             data_convert,h_top = NBoxes(data_path,n_layers,Rp,h,P_h,t_selec,g0,M,number,T_comp,P_comp,Q_comp,n_species,X_species,\
-                M_species,c_species,m_species,ratio_HeH2,Upper,compo_type,TopPressure,Inverse,Surf,Tracer,Cloudy,Middle,LogInterp,TimeSelec,MassAtm,NoH2,TauREx,Rotate)
+                M_species,c_species,m_species,ratio_HeH2,Upper,compo_type,obs,TopPressure,Inverse,Surf,Tracer,Cloudy,Middle,LogInterp,TimeSelec,MassAtm,NoH2,TauREx,Rotate)
 
         if TopPressure != 'No' :
             h = h_top
@@ -85,8 +85,15 @@ if Parameters == True :
         path_cyl = '%s%s/%s/'%(path,name_file,stitch_file)
         data = '%s%s/%s/%s_data_convert_%i%i%i.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat)
 
+        if Rotate == True :
+            obs_mod = np.zeros(4)
+            obs_mod[0] = obs[0]
+            obs_mod[1] = 'Modified'
+            obs_mod[2] = obs[1] - obs[1]/(2*np.pi)*reso_long
+            obs_mod[3] = obs[1]
+
         dx_grid_opt, pdx_grid, order_grid = \
-            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,\
+            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs_mod,\
                           Middle,Cylindre,Integral,Gravity)
 
         if Cylindre == True :

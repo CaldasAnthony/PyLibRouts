@@ -463,7 +463,7 @@ def Boxes_interpolation(P,T,Q,Rp,g0,number,P_comp,T_comp,Q_comp,species,x_specie
 
 
 def Boxes_conversion(P,T,Q,gen,z,compo,delta_z,Rp,h,hmax,dim,g0,M_atm,number,T_comp,P_comp,Q_comp,x_species,M_species,ratio,rank,Upper,\
-                     species,m_species,composition,Tracer=False,Clouds=False,Middle=False,LogInterp=False,MassAtm=False,NoH2=False,Rotate=False) :
+                     species,m_species,composition,obs,Tracer=False,Clouds=False,Middle=False,LogInterp=False,MassAtm=False,NoH2=False,Rotate=False) :
 
     n_t,n_l,n_lat,n_long = np.shape(P)
     data_convert = np.zeros((number,n_t,dim,n_lat,n_long),dtype=np.float64)
@@ -694,8 +694,9 @@ def Boxes_conversion(P,T,Q,gen,z,compo,delta_z,Rp,h,hmax,dim,g0,M_atm,number,T_c
 
     if Rotate == True :
         data_convert_r = np.zeros(np.shape(data_convert),dtype=np.float64)
+        long_rot = obs[1]/(2*np.pi)*n_long
         for i_l in range(n_long) :
-            i_l_r = (i_l + n_long)%(n_long)
+            i_l_r = (i_l + long_rot)%(n_long)
             data_convert_r[:,:,:,:,i_l] = data_convert[:,:,:,:,i_l_r]
         data_convert = data_convert_r
 
@@ -913,7 +914,12 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
 def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,n_lay_rank,\
                       Middle=False,Cylindric=True,Integral=True,Gravity=False) :
 
-    lat_obs,long_obs = obs[0], obs[1]
+    if np.str(obs[1]) != 'Modified' :
+        lat_obs,long_obs = obs[0], obs[1]
+    else :
+        lat_obs,long_obs = obs[0], obs[2]
+        obs = np.delete(obs,np.array([1,3]))
+
     rank = n_lay_rank[0]
 
     Z = np.zeros(theta_number)

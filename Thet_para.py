@@ -263,7 +263,7 @@ if Profil == True :
                                     ###### Parallele encoding end ######
 
             data_convert_part = Boxes_conversion(P,T,Q,gen,z_sphe,composition,delta_z,Rp,h,hmax,dim,g0,M_molar,number,T_comp,P_comp,\
-                 Q_comp,X_species,M_species,ratio_HeH2,rank,Upper,n_species,m_species,compo_type,Tracer,Cloudy,Middle,LogInterp,MassAtm,NoH2,Rotate)
+                 Q_comp,X_species,M_species,ratio_HeH2,rank,Upper,n_species,m_species,compo_type,obs,Tracer,Cloudy,Middle,LogInterp,MassAtm,NoH2,Rotate)
 
                                     ###### Parallele encoding init ######
 
@@ -324,8 +324,16 @@ if Parameters == True :
 
         path_cyl = '%s%s/%s/'%(path,name_file,stitch_file)
         data = '%s%s/%s/%s_data_convert_%i%i%i.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat)
+
+        if Rotate == True :
+            obs_mod = np.zeros(3)
+            obs_mod[0] = obs[0]
+            obs_mod[1] = 'Modified'
+            obs_mod[2] = obs[1] - obs[1]/(2*np.pi)*reso_long
+            obs_mod[3] = obs[1]
+
         q_lat_grid_n, q_long_grid_n, q_z_grid_n, q_zh_grid_n, dx_grid_opt_n, pdx_grid_n, order_grid_n = \
-            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,n_level_rank,\
+            dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs_mod,n_level_rank,\
                           Middle,Cylindre,Integral,Gravity)
 
                                     ###### Parallele encoding init ######

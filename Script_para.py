@@ -247,10 +247,13 @@ Box = True             ###### Transpose la maille spherique en altitude
 Surf = True            ###### Si des donnees de surface sont accessibles
 LogInterp = False       ###### Interpolation de la pression via le logarithme
 N_fixe = True          ###### Si nous voulons imposer le nombre de couche atmospherique
-Rotate = False
 TopPressure = 'Up'    ###### Si nous voulons fixer le toit de l'atmosphere par rapport a une pression minimale
 MassAtm = False         ###### Si on tient compte de la masse atmospherique
 compo_type = np.array(['tracer_other'])
+if obs[1] > 2*np.pi/np.float(reso_long) :
+    Rotate = True
+else :
+    Rotate = False
 
 Parameters = True
 

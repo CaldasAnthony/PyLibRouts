@@ -237,13 +237,16 @@ Profil = True          ###### Reproduit la maille spherique en altitude
 
 Box = True             ###### Transpose la maille spherique en altitude
 Layers = True          ###### Decoupage en nombre de couche
-Rotate = False
 Surf = True            ###### Si des donnees de surface sont accessibles
 LogInterp = False       ###### Interpolation de la pression via le logarithme
 N_fixe = True          ###### Si nous voulons imposer le nombre de couche atmospherique
 TopPressure = 'Up'    ###### Si nous voulons fixer le toit de l'atmosphere par rapport a une pression minimale
 MassAtm = False         ###### Si on tient compte de la masse atmospherique
 compo_type = np.array(['composition'])
+if obs[1] > 2*np.pi/np.float(reso_long) :
+    Rotate = True
+else :
+    Rotate = False
 
 Corr = False            ###### Traite les parcours optiques
 Integral = True        ###### Effectue l'integration sur les chemins optiques
