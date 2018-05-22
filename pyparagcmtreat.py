@@ -1330,8 +1330,8 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                         else :
                             pdx_grid[i_r,i_theta,i_d] = integ[0]
 
-                if rank == 0 :
-                    bar.animate(i_r*theta_number+i_theta+1)
+                    if rank == 0 :
+                        bar.animate(i_r*theta_number+i_theta+1)
     else :
         pdx_grid = np.array([])
 

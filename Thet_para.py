@@ -329,7 +329,7 @@ if Parameters == True :
             dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,n_level_rank,\
                           Middle,Cylindre,Integral,Gravity)
 
-        obs = obs[:2]
+        obs = np.array([lat_obs,long_obs],dtype=np.float64)
 
                                     ###### Parallele encoding init ######
 
