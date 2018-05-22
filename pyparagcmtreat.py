@@ -915,9 +915,9 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                       Middle=False,Cylindric=True,Integral=True,Gravity=False) :
 
     if np.str(obs[2]) != 'Modified' :
-        lat_obs,long_obs = obs[0], obs[1]
+        lat_obs,long_obs = np.float(obs[0]), np.float(obs[1])
     else :
-        lat_obs,long_obs = obs[0], obs[3]
+        lat_obs,long_obs = np.float(obs[0]), np.float(obs[3])
 
     rank = n_lay_rank[0]
 
@@ -1272,10 +1272,10 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
     else :
 
         q_zh_grid = np.load('%sq_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy'%(path,theta_number,reso_long,reso_lat,\
-                reso_alt,delta_r,obs[0],obs[1]))
+                reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])))
         q_zh_grid = q_zh_grid[n_lay_rank]
         order_grid = np.load('%sorder_grid_%i_%i%i%i_%i_%.2f_%.2f.npy'%(path,theta_number,reso_long,reso_lat,\
-                reso_alt,delta_r,obs[0],obs[1]))
+                reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])))
         order_grid = order_grid[:,n_lay_rank]
 
     ###################################### Calcul integral des sous-parcours ###########################################

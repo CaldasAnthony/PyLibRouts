@@ -236,15 +236,14 @@ def saving(dimension,type,special,save_adress,version,name,reso_long,reso_lat,t,
 
     incrotob = ''
     if obs[0] != 0. :
-        print obs[0]
-        incrotob += 'la%.2f'%(obs[0])
+        incrotob += 'la%.2f'%(np.float(obs[0]))
         if obs[1] != 0. :
-            incrotob += '_lo%.2f_'%(obs[1])
+            incrotob += '_lo%.2f_'%(np.float(obs[1]))
         else :
             incrotob += '_'
     else :
         if obs[1] != 0. :
-            incrotob += 'lo%.2f_'%(obs[1])
+            incrotob += 'lo%.2f_'%(np.float(obs[1]))
 
     if Kcorr == True :
         if D1 == False :

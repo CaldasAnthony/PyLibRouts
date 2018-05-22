@@ -1579,9 +1579,9 @@ def cylindric_assymatrix_parameter(Rp,h,long_step,lat_step,r_step,theta_step,the
 def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,Middle=False,Cylindric=True,Integral=True,Gravity=False) :
 
     if np.str(obs[2]) != 'Modified' :
-        lat_obs,long_obs = obs[0], obs[1]
+        lat_obs,long_obs = np.float(obs[0]), np.float(obs[1])
     else :
-        lat_obs,long_obs = obs[0], obs[3]
+        lat_obs,long_obs = np.float(obs[0]), np.float(obs[3])
 
     Z = np.zeros(theta_number)
     Y = np.zeros(theta_number)
@@ -1912,22 +1912,22 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
         order_grid[2] = q_long_grid
 
         np.save("%sq_lat_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
-                    reso_alt,delta_r,obs[0],obs[1]),q_lat_grid)
+                    reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])),q_lat_grid)
         np.save("%sq_long_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
-                    reso_alt,delta_r,obs[0],obs[1]),q_long_grid)
+                    reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])),q_long_grid)
         np.save("%sq_z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
-                    reso_alt,delta_r,obs[0],obs[1]),q_z_grid)
+                    reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])),q_z_grid)
         np.save("%sq_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,theta_number,reso_long,reso_lat,\
-                    reso_alt,delta_r,obs[0],obs[1]),q_z_grid)
+                    reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])),q_z_grid)
 
         del q_lat_grid, q_long_grid, q_z_grid
 
     else :
 
         q_zh_grid = np.load('%sq_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy'%(path,theta_number,reso_long,reso_lat,\
-                reso_alt,delta_r,obs[0],obs[1]))
+                reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])))
         order_grid = np.load('%sorder_grid_%i_%i%i%i_%i_%.2f_%.2f.npy'%(path,theta_number,reso_long,reso_lat,\
-                reso_alt,delta_r,obs[0],obs[1]))
+                reso_alt,delta_r,np.float(obs[0]),np.float(obs[1])))
 
     ###################################### Calcul integral des sous-parcours ###########################################
 

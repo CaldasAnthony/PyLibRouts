@@ -89,6 +89,8 @@ if Parameters == True :
             dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,\
                           Middle,Cylindre,Integral,Gravity)
 
+        obs = obs[:2]
+
         if Cylindre == True :
 
             np.save("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
