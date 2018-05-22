@@ -243,10 +243,12 @@ N_fixe = True          ###### Si nous voulons imposer le nombre de couche atmosp
 TopPressure = 'Up'    ###### Si nous voulons fixer le toit de l'atmosphere par rapport a une pression minimale
 MassAtm = False         ###### Si on tient compte de la masse atmospherique
 compo_type = np.array(['composition'])
-if obs[1] > 2*np.pi/np.float(reso_long) :
+if long_obs > 2*np.pi/np.float(reso_long) :
     Rotate = True
+    obs = np.array([lat_obs,long_obs,'Modified',long_obs - long_obs/(2*np.pi)*reso_long])
 else :
     Rotate = False
+    obs = np.array([lat_obs,long_obs,'NotModified',long_obs])
 
 Corr = False            ###### Traite les parcours optiques
 Integral = True        ###### Effectue l'integration sur les chemins optiques

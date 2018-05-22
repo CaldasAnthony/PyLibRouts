@@ -49,7 +49,6 @@ if diag_file == '' :
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.45, 0.00, 0.00
 lat_obs, long_obs = 0.00, 0.00
-obs = np.array([lat_obs,long_obs])
 
 Record = True
 
@@ -250,10 +249,12 @@ N_fixe = True          ###### Si nous voulons imposer le nombre de couche atmosp
 TopPressure = 'Up'    ###### Si nous voulons fixer le toit de l'atmosphere par rapport a une pression minimale
 MassAtm = False         ###### Si on tient compte de la masse atmospherique
 compo_type = np.array(['tracer_other'])
-if obs[1] > 2*np.pi/np.float(reso_long) :
+if long_obs > 2*np.pi/np.float(reso_long) :
     Rotate = True
+    obs = np.array([lat_obs,long_obs,'Modified',long_obs - long_obs/(2*np.pi)*reso_long])
 else :
     Rotate = False
+    obs = np.array([lat_obs,long_obs,'NotModified',long_obs])
 
 Parameters = True
 

@@ -325,15 +325,6 @@ if Parameters == True :
         path_cyl = '%s%s/%s/'%(path,name_file,stitch_file)
         data = '%s%s/%s/%s_data_convert_%i%i%i.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat)
 
-        if Rotate == True :
-            obs_mod = np.zeros(3)
-            obs_mod[0] = obs[0]
-            obs_mod[1] = 'Modified'
-            obs_mod[2] = obs[1] - obs[1]/(2*np.pi)*reso_long
-            obs_mod[3] = obs[1]
-        else :
-            obs_mod = obs
-
         q_lat_grid_n, q_long_grid_n, q_z_grid_n, q_zh_grid_n, dx_grid_opt_n, pdx_grid_n, order_grid_n = \
             dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs_mod,n_level_rank,\
                           Middle,Cylindre,Integral,Gravity)
