@@ -693,9 +693,8 @@ def Boxes_conversion(P,T,Q,gen,z,compo,delta_z,Rp,h,hmax,dim,g0,M_atm,number,T_c
         print 'Shape of the dataset :',np.shape(data_convert)
 
     if Rotate == True :
-        print obs
         data_convert_r = np.zeros(np.shape(data_convert),dtype=np.float64)
-        long_rot = np.int(obs[1]/(2*np.pi)*n_long)
+        long_rot = np.int(np.float(obs[1])/(2*np.pi)*n_long)
         for i_l in range(n_long) :
             i_l_r = (i_l + long_rot)%(n_long)
             data_convert_r[:,:,:,:,i_l] = data_convert[:,:,:,:,i_l_r]

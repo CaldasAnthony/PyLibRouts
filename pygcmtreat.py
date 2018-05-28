@@ -748,7 +748,7 @@ def Boxes(data,delta_z,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species,x
         print 'Data needs to be reverse on latitude.'
     if Rotate == True :
         data_convert_r = np.zeros(np.shape(data_convert),dtype=np.float64)
-        long_rot = np.int(obs[1]/(2*np.pi)*n_long)
+        long_rot = np.int(np.float(obs[1])/(2*np.pi)*n_long)
         for i_l in range(n_long) :
             i_l_r = (i_l + long_rot)%(n_long)
             data_convert_r[:,:,:,:,i_l] = data_convert[:,:,:,:,i_l_r]
@@ -1374,7 +1374,7 @@ def NBoxes(data,n_layers,Rp,h,P_h,t,g0,M_atm,number,T_comp,P_comp,Q_comp,species
         print 'Data needs to be reverse on latitude.'
     if Rotate == True :
         data_convert_r = np.zeros(np.shape(data_convert),dtype=np.float64)
-        long_rot = np.int(obs[1]/(2*np.pi)*n_long)
+        long_rot = np.int(np.float(obs[1])/(2*np.pi)*n_long)
         for i_l in range(n_long) :
             i_l_r = (i_l + long_rot)%(n_long)
             data_convert_r[:,:,:,:,i_l] = data_convert[:,:,:,:,i_l_r]
