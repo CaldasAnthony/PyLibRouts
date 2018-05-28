@@ -22,6 +22,7 @@ print 'Mean molar mass : %.5f kg/mol'%(M)
 print 'Extrapolation type for the upper atmosphere : %s'%(Upper)
 number = 2 + m_species.size + c_species.size + n_species.size + 1
 print 'Resolution of the GCM simulation (latitude/longitude) : %i/%i'%(reso_lat,reso_long)
+print 'Position of the observer (long,lat) : (%.2f,%.2f)'%(long_obs,lat_obs)
 
 ########################################################################################################################
 

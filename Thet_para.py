@@ -34,6 +34,7 @@ if rank == 0 :
     print 'Extrapolation type for the upper atmosphere : %s'%(Upper)
     number = 2 + m_species.size + c_species.size + n_species.size + 1
     print 'Resolution of the GCM simulation (latitude/longitude) : %i/%i'%(reso_lat,reso_long)
+    print 'Position of the observer (long,lat) : (%.2f,%.2f)'%(long_obs,lat_obs)
 
 ########################################################################################################################
 
@@ -445,7 +446,7 @@ if Parameters == True :
 
             if rank == 0 :
                 np.save("%s%s/%s/q_z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
-                        reso_alt,r_step,phi_rot,phi_obli),q_z_grid)
+                        reso_alt,r_step,obs[0],obs[1]),q_z_grid)
                 print 'Reconstitution of the altitude grid finished with success'
                 del q_z_grid, q_z_grid_ne
             del q_z_grid_n
@@ -476,7 +477,7 @@ if Parameters == True :
 
             if rank == 0 :
                 np.save("%s%s/%s/q_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
-                        reso_alt,r_step,phi_rot,phi_obli),q_zh_grid)
+                        reso_alt,r_step,obs[0],obs[1]),q_zh_grid)
                 print 'Reconstitution of the integral altitude grid finished with success'
                 del q_zh_grid, q_zh_grid_ne
             del q_zh_grid_n
@@ -511,7 +512,7 @@ if Parameters == True :
                                         ###### Parallele encoding end ######
 
             if rank == 0 :
-                np.save("%s%s/%s/dx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
+                np.save("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
                             reso_lat,reso_alt,r_step,obs[0],obs[1]),dx_grid_opt)
                 np.save("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
                             reso_lat,reso_alt,r_step,obs[0],obs[1]),order_grid)

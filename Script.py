@@ -317,3 +317,5 @@ save_name_3D = saving('3D',type,special,save_adress,version,name_exo,reso_long,r
             obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
 
 ########################################################################################################################
+
+print 'Ratio He/H2 : ', ratio_HeH2
