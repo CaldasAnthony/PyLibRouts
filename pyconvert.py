@@ -80,40 +80,40 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
         dim_T,dim_P,dim_x,dim_bande = np.shape(K)
 
     if Kcorr == True :
-        np.save("%s%s/P_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/P_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
         %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),P_rmd)
-        np.save("%s%s/T_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/T_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
         %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),T_rmd)
-        np.save("%s%s/rmind_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/rmind_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
         %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),rmind)
         if Tracer == True :
-            np.save("%s%s/Q_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/Q_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),Q_rmd)
     else :
-        np.save("%s%s/P_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/P_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
         %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),P_rmd)
-        np.save("%s%s/T_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/T_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
         %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),T_rmd)
-        np.save("%s%s/rmind_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy" \
+        np.save("%s%s/rmind_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy" \
         %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),rmind)
         if Tracer ==True :
-            np.save("%s%s/Q_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/Q_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),Q_rmd)
 
     if Clouds == True :
 
         if Kcorr == True :
-            np.save("%s%s/gen_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/gen_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),gen_cond_rmd)
         else :
-            np.save("%s%s/gen_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/gen_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),gen_cond_rmd)
 
     if Kcorr == True :
-        np.save("%s%s/compo_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/compo_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),composit_rmd)
     else :
-        np.save("%s%s/compo_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/compo_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),composit_rmd)
 
     zero, = np.where(P_rmd == 0.)
@@ -132,11 +132,11 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
         if Kcorr == True :
             if Tracer == False :
                 k_rmd = Ksearcher(T_rmd,P_rmd,dim_gauss,dim_bande,K,P_sample,T_sample,rank,rank_ref,Kcorr,Optimal,True)
-                np.save("%s%s/k_corr_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+                np.save("%s%s/k_corr_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),k_rmd)
             else :
                 k_rmd = Ksearcher_M(T_rmd,P_rmd,Q_rmd,dim_gauss,dim_bande,K,P_sample,T_sample,Q_sample,rank,rank_ref,Kcorr,Optimal,True)
-                np.save("%s%s/k_corr_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+                np.save("%s%s/k_corr_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),k_rmd)
 
             if Script == True :
@@ -147,10 +147,10 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
             k_rmd = Ssearcher(T_rmd,P_rmd,compo_active,K,P_sample,T_sample,rank,rank_ref,Kcorr,Optimal,True)
 
             if Optimal == False :
-                np.save("%s%s/k_cross_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+                np.save("%s%s/k_cross_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
                     %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),k_rmd)
             else :
-                np.save("%s%s/k_cross_opt_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+                np.save("%s%s/k_cross_opt_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
                     %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),k_rmd)
 
             if Script == True :
@@ -225,10 +225,10 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
             if Other == False :
 
                 if Kcorr == True :
-                    np.save("%s%s/k_cont_all_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    np.save("%s%s/k_cont_all_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,lay),k_cont_rmd)
                 else :
-                    np.save("%s%s/k_cont_all_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    np.save("%s%s/k_cont_all_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,lay),k_cont_rmd)
                 del k_cont_rmd
 
@@ -264,10 +264,10 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
 
                     if decont == cont_species.size -1 :
                         if Kcorr == True :
-                            np.save("%s%s/k_cont_all_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                            np.save("%s%s/k_cont_all_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,lay),k_cont_rmd)
                         else :
-                            np.save("%s%s/k_cont_all_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                            np.save("%s%s/k_cont_all_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,lay),k_cont_rmd)
                         del k_cont_rmd
                     decont += 1
@@ -280,24 +280,24 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
         for lay in range(rmind[0].size-1) :
 
             if Kcorr == True :
-                k = np.load("%s%s/k_cont_all_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                k = np.load("%s%s/k_cont_all_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,lay))
                 k_cont_rmd[rmind[0,lay]:rmind[0,lay+1],:] = np.transpose(k)
-                os.remove("%s%s/k_cont_all_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                os.remove("%s%s/k_cont_all_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain,lay))
             else :
-                k = np.load("%s%s/k_cont_all_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                k = np.load("%s%s/k_cont_all_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,lay))
                 k_cont_rmd[rmind[0,lay]:rmind[0,lay+1],:] = np.transpose(k)
-                os.remove("%s%s/k_cont_all_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                os.remove("%s%s/k_cont_all_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain,lay))
             del k
 
         if Kcorr == True :
-            np.save("%s%s/k_cont_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/k_cont_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
                     %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),k_cont_rmd)
         else :
-            np.save("%s%s/k_cont_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/k_cont_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
                     %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),k_cont_rmd)
         del k_cont_rmd
 
@@ -315,10 +315,10 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
         k_sca_rmd = Rayleigh_scattering(P_rmd,T_rmd,bande_sample,x_mol_species,n_species,zero,rank,rank_ref,Kcorr,True)
 
         if Kcorr == True :
-            np.save("%s%s/k_sca_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/k_sca_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),k_sca_rmd)
         else :
-            np.save("%s%s/k_sca_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/k_sca_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),k_sca_rmd)
 
         print "Rayleigh_scattering finished with success"
@@ -367,10 +367,10 @@ def convertator (P,T,gen,c_species,Q,compo,ind_active,ind_cross,K,K_cont,Qext,P_
                 r_enn += '%.2f'%(r_eff[i_r]*10**6)
 
         if Kcorr == True :
-            np.save("%s%s/k_cloud_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%s.npy" \
+            np.save("%s%s/k_cloud_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%s.npy" \
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,r_enn,domain),k_cloud_rmd)
         else :
-            np.save("%s%s/k_cloud_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%s.npy" \
+            np.save("%s%s/k_cloud_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%s.npy" \
                 %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,r_enn,domain),k_cloud_rmd)
 
         del Qext,k_cloud_rmd

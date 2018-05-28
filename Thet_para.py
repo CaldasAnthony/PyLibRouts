@@ -304,7 +304,7 @@ if Profil == True :
                 data_convert = reverse_dim(data_convert,3,np.float64)
                 print 'Data needs to be reverse on latitude.'
             print 'Conversion of the dataset finished with success'
-            np.save("%s%s/%s/%s_data_convert_%i%i%i.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat),\
+            np.save("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat,long_obs,stu_name),\
                     data_convert)
             save_name_3D = saving('3D',type,special,save_adress,version,name_exo,reso_long,reso_lat,t,h,dim_bande,dim_gauss,r_step,\
             obs,r_eff,domain,stud,lim_alt,rupt_alt,long,lat,Discreet,Integration,Module,Optimal,Kcorr,False)
@@ -324,7 +324,7 @@ if Parameters == True :
                                     ###### Parallele encoding end ######
 
         path_cyl = '%s%s/%s/'%(path,name_file,stitch_file)
-        data = '%s%s/%s/%s_data_convert_%i%i%i.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat)
+        data = '%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy'%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat,long_obs,stu_name)
 
         q_lat_grid_n, q_long_grid_n, q_z_grid_n, q_zh_grid_n, dx_grid_opt_n, pdx_grid_n, order_grid_n = \
             dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,n_level_rank,\
@@ -379,7 +379,7 @@ if Parameters == True :
                                         ###### Parallele encoding end ######
 
             if rank == 0 :
-                np.save("%s%s/%s/q_lat_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                np.save("%s%s/%s/q_lat_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                     reso_alt,r_step,obs[0],obs[1]),q_lat_grid)
                 print 'Reconstitution of the latitude grid finished with success'
                 del q_lat_grid, q_lat_grid_ne
@@ -412,7 +412,7 @@ if Parameters == True :
                                         ###### Parallele encoding end ######
 
             if rank == 0 :
-                np.save("%s%s/%s/q_long_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                np.save("%s%s/%s/q_long_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                         reso_alt,r_step,obs[0],obs[1]),q_long_grid)
                 print 'Reconstitution of the longitude grid finished with success'
                 del q_long_grid, q_long_grid_ne
@@ -445,7 +445,7 @@ if Parameters == True :
                                         ###### Parallele encoding end ######
 
             if rank == 0 :
-                np.save("%s%s/%s/q_z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                np.save("%s%s/%s/q_z_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                         reso_alt,r_step,obs[0],obs[1]),q_z_grid)
                 print 'Reconstitution of the altitude grid finished with success'
                 del q_z_grid, q_z_grid_ne
@@ -476,7 +476,7 @@ if Parameters == True :
                                         ###### Parallele encoding end ######
 
             if rank == 0 :
-                np.save("%s%s/%s/q_zh_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
+                np.save("%s%s/%s/q_zh_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,reso_lat,\
                         reso_alt,r_step,obs[0],obs[1]),q_zh_grid)
                 print 'Reconstitution of the integral altitude grid finished with success'
                 del q_zh_grid, q_zh_grid_ne
@@ -512,9 +512,9 @@ if Parameters == True :
                                         ###### Parallele encoding end ######
 
             if rank == 0 :
-                np.save("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
+                np.save("%s%s/%s/dx_grid_opt_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
                             reso_lat,reso_alt,r_step,obs[0],obs[1]),dx_grid_opt)
-                np.save("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
+                np.save("%s%s/%s/order_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,reso_long,\
                             reso_lat,reso_alt,r_step,obs[0],obs[1]),order_grid)
                 print 'Reconstitution of the sub-path length grid finished with success'
                 print 'Reconstitution of the order grid finished with success'
@@ -551,7 +551,7 @@ if Parameters == True :
                                         ###### Parallele encoding end ######
 
             if rank == 0 :
-                np.save("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"
+                np.save("%s%s/%s/pdx_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"
                     %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]),pdx_grid)
                 print 'Reconstitution of the integrated density grid finished with success'
                 del pdx_grid, pdx_grid_ne
@@ -572,10 +572,10 @@ if Parameters == True :
 
         n_lay_rank = repartition(n_layers+1,number_rank,rank,False)
 
-        data_convert = np.load("%s%s/%s/%s_data_convert_%i%i%i.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
-                    reso_lat))
+        data_convert = np.load("%s%s/%s/%s_data_convert_%i%i%i_lo%.2f%s.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
+                    reso_lat,long_obs,stu_name))
 
-        order_grid = np.load("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,\
+        order_grid = np.load("%s%s/%s/order_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,\
                     reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
 
         order_grid = order_grid[:,n_lay_rank,:,:]
@@ -653,26 +653,26 @@ if Parameters == True :
 
         if rank == 0 :
 
-            np.save("%s%s/%s/%s_P_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
+            np.save("%s%s/%s/%s_P_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
                     t_selec,r_step,obs[0],obs[1]),result_P)
             del result_P,result_n_P
-            np.save("%s%s/%s/%s_T_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
+            np.save("%s%s/%s/%s_T_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
                     t_selec,r_step,obs[0],obs[1]),result_T)
             del result_T,result_n_T
-            np.save("%s%s/%s/%s_Q_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
+            np.save("%s%s/%s/%s_Q_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
                 t_selec,r_step,obs[0],obs[1]),result_Cn)
             del result_Cn,result_n_Cn
-            np.save("%s%s/%s/%s_compo_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
+            np.save("%s%s/%s/%s_compo_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,\
                 t_selec,r_step,obs[0],obs[1]),result_comp)
             del result_comp,result_n_comp
 
             if Tracer == True :
-                np.save("%s%s/%s/%s_Cn_%i%i%i_%i_%i_%.2f_%.2f.npy"%\
+                np.save("%s%s/%s/%s_Cn_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%\
                         (path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]),\
                         result_Q)
                 del result_Q,result_n_Q
             if Cloudy == True :
-                np.save("%s%s/%s/%s_gen_%i%i%i_%i_%i_%.2f_%.2f.npy"%\
+                np.save("%s%s/%s/%s_gen_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%\
                         (path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]),\
                         result_gen)
                 del result_gen,result_n_gen
@@ -685,21 +685,21 @@ if Parameters == True :
 
     if Convert == True :
 
-        P = np.load("%s%s/%s/%s_P_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,\
+        P = np.load("%s%s/%s/%s_P_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,\
             reso_alt,t_selec,r_step,obs[0],obs[1]))
-        T = np.load("%s%s/%s/%s_T_%i%i%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,\
+        T = np.load("%s%s/%s/%s_T_%ix%ix%i_%i_%i_%.2f_%.2f.npy"%(path,name_file,param_file,name_exo,reso_long,reso_lat,\
             reso_alt,t_selec,r_step,obs[0],obs[1]))
         if Tracer == True :
-            Q = np.load("%s%s/%s/%s_Q_%i%i%i_%i_%i_%.2f_%.2f.npy"\
+            Q = np.load("%s%s/%s/%s_Q_%ix%ix%i_%i_%i_%.2f_%.2f.npy"\
             %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]))
         else :
             Q = np.array([])
         if Cloudy == True :
-            gen = np.load("%s%s/%s/%s_gen_%i%i%i_%i_%i_%.2f_%.2f.npy"\
+            gen = np.load("%s%s/%s/%s_gen_%ix%ix%i_%i_%i_%.2f_%.2f.npy"\
             %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]))
         else :
             gen = np.array([])
-        comp = np.load("%s%s/%s/%s_compo_%i%i%i_%i_%i_%.2f_%.2f.npy"\
+        comp = np.load("%s%s/%s/%s_compo_%ix%ix%i_%i_%i_%.2f_%.2f.npy"\
             %(path,name_file,param_file,name_exo,reso_long,reso_lat,reso_alt,t_selec,r_step,obs[0],obs[1]))
 
 
@@ -750,11 +750,11 @@ if Parameters == True :
         del P,T,Q,gen,comp,P_rmd,T_rmd,Q_rmd,gen_cond_rmd,composit_rmd,rmind
 
         if Kcorr == True :
-            rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            rmind = np.load("%s%s/%s/Temp/rmind_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
         else :
-            rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            rmind = np.load("%s%s/%s/Temp/rmind_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
 
             comm.Barrier()
@@ -764,23 +764,23 @@ if Parameters == True :
         if Kcorr == True :
 
             rmind = np.array(rmind,dtype=np.int)
-            T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            T_rmd = np.load("%s%s/%s/Temp/T_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                         domain,rank))
-            P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            P_rmd = np.load("%s%s/%s/Temp/P_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
-            composit_rmd = np.load("%s%s/%s/Temp/compo_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            composit_rmd = np.load("%s%s/%s/Temp/compo_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
             if Cl == True :
-                gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                gen_rmd = np.load("%s%s/%s/Temp/gen_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
             else :
                 gen_rmd = np.array([])
             if Tracer == True :
-                Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                Q_rmd = np.load("%s%s/%s/Temp/Q_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                       domain,rank))
             else :
@@ -789,25 +789,25 @@ if Parameters == True :
         else :
 
             rmind = np.array(rmind,dtype=np.int)
-            T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            T_rmd = np.load("%s%s/%s/Temp/T_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
-            P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            P_rmd = np.load("%s%s/%s/Temp/P_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
-            composit_rmd = np.load("%s%s/%s/Temp/compo_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            composit_rmd = np.load("%s%s/%s/Temp/compo_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             if Cl :
-                gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                gen_rmd = np.load("%s%s/%s/Temp/gen_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 gen_rmd = np.array([])
             if Tracer == True :
-                Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                Q_rmd = np.load("%s%s/%s/Temp/Q_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 Q_rmd = np.array([])
 
-        data_convert = np.load("%s%s/%s/%s_data_convert_%i%i%i.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
-                    reso_lat))
+        data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
+                    reso_lat,long_obs,stu_name))
 
 ########################################################################################################################
 
@@ -883,33 +883,33 @@ if Cylindric_transfert_3D == True :
     if rank == 0 : 
         print('Download of stiches array')
     
-    order_grid = np.load("%s%s/%s/order_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"\
+    order_grid = np.load("%s%s/%s/order_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"\
                 %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
     order_grid = order_grid[:,:,dom_rank,:]
     if Module == True :
-        z_grid = np.load("%s%s/%s/z_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"\
+        z_grid = np.load("%s%s/%s/z_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"\
                 %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         z_grid = z_grid[:,dom_rank,:]
     else :
         z_grid = np.array([])
 
     if Discreet == True :
-        dx_grid = np.load("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"\
+        dx_grid = np.load("%s%s/%s/dx_grid_opt_%i_%ix%ix%i_%i_%.2f_%.2f.npy"\
                 %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         dx_grid = dx_grid[:,dom_rank,:]
         pdx_grid = np.array([])
 
     else :
     
-        pdx_grid = np.load("%s%s/%s/pdx_grid_%i_%i%i%i_%i_%.2f_%.2f.npy"\
+        pdx_grid = np.load("%s%s/%s/pdx_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"\
                        %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         pdx_grid = pdx_grid[:,dom_rank,:]
-        dx_grid = np.load("%s%s/%s/dx_grid_opt_%i_%i%i%i_%i_%.2f_%.2f.npy"\
+        dx_grid = np.load("%s%s/%s/dx_grid_opt_%i_%ix%ix%i_%i_%.2f_%.2f.npy"\
                       %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
         dx_grid = dx_grid[:,dom_rank,:]
 
-    data_convert = np.load("%s%s/%s/%s_data_convert_%i%i%i.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
-                reso_lat))
+    data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
+                reso_lat,long_obs,stu_name))
 
 ########################################################################################################################
 
@@ -917,43 +917,43 @@ if Cylindric_transfert_3D == True :
         print('Download of couples array')
 
     if Kcorr == True :
-        T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+        T_rmd = np.load("%s%s/%s/Temp/T_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
-        P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+        P_rmd = np.load("%s%s/%s/Temp/P_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
         if Clouds == True :
-            gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            gen_rmd = np.load("%s%s/%s/Temp/gen_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
         else :
             gen_rmd = np.array([])
         if Tracer == True :
-            Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            Q_rmd = np.load("%s%s/%s/Temp/Q_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
         else :
             Q_rmd = np.array([])
-        rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+        rmind = np.load("%s%s/%s/Temp/rmind_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                   domain,rank))
     else :
-        T_rmd = np.load("%s%s/%s/Temp/T_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+        T_rmd = np.load("%s%s/%s/Temp/T_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
-        P_rmd = np.load("%s%s/%s/Temp/P_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+        P_rmd = np.load("%s%s/%s/Temp/P_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
         if Clouds == True :
-            gen_rmd = np.load("%s%s/%s/Temp/gen_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            gen_rmd = np.load("%s%s/%s/Temp/gen_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
         else :
             gen_rmd = np.array([])
         if Tracer == True :
-            Q_rmd = np.load("%s%s/%s/Temp/Q_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+            Q_rmd = np.load("%s%s/%s/Temp/Q_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
         else :
             Q_rmd = np.array([])
-        rmind = np.load("%s%s/%s/Temp/rmind_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+        rmind = np.load("%s%s/%s/Temp/rmind_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                 %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
 
 ########################################################################################################################
@@ -994,24 +994,24 @@ if Cylindric_transfert_3D == True :
 
             if Molecular == True :
                 if Kcorr == True :
-                    k_rmd = np.load("%s%s/%s/Temp/k_corr_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    k_rmd = np.load("%s%s/%s/Temp/k_corr_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                     gauss_val = np.load("%s%s/gauss_sample.npy"%(path,name_source))
                 else :
                     if Optimal == True :
-                        k_rmd = np.load("%s%s/%s/Temp/k_cross_opt_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                        k_rmd = np.load("%s%s/%s/Temp/k_cross_opt_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                         %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
                     else :
-                        k_rmd = np.load("%s%s/%s/Temp/k_cross_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                        k_rmd = np.load("%s%s/%s/Temp/k_cross_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                         %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
                     gauss_val = np.array([])
             else :
                 if Kcorr == True :
-                    k_rmd = np.load("%s%s/%s/Temp/k_corr_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    k_rmd = np.load("%s%s/%s/Temp/k_corr_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                     k_rmd = np.shape(k_rmd)
                 else :
-                    k_rmd = np.load("%s%s/%s/Temp/k_cross_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    k_rmd = np.load("%s%s/%s/Temp/k_cross_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                         %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
                     k_rmd = np.shape(k_rmd)
                 gauss_val = np.array([])
@@ -1020,10 +1020,10 @@ if Cylindric_transfert_3D == True :
 
             if Continuum == True :
                 if Kcorr == True :
-                    k_cont_rmd = np.load("%s%s/%s/Temp/k_cont_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    k_cont_rmd = np.load("%s%s/%s/Temp/k_cont_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                 else :
-                    k_cont_rmd = np.load("%s%s/%s/Temp/k_cont_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    k_cont_rmd = np.load("%s%s/%s/Temp/k_cont_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 k_cont_rmd = np.array([])
@@ -1032,10 +1032,10 @@ if Cylindric_transfert_3D == True :
 
             if Scattering == True :
                 if Kcorr == True :
-                    k_sca_rmd = np.load("%s%s/%s/Temp/k_sca_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    k_sca_rmd = np.load("%s%s/%s/Temp/k_sca_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],domain,rank))
                 else :
-                    k_sca_rmd = np.load("%s%s/%s/Temp/k_sca_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
+                    k_sca_rmd = np.load("%s%s/%s/Temp/k_sca_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%i.npy"\
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],domain,rank))
             else :
                 k_sca_rmd = np.array([])
@@ -1050,11 +1050,11 @@ if Cylindric_transfert_3D == True :
                     else :
                         r_enn += '%.2f'%(r_eff[i_r]*10**6)
                 if Kcorr == True :
-                    k_cloud_rmd = np.load("%s%s/%s/Temp/k_cloud_%i%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s_%s_%i.npy" \
+                    k_cloud_rmd = np.load("%s%s/%s/Temp/k_cloud_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s_%s_%i.npy" \
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,obs[0],obs[1],\
                     r_enn,domain,rank))
                 else :
-                    k_cloud_rmd = np.load("%s%s/%s/Temp/k_cloud_%i%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%s_%i.npy" \
+                    k_cloud_rmd = np.load("%s%s/%s/Temp/k_cloud_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s_%s_%i.npy" \
                     %(path,name_file,opac_file,reso_long,reso_lat,name_exo,t,dim_bande,x_step,obs[0],obs[1],r_enn,domain,rank))
             else :
                 k_cloud_rmd = np.array([])

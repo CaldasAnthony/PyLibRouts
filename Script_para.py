@@ -31,6 +31,7 @@ name_file = "Files/Para"
 name_source = "Source_trappist"
 #name_exo = "GJ1214b"
 name_exo = "Trappist"
+stu_name = '_0.5mu'
 opac_file, param_file, stitch_file = 'Opacity', 'Parameters', 'Stitch'
 version = 6.3
 
