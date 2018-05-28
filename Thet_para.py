@@ -572,7 +572,7 @@ if Parameters == True :
 
         n_lay_rank = repartition(n_layers+1,number_rank,rank,False)
 
-        data_convert = np.load("%s%s/%s/%sdata_convert_%ix%ix%i_lo%.2f%s.npy"\
+        data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"\
                                %(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat,long_obs,stu_name))
 
         order_grid = np.load("%s%s/%s/order_grid_%i_%ix%ix%i_%i_%.2f_%.2f.npy"%(path,name_file,stitch_file,theta_number,\
@@ -806,7 +806,7 @@ if Parameters == True :
             else :
                 Q_rmd = np.array([])
 
-        data_convert = np.load("%s%s/%s/%sdata_convert_%ix%ix%i_lo%.2f%s.npy"\
+        data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"\
                     %(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat,long_obs,stu_name))
 
 ########################################################################################################################

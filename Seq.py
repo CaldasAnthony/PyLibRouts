@@ -115,8 +115,8 @@ if Parameters == True :
 
         if Profil == False :
 
-            data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
-                reso_lat,long_obs,stu_name))
+            data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"\
+                        %(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat,long_obs,stu_name))
 
         result = atmospheric_matrix_3D(order_grid,data_convert,t,Rp,c_species,0,Tracer,Cloudy)
 
@@ -282,8 +282,8 @@ if Cylindric_transfert_3D == True :
         dx_grid = np.load("%s%s/%s/dx_grid_opt_%i_%ix%ix%i_%i_%.2f_%.2f.npy"\
                       %(path,name_file,stitch_file,theta_number,reso_long,reso_lat,reso_alt,r_step,obs[0],obs[1]))
 
-    data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,\
-                reso_lat,long_obs,stu_name))
+    data_convert = np.load("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"\
+                    %(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat,long_obs,stu_name))
 
 ########################################################################################################################
 
