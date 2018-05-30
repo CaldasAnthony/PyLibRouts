@@ -86,6 +86,7 @@ def data_record(path,name_source,data_base,name_exo,aerosol,continuum,kcorr,cros
         sh = np.shape(Q_f)
         Q_ext = np.zeros((aerosol.number,sh[0],sh[1]))
         for i_c in range(aerosol.number):
+            print np.shape(np.load('%sQsingle_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo)))
             Q_ext[i_c] = np.load('%sQsingle_%s_%s.npy'%(directory,aerosol.nspecies[i_c],name_exo))
         np.save('%sQ_%s%s.npy'%(directory,all_species,name_exo),Q_ext)
 
