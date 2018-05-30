@@ -351,7 +351,7 @@ if rank == 0 :
 for beta_rad in beta_rad_array :
 
     beta = beta_rad*360./(2*np.pi)
-    stu_name = '%3.f'%(beta)
+    stu_name = '_%.3f'%(beta)
 
     if Profil == True :
 
