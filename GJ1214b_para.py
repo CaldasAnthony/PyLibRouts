@@ -28,7 +28,8 @@ number_rank = comm.size
 
 path = "/data1/caldas/Pytmosph3R/"
 name_file = "Files/Para"
-name_source = "Source_trappist"
+name_source = "Source"
+#name_source = 'Source_trappist'
 name_exo = "GJ1214b"
 #name_exo = "Trappist"
 stu_name = '_0.5mu_0.5mu'
@@ -266,7 +267,8 @@ LogInterp = False       ###### Interpolation de la pression via le logarithme
 N_fixe = True          ###### Si nous voulons imposer le nombre de couche atmospherique
 TopPressure = 'Up'    ###### Si nous voulons fixer le toit de l'atmosphere par rapport a une pression minimale
 MassAtm = False         ###### Si on tient compte de la masse atmospherique
-compo_type = np.array(['tracer_other'])
+#compo_type = np.array(['tracer_other'])
+compo_type = np.array(['composition'])
 if long_obs > 2*np.pi/np.float(reso_long) :
     Rotate = True
     obs = np.array([lat_obs,long_obs,'Modified',long_obs - long_obs/(2*np.pi)*reso_long])
