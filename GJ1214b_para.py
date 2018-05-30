@@ -40,7 +40,8 @@ version = 6.3
 
 # Donnees de base
 
-data_base,diag_file = "/data1/caldas/Pytmosph3R/Simulations/Trappist/",'diagfi4'
+#data_base,diag_file = "/data1/caldas/Pytmosph3R/Simulations/Trappist/",'diagfi4'
+data_base,diag_file = "/data1/caldas/Pytmosph3R/Simulations/GJ1214b/",'diagfi'
 data_source = "/data1/caldas/Pytmosph3R/Simulations/Trappist/Sources/"
 planet = planet()
 if diag_file == '' :
