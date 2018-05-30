@@ -29,9 +29,9 @@ number_rank = comm.size
 path = "/data1/caldas/Pytmosph3R/"
 name_file = "Files/Para"
 name_source = "Source_trappist"
-#name_exo = "GJ1214b"
-name_exo = "Trappist"
-stu_name = '_0.5mu'
+name_exo = "GJ1214b"
+#name_exo = "Trappist"
+stu_name = '_0.5mu_0.5mu'
 opac_file, param_file, stitch_file = 'Opacity', 'Parameters', 'Stitch'
 version = 6.3
 
@@ -49,7 +49,7 @@ if diag_file == '' :
     reso_long, reso_lat = planet.longitude, planet.latitude
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.45, 0.00, 0.00
-lat_obs, long_obs = 0.00, 0.27
+lat_obs, long_obs = 0.00, 0.006
 
 Record = True
 
@@ -57,8 +57,6 @@ Record = True
 
 # Proprietes de l'exoplanete
 
-#Rp = 0.246384689105*R_J
-#Mp = 0.0206006322445*M_J
 if diag_file == '' :
     Rp = information[planet.planet_radius_key]
     Mp = information[planet.planet_mass_key]
@@ -66,19 +64,23 @@ if diag_file == '' :
 
 # Proprietes de l'etoile hote
 
-#Rs = 0.206470165349*R_S
-#Ts = 3000.
 if diag_file == '' :
     Rs = information[planet.star_radius_key]
     Ts = information[planet.star_temperature_key]
 else :
-    Rs = 0.114*R_S
-    Ts = 2550.
+    Rs = 0.206470165349*R_S
+    Ts = 3000.
+    #Rs = 0.114*R_S
+    #Ts = 2550.
 
-d_al = 100.*9.461e+15
+#d_al = 100.*9.461e+15
+d_al = 42.*9.461e+15
 error = np.array([1.e-5])
 
 # Proprietes en cas de lecture d'un diagfi
+
+#Rp = 0.246384689105*R_J
+#Mp = 0.0206006322445*M_J
 
 if data_base != '' :
     Rp, g0, reso_long, reso_lat, long_lat, Inverse = diag('%s%s'%(data_base,diag_file))
@@ -93,20 +95,23 @@ long_step, lat_step = 2*np.pi/np.float(reso_long), np.pi/np.float(reso_lat)
 
 # Proprietes de l'atmosphere
 
-#n_species = np.array(['H2','He','H2O','CH4','N2','NH3','CO','CO2'])
-#n_species_active = np.array(['H2O','CH4','NH3','CO','CO2'])
 if data_base != '' :
-    n_species = np.array(['H2','He','CO2','H2O'])
-    n_species_active = np.array(['H2O','CO2'])
+    #n_species = np.array(['H2','He','CO2','H2O'])
+    #n_species_active = np.array(['H2O','CO2'])
+    n_species = np.array(['H2','He','H2O','CH4','N2','NH3','CO','CO2'])
+    n_species_active = np.array(['H2O','CH4','NH3','CO','CO2'])
 else :
     n_species = np.array(['H2','He','H2O'])
     n_species_active = np.array([information[planet.active_species_key]])
+    #n_species = np.array(['H2','He','H2O','CH4','N2','NH3','CO','CO2'])
+    #n_species_active = np.array(['H2O','CH4','NH3','CO','CO2'])
 
 # Proprietes de l'atmosphere isotherme
 
 if data_base != '' :
     T_iso, P_surf = 0,0
-    x_ratio_species_active = np.array([0,0])
+    x_ratio_species_active = np.array([0,0,0,0,0])
+    #x_ratio_species_active = np.array([0,0])
 else :
     T_iso, P_surf = information[planet.planet_temperature_key], information[planet.extreme_pressure_key[0]]
     x_ratio_species_active = information[planet.planet_active_ratio_key]
@@ -115,19 +120,27 @@ M_species, M, x_ratio_species = ratio(n_species,x_ratio_species_active,IsoComp=T
 
 # Proprietes des nuages
 
-c_species = np.array(['h2o_ice'])
-c_species_name = np.array(['H2O'])
-c_species_file = np.array(['iceir_n50'])
-rho_p = np.array([917.])
-r_eff = np.array([0.5e-6])
+#c_species = np.array(['h2o_ice'])
+#c_species_name = np.array(['H2O'])
+#c_species_file = np.array(['iceir_n50'])
+#rho_p = np.array([917.])
+#r_eff = np.array([0.5e-6])
+
+c_species = np.array(['gen_cond','gen_cond2'])
+c_species_name = np.array(['KCl','ZnS'])
+c_species_file = np.array(['KCl','ZnS'])
+rho_p = np.array([1980.,4090.])
+r_eff = np.array([0.5e-6,0.5e-6])
 
 ########################################################################################################################
 
 # Crossection
 
 n_species_cross = np.array(['H2O','CH4','NH3','CO','CO2'])
-m_species = np.array(['H2O'])
-m_file = np.array(['h2o'])
+#m_species = np.array(['H2O'])
+#m_file = np.array(['h2o'])
+m_species = np.array([])
+m_file = np.array([])
 domain, domainn, source = "IR", "IR", "bin10"
 dim_bande, dim_gauss = 3000, 16
 
@@ -140,21 +153,21 @@ ind_cross, ind_active = index_active (n_species,n_species_cross,n_species_active
 #cont_tot = np.array(['H2-He_2011.cia','H2-He_2011.cia','H2O_CONT_SELF.dat','H2O_CONT_FOREIGN.dat','H2-CH4_eq_2011.cia','N2-H2_2011.cia'])
 #cont_species = np.array(['H2','He','H2Os','H2O','CH4','N2'])
 #cont_associations = np.array(['h2h2','h2he','h2oh2o','h2ofor','h2ch4','h2n2'])
-#cont_tot = np.array(['H2-He_2011.cia','H2-He_2011.cia','H2O_CONT_SELF.dat','H2O_CONT_FOREIGN.dat'])
-#cont_species = np.array(['H2','He','H2Os','H2O'])
-#cont_associations = np.array(['h2h2','h2he','h2oh2o','h2ofor'])
-cont_tot = np.array(['H2O_CONT_SELF.dat','H2O_CONT_FOREIGN.dat'])
-cont_species = np.array(['H2Os','H2O'])
-cont_associations = np.array(['h2oh2o','h2ofor'])
+cont_tot = np.array(['H2-He_2011.cia','H2-He_2011.cia','H2O_CONT_SELF.dat','H2O_CONT_FOREIGN.dat'])
+cont_species = np.array(['H2','He','H2Os','H2O'])
+cont_associations = np.array(['h2h2','h2he','h2oh2o','h2ofor'])
+#cont_tot = np.array(['H2O_CONT_SELF.dat','H2O_CONT_FOREIGN.dat'])
+#cont_species = np.array(['H2Os','H2O'])
+#cont_associations = np.array(['h2oh2o','h2ofor'])
 
 ########################################################################################################################
 
 # Proprietes de maille
 
 if data_base != '' :
-    h, P_h, n_layers = 9.e+7, 1.e-6, 200
+    h, P_h, n_layers = 9.e+8, 1.e-6, 200
 else :
-    h, P_h, n_layers = 9.e+7, information[planet.extreme_pressure_key[1]], information[planet.number_layer_key]
+    h, P_h, n_layers = 9.e+8, information[planet.extreme_pressure_key[1]], information[planet.number_layer_key]
 
 delta_z, r_step, x_step, theta_number = 10e+4, 10e+4, 10e+4, 2*reso_lat
 z_array = np.arange(h/np.float(delta_z)+1)*float(delta_z)
@@ -193,7 +206,7 @@ if Record == True :
             self.species = c_species
             self.nspecies = c_species_name
             self.file_name = c_species_file
-            self.continuity = np.array([False,False])
+            self.continuity = np.array([True,False])
     class continuum :
         def __init__(self) :
             self.number = cont_tot.size
@@ -205,7 +218,8 @@ if Record == True :
             self.resolution = '38x36'
             self.resolution_n = np.array([dim_bande,dim_gauss])
             self.type = np.array(['IR'])
-            self.parameters = np.array(['T','p','Q'])
+            #self.parameters = np.array(['T','p','Q'])
+            self.parameters = np.array(['T','p'])
             self.tracer = m_file
             self.exception = np.array([])
             self.jump = True
