@@ -462,7 +462,7 @@ for beta_rad in beta_rad_array :
             if Noise == True :
                 save_name_3D = '%s_n'%(save_name_3D)
 
-        np.save("%s%s/%s/%s_data_convert_%ix%ix%i.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat),\
+        np.save("%s%s/%s/%s_data_convert_%ix%ix%i_lo%.2f%s.npy"%(path,name_file,param_file,name_exo,reso_alt,reso_long,reso_lat,long_obs,stu_name),\
                     data_convert)
 
 ########################################################################################################################
