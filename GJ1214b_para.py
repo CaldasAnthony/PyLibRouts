@@ -252,7 +252,7 @@ Tracer = False          ###### S'il y a des marqueurs
 Cloudy = True          ###### S'il y a des nuages
 Middle = True          ###### Construction de la maille sur le milieu des couches
 NoH2 = False            ###### Une atmosphere sans H2 et He ou avec
-TauREx = False          ###### Une atmosphere TauREx
+TauREx = True          ###### Une atmosphere TauREx
 
 ########################################################################################################################
 
