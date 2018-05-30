@@ -854,7 +854,7 @@ if Parameters == True :
             Q_cloud = "%s%s/Q_%s%s.npy"%(path,name_source,cl_name,name_exo)
             message_clouds = ''
             for i in range(c_species.size) :
-                message_clouds += '%s (%.2f microns/%.3f)  '%(c_species[i],r_eff*10**6,rho_p[i]/1000.)
+                message_clouds += '%s (%.2f microns/%.3f)  '%(c_species[i],r_eff[i]*10**6,rho_p[i]/1000.)
         else :
             bande_cloud = np.array([])
             r_cloud = np.array([])
