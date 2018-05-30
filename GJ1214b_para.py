@@ -210,7 +210,7 @@ if Record == True :
             self.species = c_species
             self.nspecies = c_species_name
             self.file_name = c_species_file
-            self.continuity = np.array([True,False])
+            self.continuity = np.array([False,False])
     class continuum :
         def __init__(self) :
             self.number = cont_tot.size
