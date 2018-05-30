@@ -169,7 +169,7 @@ cont_associations = np.array(['h2h2','h2he','h2oh2o','h2ofor'])
 # Proprietes de maille
 
 if data_base != '' :
-    h, P_h, n_layers = 9.e+8, 1.e-6, 200
+    h, P_h, n_layers = 9.e+8, 1.e-6, 100
 else :
     h, P_h, n_layers = 9.e+8, information[planet.extreme_pressure_key[1]], information[planet.number_layer_key]
 
