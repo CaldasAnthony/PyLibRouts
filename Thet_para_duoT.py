@@ -232,7 +232,7 @@ TopPressure = True     ###### Si nous voulons fixer le toit de l'atmosphere par 
 Composition = False     ###### Se placer a l'equilibre thermodynamique
 obs = np.array([lat_obs,long_obs,'NotModified',long_obs])
 
-Parameters = True
+Parameters = False
 
 Corr = True            ###### Traite les parcours optiques
 Integral = True        ###### Effectue l'integration sur les chemins optiques
@@ -275,7 +275,7 @@ TimeSel = True         ###### Si nous etudions un temps precis de la simulation
 Script = True          ###### Si nous voulons avoir une version .dat du spectre
 ErrOr = True           ###### Si calculons le bruit de photon pour un instrument donne
 detection = JWST()
-Noise = True           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
+Noise = False           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
 resolution = 'low'
 Push = np.array([False,False,False,False])
 ###### Si nous voulons forcer le code a faire les spcectres intermediaires meme s'ils existent
@@ -1314,6 +1314,49 @@ for beta_rad in beta_rad_array :
                     print 'The %s contribution was already computed'%(cases_names[wh_ca[i_ca]])
                     print 'Corresponding save directory : %s'%(save_name_3D_step)
                     print 'Please check that this is the expected file'
+
+                    if Script == True :
+
+                        Itot = np.load('%s.npy'%(save_name_3D_step))
+                        if Noise == True :
+                            save_ad = '%s_n'%(save_name_3D_step_dat)
+                        else :
+                            save_ad = "%s"%(save_name_3D_step_dat)
+                        class star :
+                            def __init__(self):
+                                self.radius = Rs
+                                self.temperature = Ts
+                                self.distance = d_al
+                        if ErrOr == True :
+                            bande_sample = np.load("%s%s/bande_sample_%s.npy"%(path,name_source,source))
+                            bande_sample = np.delete(bande_sample,[0])
+                            int_lambda = np.zeros((2,bande_sample.size))
+                            bande_sample = np.sort(bande_sample)
+
+                            if resolution == '' :
+                                int_lambda = np.zeros((2,bande_sample.size))
+                                for i_bande in range(bande_sample.size) :
+                                    if i_bande == 0 :
+                                        int_lambda[0,i_bande] = bande_sample[0]
+                                        int_lambda[1,i_bande] = (bande_sample[i_bande+1]+bande_sample[i_bande])/2.
+                                    elif i_bande == bande_sample.size - 1 :
+                                        int_lambda[0,i_bande] = (bande_sample[i_bande-1]+bande_sample[i_bande])/2.
+                                        int_lambda[1,i_bande] = bande_sample[bande_sample.size-1]
+                                    else :
+                                        int_lambda[0,i_bande] = (bande_sample[i_bande-1]+bande_sample[i_bande])/2.
+                                        int_lambda[1,i_bande] = (bande_sample[i_bande+1]+bande_sample[i_bande])/2.
+                                int_lambda = np.sort(10000./int_lambda[::-1])
+                            else :
+                                int_lambda = np.sort(10000./bande_sample[::-1])
+
+                            noise = stellar_noise(star(),detection,int_lambda,resolution)
+                            noise = noise[::-1]
+                        else :
+                            noise = error
+                        if Kcorr == True :
+                            flux_script(path,name_source,domain,save_ad,Itot,noise,Rs,Rp,r_step,Kcorr,Middle,Noise)
+                        else :
+                            flux_script(path,name_source,source,save_ad,Itot,noise,Rs,Rp,r_step,Kcorr,Middle,Noise)
 
         if rank == 0 :
             for i_ca in range(wh_ca.size) :
