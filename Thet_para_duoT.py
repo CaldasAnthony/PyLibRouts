@@ -457,10 +457,10 @@ for beta_rad in beta_rad_array :
             save_adress = "/data1/caldas/Pytmosph3R/I/"
             if Composition == False :
                 save_name_3D = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
-                save_name_3D_dat = "%s.dat/%s_3D_duo_linear_real_%i_%i_%i_%.2f"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
+                save_name_3D_dat = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
             else :
                 save_name_3D = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
-                save_name_3D_dat = "%s.dat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
+                save_name_3D_dat = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
             if Noise == True :
                 save_name_3D = '%s_n'%(save_name_3D)
                 save_name_3D_dat = '%s_n'%(save_name_3D_dat)
@@ -1151,10 +1151,10 @@ for beta_rad in beta_rad_array :
             stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
             if Composition == False :
                 save_name_3D_step = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
-                save_name_3D_step_dat = "%s.dat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
+                save_name_3D_step_dat = "%s/%s_3D_duo_linear_real_%i_%i_%i_%.2f_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
             else :
                 save_name_3D_step = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
-                save_name_3D_step_dat = "%s.dat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
+                save_name_3D_step_dat = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
             if Noise == True :
                 save_name_3D_step = '%s_n'%(save_name_3D_step)
                 save_name_3D_step_dat = '%s_n'%(save_name_3D_step_dat)
@@ -1323,10 +1323,10 @@ for beta_rad in beta_rad_array :
                 stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
                 if Composition == False :
                     save_name_3D_step = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
-                    save_name_3D_step_dat = "%s.dat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
+                    save_name_3D_step_dat = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
                 else :
                     save_name_3D_step = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
-                    save_name_3D_step = "%s.dat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
+                    save_name_3D_step = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
                 if Noise == True :
                     save_name_3D_step = '%s_n'%(save_name_3D_step)
                     save_name_3D_step_dat = '%s_n'%(save_name_3D_step_dat)
