@@ -232,7 +232,7 @@ TopPressure = True     ###### Si nous voulons fixer le toit de l'atmosphere par 
 Composition = False     ###### Se placer a l'equilibre thermodynamique
 obs = np.array([lat_obs,long_obs,'NotModified',long_obs])
 
-Parameters = False
+Parameters = True
 
 Corr = True            ###### Traite les parcours optiques
 Integral = True        ###### Effectue l'integration sur les chemins optiques
