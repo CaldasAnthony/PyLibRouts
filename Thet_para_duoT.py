@@ -235,7 +235,7 @@ obs = np.array([lat_obs,long_obs,'NotModified',long_obs])
 Parameters = True
 
 Corr = True            ###### Traite les parcours optiques
-Integral = True        ###### Effectue l'integration sur les chemins optiques
+Integral = False        ###### Effectue l'integration sur les chemins optiques
 Cylindre = True        ###### Construit la maille cylindrique
 Gravity = False         ###### Pour travailler a gravite constante
 
