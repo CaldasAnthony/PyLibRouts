@@ -432,6 +432,7 @@ for beta_rad in beta_rad_array :
                     data_convert[2:2+n_species.size,0,i_n,i_lat,i_long] = x_ratio_species
                     data_convert[number-1,0,i_n,i_lat,i_long] = M_x
 
+            if rank == 0 : 
                 bar.animate(i_lat+1)
 
 
