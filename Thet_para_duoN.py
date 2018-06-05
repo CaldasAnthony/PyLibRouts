@@ -1139,7 +1139,7 @@ for beta_rad in beta_rad_array :
             Molecular, Continuum, Scattering, Clouds = proc[0],proc[1],proc[2],proc[3]
 
             stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
-            save_name_3D_step = "%s%s_3D_duo_linear_real_%.3f_%.3f_%.2f_%s"%(save_adress,name_exo,X_min,X_max,beta,P_tau/(1.e+5),stud)
+            save_name_3D_step = "%s%s_3D_duo_linear_real_%.3f_%.3f_%i_%.2f_%s"%(save_adress,name_exo,X_min,X_max,beta,P_tau/(1.e+5),stud)
             save_name_3D_step_dat = "%s/%s_3D_duo_linear_real_%.3f_%.3f_%i_%.2f_%s"%(save_adress,name_exo,X_min,X_max,beta,P_tau/(1.e+5),stud)
             if Noise == True :
                 save_name_3D_step = '%s_n'%(save_name_3D_step)
@@ -1350,7 +1350,7 @@ for beta_rad in beta_rad_array :
                 proc[wh_ca[i_ca]] = True
                 Molecular, Continuum, Scattering, Clouds = proc[0],proc[1],proc[2],proc[3]
                 stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
-                save_name_3D_step = "%s%s_3D_duo_linear_real_%.3f_%.3f_%.2f_%s"%(save_adress,name_exo,X_min,X_max,beta,P_tau/(1.e+5),stud)
+                save_name_3D_step = "%s%s_3D_duo_linear_real_%.3f_%.3f_%i_%.2f_%s"%(save_adress,name_exo,X_min,X_max,beta,P_tau/(1.e+5),stud)
                 save_name_3D_step_dat = "%s/%s_3D_duo_linear_real_%.3f_%.3f_%i_%.2f_%s"%(save_adress,name_exo,X_min,X_max,beta,P_tau/(1.e+5),stud)
                 if Noise == True :
                     save_name_3D_step = '%s_n'%(save_name_3D_step)
