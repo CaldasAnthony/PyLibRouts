@@ -328,7 +328,8 @@ if rank == 0 :
         print 'There is no clouds'
     print 'Mean radius of the exoplanet : %i m'%(Rp)
     print 'Mean surface gravity : %.2f m/s^2'%(g0)
-    print 'Mean molar mass : %.5f kg/mol'%(M)
+    print 'Mean molar mass : %.5f kg/mol'%(M[0])
+    print 'Mean molar mass : %.5f kg/mol'%(M[1])
     print 'Extrapolation type for the upper atmosphere : %s'%(Upper)
     number = 2 + m_species.size + c_species.size + n_species.size + 1
     print 'Resolution of the GCM simulation (latitude/longitude) : %i/%i'%(reso_lat,reso_long)
@@ -432,7 +433,7 @@ for beta_rad in beta_rad_array :
                     data_convert[2:2+n_species.size,0,i_n,i_lat,i_long] = x_ratio_species
                     data_convert[number-1,0,i_n,i_lat,i_long] = M_x
 
-            if rank == 0 : 
+            if rank == 0 :
                 bar.animate(i_lat+1)
 
 
