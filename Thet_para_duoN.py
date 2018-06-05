@@ -98,8 +98,8 @@ T_iso, P_surf, P_tau = 500, 1.e+6, 1.e+3
 x_ratio_species_active_array = np.array([0.01,0.1])
 x_ratio_species_inactive = np.array([])
 M = np.zeros(2,dtype=np.float)
-M_species, M[0], x_ratio_species = ratio(n_species,x_ratio_species_active_array[0],IsoComp=True)
-M_species, M[1], x_ratio_species = ratio(n_species,x_ratio_species_active_array[1],IsoComp=True)
+M_species, M[0], x_ratio_species = ratio(n_species,np.array([n_species,x_ratio_species_active_array[0]]),IsoComp=True)
+M_species, M[1], x_ratio_species = ratio(n_species,np.array([x_ratio_species_active_array[1]]),IsoComp=True)
 
 # Proprietes des nuages
 
@@ -423,7 +423,7 @@ for beta_rad in beta_rad_array :
                             data_convert[4,0,i_n,i_lat,i_long] = X
                     data_convert[1,0,i_n,i_lat,i_long] = T_iso
 
-                    M_species, M_x, x_ratio_species = ratio(n_species,X,IsoComp=True)
+                    M_species, M_x, x_ratio_species = ratio(n_species,np.array([X]),IsoComp=True)
 
                     if z < n_lim :
                         data_convert[0,0,i_n,i_lat,i_long] = P_surf*np.exp(-g0*M_x/(R_gp*T_iso)*z/(1+z/Rp))
