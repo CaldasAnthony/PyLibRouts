@@ -196,11 +196,11 @@ def convertator (P_rmd,T_rmd,gen_cond_rmd,c_species,Q_rmd,composit_rmd,ind_activ
                     np.save("%s%s/k_cross_opt_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
                     %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),k_rmd)
 
-            if rank == 0 :
-                if Kcorr == True :
-                    print "Ksearcher finished with success"
-                else :
-                    print "Ssearcher finished with success"
+        if rank == 0 :
+            if Kcorr == True :
+                print "Ksearcher finished with success"
+            else :
+                print "Ssearcher finished with success"
         del k_rmd,K
 
     else :
