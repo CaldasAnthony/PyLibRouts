@@ -1661,10 +1661,10 @@ def interp3olation(x,y,z,x_sample,y_sample,z_sample,grid) :
         c_grid[i_x,:] = np.array([c1,c2,c3,c4,c5,c6])
         i_grid[i_x,:] = np.array([x_d,x_u,y_d,y_u,z_d,z_u])
 
-    res_int[0] = grid[i_grid[:,1],i_grid[:,3],i_grid[:,5]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,3],i_grid[5]]*c_grid[:,1]
-    res_int[1] = grid[i_grid[:,1],i_grid[:,2],i_grid[:,5]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,2],i_grid[5]]*c_grid[:,1]
-    res_int[2] = grid[i_grid[:,1],i_grid[:,3],i_grid[:,4]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,3],i_grid[4]]*c_grid[:,1]
-    res_int[3] = grid[i_grid[:,1],i_grid[:,2],i_grid[:,4]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,2],i_grid[4]]*c_grid[:,1]
+    res_int[0] = grid[i_grid[:,1],i_grid[:,3],i_grid[:,5]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,3],i_grid[:,5]]*c_grid[:,1]
+    res_int[1] = grid[i_grid[:,1],i_grid[:,2],i_grid[:,5]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,2],i_grid[:,5]]*c_grid[:,1]
+    res_int[2] = grid[i_grid[:,1],i_grid[:,3],i_grid[:,4]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,3],i_grid[:,4]]*c_grid[:,1]
+    res_int[3] = grid[i_grid[:,1],i_grid[:,2],i_grid[:,4]]*c_grid[:,0]+grid[i_grid[:,0],i_grid[:,2],i_grid[:,4]]*c_grid[:,1]
     res_int_zu = res_int[0]*c_grid[:,2]+res_int[1]*c_grid[:,3]
     res_int_zd = res_int[2]*c_grid[:,2]+res_int[3]*c_grid[:,3]
     res = res_int_zu*c_grid[:,4]+res_int_zd*c_grid[:,5]
