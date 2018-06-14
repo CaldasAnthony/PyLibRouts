@@ -422,10 +422,10 @@ def k_correlated_interp_M(k_corr_data,P_array,T_array,Q_array,i_gauss,P_sample,T
             coeff_3_array[i_x] = coeff_3[i_x]
             coeff_5_array[i_x] = coeff_5[i_x]
 
-    if Script == True :
-        if rank == rank_ref :
-            if i_x%100 == 0. or i_x == size - 1 :
-                bar.animate(i_x + 1)
+        if Script == True :
+            if rank == rank_ref :
+                if i_x%100 == 0. or i_x == size - 1 :
+                    bar.animate(i_x + 1)
 
     return k_inter*0.0001,size,i_Tu_array,i_pu_array,i_qu_array,coeff_1_array,coeff_3_array,coeff_5_array
 
