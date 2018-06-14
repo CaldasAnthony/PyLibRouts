@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('/data1/caldas/Pytmosph3R/PyLibRouts/')
+sys.path.append('/data1/caldas/Pytmosph3R_T/PyLibRouts/')
 
 from pytransfert import *
 from pyfunction import *
@@ -26,7 +26,7 @@ number_rank = comm.size
 
 # Informations diverses sur l'etude
 
-path = "/data1/caldas/Pytmosph3R/"
+path = "/data1/caldas/Pytmosph3R_T/"
 name_file = "Files/Para"
 name_source = "Source_trappist"
 #name_exo = "GJ1214b"
@@ -40,8 +40,8 @@ version = 6.3
 
 # Donnees de base
 
-data_base,diag_file = "/data1/caldas/Pytmosph3R/Simulations/Trappist/",'diagfi4'
-data_source = "/data1/caldas/Pytmosph3R/Simulations/Trappist/Sources/"
+data_base,diag_file = "/data1/caldas/Pytmosph3R_T/Simulations/Trappist/",'diagfi4'
+data_source = "/data1/caldas/Pytmosph3R_T/Simulations/Trappist/Sources/"
 planet = planet()
 if diag_file == '' :
     information = pickle.load(open(planet.pressure_profile_data))
@@ -129,7 +129,7 @@ n_species_cross = np.array(['H2O','CH4','NH3','CO','CO2'])
 m_species = np.array(['H2O'])
 m_file = np.array(['h2o'])
 domain, domainn, source = "IR", "IR", "bin10"
-dim_bande, dim_gauss = 3000, 16
+dim_bande, dim_gauss = 38, 16
 
 # Selection des sections efficaces
 
@@ -318,7 +318,7 @@ Flux = False            ###### Spectre flux = f(longueur d'onde)
 
 # Sauvegardes
 
-save_adress = "/data1/caldas/Pytmosph3R/I/"
+save_adress = "/data1/caldas/Pytmosph3R_T/I/"
 special = ''
 if rank == 0 : 
     stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
