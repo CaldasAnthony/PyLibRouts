@@ -392,10 +392,8 @@ def k_correlated_interp_M(k_corr_data,P_array,T_array,Q_array,i_gauss,P_sample,T
     res,c_grid,i_grid = interp3olation(T_array,P_array,Q_array,T_sample,P_sample,Q_sample,k_corr_data[:,:,:,i_gauss])
 
     k_inter = res
-    i_Td, i_Tu, i_pd, i_pu, i_qd, i_qu = i_grid[0], i_grid[1], i_grid[2], i_grid[3], i_grid[4], i_grid[5]
-    coeff_3, coeff_1, coeff_5 = c_grid[0], c_grid[2], c_grid[4]
-
-    i_pd, i_pu, i_Td, i_Tu = i_grid[0], i_grid[1], i_grid[2], i_grid[3]
+    i_Td, i_Tu, i_pd, i_pu, i_qd, i_qu = i_grid[:,0], i_grid[:,1], i_grid[:,2], i_grid[:,3], i_grid[:,4], i_grid[:,5]
+    coeff_3, coeff_1, coeff_5 = c_grid[:,0], c_grid[:,2], c_grid[:,4]
 
     if Script == True :
         if rank == rank_ref :
