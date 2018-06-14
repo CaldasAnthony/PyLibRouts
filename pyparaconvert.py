@@ -72,14 +72,14 @@ def convertator_save(P_rmd,T_rmd,rmind,Q_rmd,gen_cond_rmd,composit_rmd,directory
     if Clouds == True :
 
         if Kcorr == True :
-            np.save("%s%s/gen_%ix%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+            np.save("%s%s/gen_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),gen_cond_rmd)
         else :
             np.save("%s%s/gen_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\
             %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,x_step,phi_rot,phi_obli,domain),gen_cond_rmd)
 
     if Kcorr == True :
-        np.save("%s%s/compo_%ix%i_%s_%i_%i%i_%i_rmd_%.2f_%.2f_%s.npy"\
+        np.save("%s%s/compo_%ix%i_%s_%i_%ix%i_%i_rmd_%.2f_%.2f_%s.npy"\
         %(directory,name,reso_long,reso_lat,name_exo,t,dim_bande,dim_gauss-1,x_step,phi_rot,phi_obli,domain),composit_rmd)
     else :
         np.save("%s%s/compo_%ix%i_%s_%i_%i_%i_rmd_%.2f_%.2f_%s.npy"\

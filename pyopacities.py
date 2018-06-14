@@ -386,63 +386,46 @@ def k_correlated_interp_M(k_corr_data,P_array,T_array,Q_array,i_gauss,P_sample,T
     coeff_3_array = np.zeros(size,dtype=np.float64)
     coeff_5_array = np.zeros(size,dtype=np.float64)
 
+    P_array = np.log10(P_array)-2
+    Q_array = np.log10(Q_array)
+
+    res,c_grid,i_grid = interp3olation(T_array,P_array,Q_array,T_sample,P_sample,Q_sample,k_corr_data[:,:,:,i_gauss])
+
+    k_inter = res
+    i_Td, i_Tu, i_pd, i_pu, i_qd, i_qu = i_grid[0], i_grid[1], i_grid[2], i_grid[3], i_grid[4], i_grid[5]
+    coeff_3, coeff_1, coeff_5 = c_grid[0], c_grid[2], c_grid[4]
+
+    i_pd, i_pu, i_Td, i_Tu = i_grid[0], i_grid[1], i_grid[2], i_grid[3]
+
     if Script == True :
         if rank == rank_ref :
             bar = ProgressBar(size,'Module interpolates cross sections')
 
-    for i in range(size) :
+    for i_x in range(T_array.size) :
 
-        P = np.log10(P_array[i])-2
-        T = T_array[i]
-        Q = np.log10(Q_array[i])
+        if T_array[i_x] == 0 or P_array[i_x] == 0 :
+            i_Tu_array[i_x] = 0
+            i_pu_array[i_x] = 0
+            i_qu_array[i_x] = 0
 
-        if T == 0 or P == 0 :
-            i_Tu = 0
-            i_pu = 0
-            i_qu = 0
-            coeff_1 = 0
-            coeff_3 = 0
-            coeff_5 = 0
-            k_inter[i] = 0.
+            coeff_1_array[i_x] = 0
+            coeff_3_array[i_x] = 0
+            coeff_5_array[i_x] = 0
 
+            k_inter[i_x] = 0.
         else :
+            i_Tu_array[i_x] = int(i_Tu[i_x])
+            i_pu_array[i_x] = int(i_pu[i_x])
+            i_qu_array[i_x] = int(i_qu[i_x])
 
-            if T == T_array[i-1] and P == P_array[i-1] and Q == Q_array[i-1] and i != 0 :
-                k_inter[i] = k_inter[i-1]
-            else :
-                if Kcorr == True :
-                    res,c_grid,i_grid = interp3olation_opti_uni(T,P,Q,T_sample,P_sample,Q_sample,k_corr_data[:,:,:,0,i_gauss],False,False,False)
-                    k_inter[i] = res
-                    i_Td, i_Tu, i_pd, i_pu, i_qd, i_qu = i_grid[0], i_grid[1], i_grid[2], i_grid[3], i_grid[4], i_grid[5]
-                    coeff_3, coeff_1, coeff_5 = c_grid[0], c_grid[2], c_grid[4]
-                else :
-                    if Optimal == True :
-                        res,c_grid,i_grid = interp2olation_opti_uni(P,T,P_sample,T_sample,k_corr_data[:,:,0],False,True)
-                        b_m, a_m, T = c_grid[0], c_grid[1], c_grid[2]
-                        coeff_3 = c_grid[3]
-                        k_inter[i] = res
-                    else :
-                        res,c_grid,i_grid = interp2olation_opti_uni(P,T,P_sample,T_sample,k_corr_data[:,:,0],False,False)
-                        coeff_1, coeff_3 = c_grid[0], c_grid[2]
-                        k_inter[i] = res
-                    i_pd, i_pu, i_Td, i_Tu = i_grid[0], i_grid[1], i_grid[2], i_grid[3]
+            coeff_1_array[i_x] = coeff_1[i_x]
+            coeff_3_array[i_x] = coeff_3[i_x]
+            coeff_5_array[i_x] = coeff_5[i_x]
 
-        i_Tu_array[i] = int(i_Tu)
-        i_pu_array[i] = int(i_pu)
-        i_qu_array[i] = int(i_qu)
-        if Optimal == False :
-            coeff_1_array[i] = coeff_1
-        else :
-            coeff_1_array[0,i] = b_m
-            coeff_1_array[1,i] = a_m
-            coeff_1_array[2,i] = T
-        coeff_3_array[i] = coeff_3
-        coeff_5_array[i] = coeff_5
-
-        if Script == True :
-            if rank == rank_ref :
-                if i%100 == 0. or i == size - 1 :
-                    bar.animate(i + 1)
+    if Script == True :
+        if rank == rank_ref :
+            if i_x%100 == 0. or i_x == size - 1 :
+                bar.animate(i_x + 1)
 
     return k_inter*0.0001,size,i_Tu_array,i_pu_array,i_qu_array,coeff_1_array,coeff_3_array,coeff_5_array
 

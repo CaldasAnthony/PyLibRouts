@@ -557,6 +557,9 @@ if Parameters == True :
                 del pdx_grid, pdx_grid_ne
             del pdx_grid_n
 
+    else :
+
+        obs = np.array([lat_obs,long_obs],dtype=np.float64)
 
     comm.Barrier()
 
@@ -869,6 +872,10 @@ if Parameters == True :
                     Tracer,Molecul,Cont,Cl,Scatt,Kcorr,Optimal,True)
 
 ########################################################################################################################
+
+else :
+
+    obs = np.array([lat_obs,long_obs],dtype=np.float64)
 
 comm.Barrier()
 

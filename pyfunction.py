@@ -1620,7 +1620,7 @@ def interp3olation(x,y,z,x_sample,y_sample,z_sample,grid) :
 
         if wh_x.size == 0 :
             x_u,x_d = x_sample.size-1,x_sample.size-1
-            c1,c2 = 0.,1.
+            c1,c2 = 1.,0.
         else :
             if wh_x[0] == 0 :
                 x_u,x_d = 0,0
@@ -1628,14 +1628,13 @@ def interp3olation(x,y,z,x_sample,y_sample,z_sample,grid) :
             else :
                 x_u,x_d = wh_x[0],wh_x[0]-1
                 c1 = (X-x_sample[x_d])/(x_sample[x_u]-x_sample[x_d])
-                #c2 = (x_sample[x_u]-X)/(x_sample[x_u]-x_sample[x_d])
-                c2 = 1.-c1
+                c2 = (x_sample[x_u]-X)/(x_sample[x_u]-x_sample[x_d])
 
         wh_y, = np.where(y_sample > Y)
 
         if wh_y.size == 0 :
             y_u,y_d = y_sample.size-1,y_sample.size-1
-            c3,c4 = 0.,1.
+            c3,c4 = 1.,0.
         else :
             if wh_y[0] == 0 :
                 y_u,y_d = 0,0
@@ -1643,14 +1642,13 @@ def interp3olation(x,y,z,x_sample,y_sample,z_sample,grid) :
             else :
                 y_u,y_d = wh_y[0],wh_y[0]-1
                 c3 = (Y-y_sample[y_d])/(y_sample[y_u]-y_sample[y_d])
-                #c4 = (y_sample[y_u]-Y)/(y_sample[y_u]-y_sample[y_d])
-                c4 = 1.-c3
+                c4 = (y_sample[y_u]-Y)/(y_sample[y_u]-y_sample[y_d])
 
         wh_z, = np.where(z_sample > Z)
 
         if wh_z.size == 0 :
             z_u,z_d = x_sample.size-1,x_sample.size-1
-            c5,c6 = 0.,1.
+            c5,c6 = 1.,0.
         else :
             if wh_z[0] == 0 :
                 z_u,z_d = 0,0
@@ -1658,8 +1656,7 @@ def interp3olation(x,y,z,x_sample,y_sample,z_sample,grid) :
             else :
                 z_u,z_d = wh_z[0],wh_z[0]-1
                 c5 = (Z-z_sample[z_d])/(z_sample[z_u]-z_sample[z_d])
-                #c6 = (z_sample[z_u]-Z)/(z_sample[z_u]-z_sample[z_d])
-                c6 = 1.-c5
+                c6 = (z_sample[z_u]-Z)/(z_sample[z_u]-z_sample[z_d])
 
         c_grid[i_x,:] = np.array([c1,c2,c3,c4,c5,c6])
         i_grid[i_x,:] = np.array([x_d,x_u,y_d,y_u,z_d,z_u])
@@ -1754,7 +1751,7 @@ def interp3olation_uni_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
 
     if wh_x.size == 0 :
         x_u,x_d = x_sample.size-1,x_sample.size-1
-        c1,c2 = 0.,1.
+        c1,c2 = 1.,0.
     else :
         if wh_x[0] == 0 :
             x_u,x_d = 0,0
@@ -1762,14 +1759,13 @@ def interp3olation_uni_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
         else :
             x_u,x_d = wh_x[0],wh_x[0]-1
             c1 = (x-x_sample[x_d])/(x_sample[x_u]-x_sample[x_d])
-            #c2 = (x_sample[x_u]-x)/(x_sample[x_u]-x_sample[x_d])
-            c2 = 1.-c1
+            c2 = (x_sample[x_u]-x)/(x_sample[x_u]-x_sample[x_d])
 
     wh_y, = np.where(y_sample > y)
 
     if wh_y.size == 0 :
         y_u,y_d = y_sample.size-1,y_sample.size-1
-        c3,c4 = 0.,1.
+        c3,c4 = 1.,0.
     else :
         if wh_y[0] == 0 :
             y_u,y_d = 0,0
@@ -1777,14 +1773,13 @@ def interp3olation_uni_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
         else :
             y_u,y_d = wh_y[0],wh_y[0]-1
             c3 = (y-y_sample[y_d])/(y_sample[y_u]-y_sample[y_d])
-            #c4 = (y_sample[y_u]-y)/(y_sample[y_u]-y_sample[y_d])
-            c4 = 1.-c3
+            c4 = (y_sample[y_u]-y)/(y_sample[y_u]-y_sample[y_d])
 
     wh_z, = np.where(z_sample > z)
 
     if wh_z.size == 0 :
         z_u,z_d = x_sample.size-1,x_sample.size-1
-        c5,c6 = 0.,1.
+        c5,c6 = 1.,0.
     else :
         if wh_z[0] == 0 :
             z_u,z_d = 0,0
@@ -1792,8 +1787,7 @@ def interp3olation_uni_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
         else :
             z_u,z_d = wh_z[0],wh_z[0]-1
             c5 = (z-z_sample[z_d])/(z_sample[z_u]-z_sample[z_d])
-            #c6 = (z_sample[z_u]-Z)/(z_sample[z_u]-z_sample[z_d])
-            c6 = 1.-c5
+            c6 = (z_sample[z_u]-Z)/(z_sample[z_u]-z_sample[z_d])
 
     c_grid = np.array([c1,c2,c3,c4,c5,c6])
     i_grid = np.array([x_d,x_u,y_d,y_u,z_d,z_u])
@@ -1833,7 +1827,7 @@ def interp3olation_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
 
         if wh_x.size == 0 :
             x_u,x_d = x_sample.size-1,x_sample.size-1
-            c1,c2 = 0.,1.
+            c1,c2 = 1.,0.
         else :
             if wh_x[0] == 0 :
                 x_u,x_d = 0,0
@@ -1841,14 +1835,13 @@ def interp3olation_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
             else :
                 x_u,x_d = wh_x[0],wh_x[0]-1
                 c1 = (X-x_sample[x_d])/(x_sample[x_u]-x_sample[x_d])
-                #c2 = (x_sample[x_u]-X)/(x_sample[x_u]-x_sample[x_d])
-                c2 = 1.-c1
+                c2 = (x_sample[x_u]-X)/(x_sample[x_u]-x_sample[x_d])
 
         wh_y, = np.where(y_sample > Y)
 
         if wh_y.size == 0 :
             y_u,y_d = y_sample.size-1,y_sample.size-1
-            c3,c4 = 0.,1.
+            c3,c4 = 1.,0.
         else :
             if wh_y[0] == 0 :
                 y_u,y_d = 0,0
@@ -1856,14 +1849,13 @@ def interp3olation_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
             else :
                 y_u,y_d = wh_y[0],wh_y[0]-1
                 c3 = (Y-y_sample[y_d])/(y_sample[y_u]-y_sample[y_d])
-                #c4 = (y_sample[y_u]-Y)/(y_sample[y_u]-y_sample[y_d])
-                c4 = 1.-c3
+                c4 = (y_sample[y_u]-Y)/(y_sample[y_u]-y_sample[y_d])
 
         wh_z, = np.where(z_sample > Z)
 
         if wh_z.size == 0 :
             z_u,z_d = x_sample.size-1,x_sample.size-1
-            c5,c6 = 0.,1.
+            c5,c6 = 1.,0.
         else :
             if wh_z[0] == 0 :
                 z_u,z_d = 0,0
@@ -1871,8 +1863,7 @@ def interp3olation_multi(x,y,z,x_sample,y_sample,z_sample,grid) :
             else :
                 z_u,z_d = wh_z[0],wh_z[0]-1
                 c5 = (Z-z_sample[z_d])/(z_sample[z_u]-z_sample[z_d])
-                #c6 = (z_sample[z_u]-Z)/(z_sample[z_u]-z_sample[z_d])
-                c6 = 1.-c5
+                c6 = (z_sample[z_u]-Z)/(z_sample[z_u]-z_sample[z_d])
 
         c_grid[i_x,:] = np.array([c1,c2,c3,c4,c5,c6])
         i_grid[i_x,:] = np.array([x_d,x_u,y_d,y_u,z_d,z_u])
