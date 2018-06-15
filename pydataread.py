@@ -211,7 +211,7 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             size = len(k_corr_data[0])
             i_dd = np.zeros(number_rank+1,dtype=np.int)
             for r_n in range(0,number_rank) :
-                i_d = rank*size/number_rank
+                i_d = r_n*size/number_rank
                 if k_corr_data[0][i_d] != ' ' :
                     supp = 1
                     while k_corr_data[0][i_d+supp] != ' ' :
