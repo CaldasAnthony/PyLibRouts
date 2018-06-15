@@ -209,33 +209,18 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             number_rank = comm.size
 
             size = len(k_corr_data[0])
-            i_d = rank*size/number_rank
-            if k_corr_data[0][i_d] != ' ' :
-                supp = 1
-                while k_corr_data[0][i_d+supp] != ' ' :
-                    supp += 1
-                i_d += supp
-            i_d = np.array([i_d],dtype=np.int)
+            i_dd = np.zeros(number_rank+1,dtype=np.int)
             for r_n in range(number_rank) :
-                if r_n != 0  and r_n == rank :
-                    comm.Send([i_d,MPI.INT],dest=0,tag=0)
-                elif r_n == 0 and rank == 0 :
-                    i_dd = np.zeros(number_rank+1,dtype=np.int)
-                    i_dd[0] = i_d
-                elif r_n != 0 and rank == 0 :
-                    i_d_n = np.zeros(1,dtype=np.int)
-                    comm.Recv([i_d_n,MPI.DOUBLE],source=r_n,tag=0)
-                    i_dd[r_n] = i_d
+                i_d = rank*size/number_rank
+                if k_corr_data[0][i_d] != ' ' :
+                    supp = 1
+                    while k_corr_data[0][i_d+supp] != ' ' :
+                        supp += 1
+                    i_d += supp
+                i_dd[r_n] = i_d
 
-            if rank != 0 :
-                i_dd = np.zeros(number_rank+1,dtype=np.int)
-
-            if rank == 0 :
-                i_dd[i_dd.size-1] = size
-                comm.Bcast([i_dd,MPI.INT],root=0)
-
-            comm.Barrier()
-
+            i_dd[i_dd.size-1] = size
+            
             k_corr_nojump_n = line_search(k_corr_data[0][i_dd[rank]:i_dd[rank+1]])
             k_corr_nojump_n = np.array([k_corr_nojump_n],dtype=np.float64)
             for r_n in range(number_rank) :
