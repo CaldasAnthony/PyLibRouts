@@ -10,7 +10,7 @@ from pyremind import *
 from pyparagcmtreat import *
 from pyparaconvert import *
 
-from mpi4py import MPI
+#from mpi4py import MPI
 
 ########################################################################################################################
 ########################################################################################################################
@@ -208,7 +208,7 @@ if Record == True :
             self.parameters = np.array(['T','p','Q'])
             self.tracer = m_file
             self.exception = np.array([])
-            self.jump = True
+            self.jump = False
     class crossection :
         def __init__(self) :
             self.file = '/data1/caldas/Pytmosph3R/xsec/10wno/'

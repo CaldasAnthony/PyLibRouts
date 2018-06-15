@@ -220,29 +220,26 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
 
     for m in range(dim_gauss) :
         whg = ex_gauss[ex_gauss == m]
-        if whg.size != 0 :
-            m_coeff = m*T_dim*P_dim*Q_dim*dim_bande
-            for l in range(dim_bande) :
-                wh = ex_bande[ex_bande == l]
-                if wh.size == 0 :
-                    l_coeff = l*T_dim*P_dim*Q_dim
-                    for k in range(Q_dim) :
-                        k_coeff = k*T_dim*P_dim
-                        for j in range(P_dim) :
-                            j_coeff = j*T_dim
-                            for i in range(T_dim) :
-
-                                if Jump == False :
-                                    i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
-                                    k_corr_plan[i,j,k,l,m] = np.float(k_corr_nojump[i_data])
-
-                                else :
-                                    i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
-                                    i_line = i_data/3
-                                    i_col = i_data%3
-                                    k_corr_line = line_search(k_corr_data[i_line])
-                                    k_corr_plan[i,j,k,l,m] = np.float(k_corr_line[i_col])
-
+        m_coeff = m*T_dim*P_dim*Q_dim*dim_bande
+        for l in range(dim_bande) :
+            wh = ex_bande[ex_bande == l]
+            l_coeff = l*T_dim*P_dim*Q_dim
+            if whg.size == 0 and wh.size == 0 :
+                for k in range(Q_dim) :
+                    k_coeff = k*T_dim*P_dim
+                    for j in range(P_dim) :
+                        j_coeff = j*T_dim
+                        for i in range(T_dim) :
+                            if Jump == False :
+                                i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
+                                k_corr_plan[i,j,k,l,m] = np.float(k_corr_nojump[i_data])
+                            else :
+                                i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
+                                i_line = i_data/3
+                                i_col = i_data%3
+                                k_corr_line = line_search(k_corr_data[i_line])
+                                k_corr_plan[i,j,k,l,m] = np.float(k_corr_line[i_col])
+                                
             bar.animate(m*dim_bande+l+1)
 
     np.save("%sk_corr_%s_%s.npy"%(directory,name_exo,domain),k_corr_plan)

@@ -374,7 +374,6 @@ def Ksearcher_M(T_array,P_array,Q_array,dim_gauss,dim_bande,k_corr_data_grid,P_s
 def k_correlated_interp_M(k_corr_data,P_array,T_array,Q_array,i_gauss,P_sample,T_sample,Q_sample,rank,rank_ref,Kcorr=True,Optimal=False,Script=True) :
 
     size = P_array.size
-    k_inter = np.zeros(size)
 
     i_Tu_array = np.zeros(size, dtype = "int")
     i_pu_array = np.zeros(size, dtype = "int")
@@ -391,7 +390,7 @@ def k_correlated_interp_M(k_corr_data,P_array,T_array,Q_array,i_gauss,P_sample,T
 
     res,c_grid,i_grid = interp3olation(T_array,P_array,Q_array,T_sample,P_sample,Q_sample,k_corr_data[:,:,:,i_gauss])
 
-    k_inter = res
+    k_inter = np.array(res,dtype=np.float64)
     i_Td, i_Tu, i_pd, i_pu, i_qd, i_qu = i_grid[:,0], i_grid[:,1], i_grid[:,2], i_grid[:,3], i_grid[:,4], i_grid[:,5]
     coeff_3, coeff_1, coeff_5 = c_grid[:,0], c_grid[:,2], c_grid[:,4]
 
