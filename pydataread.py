@@ -589,7 +589,7 @@ def line_search(line) :
                 i_f += 1
         else :
             if i_l == size-1 :
-                words = np.append(words,line[i_d:i_f])
+                words = np.append(words,line[i_d:size])
             else :
                 i_f += 1
     return words
