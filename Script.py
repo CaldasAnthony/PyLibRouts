@@ -214,7 +214,7 @@ if Record == True :
         else : All = False
         for i_res in range(kcorr.type.size) :
             if os.path.isfile("%s%s/k_corr_%s_%s.npy"%(path,name_source,name_exo,kcorr.type[i_res])) == False :
-                k_corr_data_read(kcorr,data_base,name_exo,kcorr.parameters,kcorr.type[i_res],kcorr.resolution_n[0],kcorr.resolution_n[1],\
+                k_corr_data_read(kcorr,data_source,name_exo,kcorr.parameters,kcorr.type[i_res],kcorr.resolution_n[0],kcorr.resolution_n[1],\
                          kcorr.exception,'%s%s/'%(path,name_source),All,kcorr.jump,False)
             else : print 'K distribution already recorded : domain %s'%(kcorr.type[i_res])
 else :
