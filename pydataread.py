@@ -230,8 +230,6 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             if rank != 0 :
                 i_dd = np.zeros(number_rank+1,dtype=np.int)
 
-            comm.Barrier()
-
             if rank == 0 :
                 i_dd = np.append(i_dd,np.array([size]))
                 comm.Bcast([i_dd,MPI.INT],root=0)
