@@ -215,6 +215,7 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
     k_corr_plan = np.zeros((T_dim,P_dim,Q_dim,dim_bande,dim_gauss))
     if Jump == False :
         k_corr_nojump = line_search(k_corr_data)
+        print k_corr_nojump
 
     bar = ProgressBar(dim_gauss*dim_bande,'Kcorr record')
 
@@ -239,7 +240,7 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
                                 i_col = i_data%3
                                 k_corr_line = line_search(k_corr_data[i_line])
                                 k_corr_plan[i,j,k,l,m] = np.float(k_corr_line[i_col])
-                                
+
             bar.animate(m*dim_bande+l+1)
 
     np.save("%sk_corr_%s_%s.npy"%(directory,name_exo,domain),k_corr_plan)
