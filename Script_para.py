@@ -218,6 +218,15 @@ if Record == True :
 
     if rank == 0 :
         data_record(path,name_source,data_source,name_exo,aerosol(),continuum(),kcorr(),crossection(),composition(),Renorm=False)
+    kcorr = kcorr()
+    if kcorr.resolution != '' :
+        if kcorr.exception.size == 0 : All = True
+        else : All = False
+        for i_res in range(kcorr.type.size) :
+            if os.path.isfile("%s%s/k_corr_%s_%s.npy"%(path,name_source,name_exo,kcorr.type[i_res])) == False :
+                k_corr_data_read(kcorr,data_base,name_exo,kcorr.parameters,kcorr.type[i_res],kcorr.resolution_n[0],kcorr.resolution_n[1],\
+                         kcorr.exception,'%s%s/'%(path,name_source),All,kcorr.jump,True)
+            else : print 'K distribution already recorded : domain %s'%(kcorr.type[i_res])
 else :
     class continuum :
         def __init__(self) :

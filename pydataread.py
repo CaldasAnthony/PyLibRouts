@@ -117,18 +117,6 @@ def data_record(path,name_source,data_base,name_exo,aerosol,continuum,kcorr,cros
         else :
             'Composition data already recorded.'
 
-    if kcorr.resolution != '' :
-        if kcorr.exception.size == 0 :
-            All = True
-        else :
-            All = False
-        for i_res in range(kcorr.type.size) :
-            if os.path.isfile("%sk_corr_%s_%s.npy"%(directory,name_exo,kcorr.type[i_res])) == False :
-                k_corr_data_read(kcorr,data_base,name_exo,kcorr.parameters,kcorr.type[i_res],kcorr.resolution_n[0],kcorr.resolution_n[1],\
-                         kcorr.exception,directory,All,kcorr.jump)
-            else :
-                print 'K distribution already recorded : domain %s'%(kcorr.type[i_res])
-
     if crossection.file != '' :
         if os.path.isfile("%scrossection_%s.npy"%(directory,crossection.type)) == False :
             cross_data_read(crossection.file,crossection.type_ref,crossection.species,directory,crossection.type)
@@ -140,7 +128,7 @@ def data_record(path,name_source,data_base,name_exo,aerosol,continuum,kcorr,cros
 ########################################################################################################################
 
 
-def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,exception,directory,All=True,Jump=False) :
+def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,exception,directory,All=True,Jump=False,Para=False) :
 
     data = open('%scorrk_data/%s.dat'%(path,parameters[0]),'r')
     T_read = data.readlines()
@@ -214,34 +202,101 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
 
     k_corr_plan = np.zeros((T_dim,P_dim,Q_dim,dim_bande,dim_gauss))
     if Jump == False :
-        k_corr_nojump = line_search(k_corr_data)
-        print k_corr_nojump
+        if Para == True :
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            rank = comm.rank
+            number_rank = comm.size
 
-    bar = ProgressBar(dim_gauss*dim_bande,'Kcorr record')
+            size = k_corr_data[0].size
+            i_d = rank*size/number_rank
+            if k_corr_data[0][i_d] != ' ' :
+                supp = 1
+                while k_corr_data[0][i_d+supp] != ' ' :
+                    supp += 1
+                i_d += supp
+            i_d = np.array([i_d],dtype=np.int)
+            for r_n in range(number_rank) :
+                if r_n != 0  and r_n == rank :
+                    comm.Send([i_d,MPI.INT],dest=0,tag=0)
+                elif r_n == 0 and rank == 0 :
+                    i_dd = np.zeros(number_rank,dtype=np.int)
+                    i_dd[0] = i_d
+                elif r_n != 0 and rank == 0 :
+                    i_d_n = np.zeros(1,dtype=np.int)
+                    comm.Recv([i_d_n,MPI.DOUBLE],source=r_n,tag=0)
+                    i_dd[r_n] = i_d
+            i_dd = np.append(i_dd,np.array([size]))
+            k_corr_nojump_n = line_search(k_corr_data[0][i_dd[rank]:i_dd[rank+1]])
+            k_corr_nojump_n = np.array([np.float(k_corr_nojump_n)],dtype=np.float64)
+            for r_n in range(number_rank) :
+                if r_n != 0  and r_n == rank :
+                    comm.Send([k_corr_nojump_n,MPI.DOUBLE],dest=0,tag=0)
+                    comm.Send([k_corr_nojump_n.size,MPI.INT],dest=0,tag=1)
+                elif r_n == 0 and rank == 0 :
+                    k_corr_nojump = k_corr_nojump_n
+                elif r_n != 0 and rank == 0 :
+                    size_n = np.zeros(1,dtype=np.int)
+                    comm.Recv([size_n,MPI.INT],source=r_n,tag=0)
+                    k_corr_nojump_ne = np.zeros(size_n,dtype=np.float64)
+                    comm.Recv([k_corr_nojump_ne,MPI.DOUBLE],source=r_n,tag=1)
+                    k_corr_nojump = np.append(k_corr_nojump,k_corr_nojump_ne)
+        else :
+            k_corr_nojump = line_search(k_corr_data[0])
 
-    for m in range(dim_gauss) :
-        whg = ex_gauss[ex_gauss == m]
-        m_coeff = m*T_dim*P_dim*Q_dim*dim_bande
-        for l in range(dim_bande) :
-            wh = ex_bande[ex_bande == l]
-            l_coeff = l*T_dim*P_dim*Q_dim
-            if whg.size == 0 and wh.size == 0 :
-                for k in range(Q_dim) :
-                    k_coeff = k*T_dim*P_dim
-                    for j in range(P_dim) :
-                        j_coeff = j*T_dim
-                        for i in range(T_dim) :
-                            if Jump == False :
-                                i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
-                                k_corr_plan[i,j,k,l,m] = np.float(k_corr_nojump[i_data])
-                            else :
-                                i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
-                                i_line = i_data/3
-                                i_col = i_data%3
-                                k_corr_line = line_search(k_corr_data[i_line])
-                                k_corr_plan[i,j,k,l,m] = np.float(k_corr_line[i_col])
+    if Para == True :
+        if rank == 0 :
+            bar = ProgressBar(dim_gauss*dim_bande,'Kcorr record')
 
-            bar.animate(m*dim_bande+l+1)
+            for m in range(dim_gauss) :
+                whg = ex_gauss[ex_gauss == m]
+                m_coeff = m*T_dim*P_dim*Q_dim*dim_bande
+                for l in range(dim_bande) :
+                    wh = ex_bande[ex_bande == l]
+                    l_coeff = l*T_dim*P_dim*Q_dim
+                    if whg.size == 0 and wh.size == 0 :
+                        for k in range(Q_dim) :
+                            k_coeff = k*T_dim*P_dim
+                            for j in range(P_dim) :
+                                j_coeff = j*T_dim
+                                for i in range(T_dim) :
+                                    if Jump == False :
+                                        i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
+                                        k_corr_plan[i,j,k,l,m] = np.float(k_corr_nojump[i_data])
+                                    else :
+                                        i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
+                                        i_line = i_data/3
+                                        i_col = i_data%3
+                                        k_corr_line = line_search(k_corr_data[i_line])
+                                        k_corr_plan[i,j,k,l,m] = np.float(k_corr_line[i_col])
+
+                    bar.animate(m*dim_bande+l+1)
+    else :
+        bar = ProgressBar(dim_gauss*dim_bande,'Kcorr record')
+
+        for m in range(dim_gauss) :
+            whg = ex_gauss[ex_gauss == m]
+            m_coeff = m*T_dim*P_dim*Q_dim*dim_bande
+            for l in range(dim_bande) :
+                wh = ex_bande[ex_bande == l]
+                l_coeff = l*T_dim*P_dim*Q_dim
+                if whg.size == 0 and wh.size == 0 :
+                    for k in range(Q_dim) :
+                        k_coeff = k*T_dim*P_dim
+                        for j in range(P_dim) :
+                            j_coeff = j*T_dim
+                            for i in range(T_dim) :
+                                if Jump == False :
+                                    i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
+                                    k_corr_plan[i,j,k,l,m] = np.float(k_corr_nojump[i_data])
+                                else :
+                                    i_data = i + j_coeff + k_coeff + l_coeff + m_coeff
+                                    i_line = i_data/3
+                                    i_col = i_data%3
+                                    k_corr_line = line_search(k_corr_data[i_line])
+                                    k_corr_plan[i,j,k,l,m] = np.float(k_corr_line[i_col])
+
+                bar.animate(m*dim_bande+l+1)
 
     np.save("%sk_corr_%s_%s.npy"%(directory,name_exo,domain),k_corr_plan)
 
