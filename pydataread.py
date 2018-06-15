@@ -226,7 +226,7 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             k_corr_nojump_n = line_search(k_corr_data[i_dd[rank]:i_dd[rank+1]+1])
 
             for i_k in range(k_corr_nojump_n.size) :
-                if k_corr_nojump_n[i_k] != '0.0000000000000000' :
+                if rank != number_rank -1 and i_k != k_corr_nojump_n.size-1 :
                     k_corr_nojump_n[i_k] = np.float(k_corr_nojump_n[i_k])
 
             for r_n in range(number_rank) :
