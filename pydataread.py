@@ -232,14 +232,15 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             for r_n in range(number_rank) :
                 if r_n != 0  and r_n == rank :
                     comm.Send([k_corr_nojump_n,MPI.DOUBLE],dest=0,tag=1)
-                    comm.Send([k_corr_nojump_n.size,MPI.INT],dest=0,tag=2)
+                    length = np.array([k_corr_nojump_n.size],dtype=np.int)
+                    comm.Send([length,MPI.INT],dest=0,tag=2)
                 elif r_n == 0 and rank == 0 :
                     k_corr_nojump = k_corr_nojump_n
                 elif r_n != 0 and rank == 0 :
                     print r_n
-                    size_n = np.zeros(1,dtype=np.int)
-                    comm.Recv([size_n,MPI.INT],source=r_n,tag=2)
-                    k_corr_nojump_ne = np.zeros(size_n,dtype=np.float64)
+                    length_n = np.zeros(1,dtype=np.int)
+                    comm.Recv([length_n,MPI.INT],source=r_n,tag=2)
+                    k_corr_nojump_ne = np.zeros(length_n,dtype=np.float64)
                     comm.Recv([k_corr_nojump_ne,MPI.DOUBLE],source=r_n,tag=1)
                     k_corr_nojump = np.append(k_corr_nojump,k_corr_nojump_ne)
         else :
