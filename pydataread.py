@@ -228,10 +228,12 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             for i_k in range(k_corr_nojump_n.size) :
                 if rank != number_rank -1 and i_k != k_corr_nojump_n.size-1 :
                     k_corr_nojump_n[i_k] = np.float(k_corr_nojump_n[i_k])
+                else :
+                    k_corr_nojump_n[i_k] = 0.0
 
             for r_n in range(number_rank) :
                 if r_n != 0  and r_n == rank :
-                    k_corr_nojump_n = np.array([k_corr_nojump_n],dtype=np.float)
+                    k_corr_nojump_n = np.array([k_corr_nojump_n],dtype=np.float64)
                     comm.Send([k_corr_nojump_n,MPI.DOUBLE],dest=0,tag=1)
                     length = np.array([k_corr_nojump_n.size],dtype=np.int)
                     comm.Send([length,MPI.INT],dest=0,tag=2)
