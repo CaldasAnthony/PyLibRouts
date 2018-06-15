@@ -49,7 +49,7 @@ if diag_file == '' :
     reso_long, reso_lat = planet.longitude, planet.latitude
 
 t, t_selec, phi_rot, phi_obli, inclinaison = 0, 5, 0.45, 0.00, 0.00
-lat_obs, long_obs = 0.00, 0.27
+lat_obs, long_obs = 0.00, 0.00
 
 Record = True
 
