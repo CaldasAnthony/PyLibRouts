@@ -226,7 +226,13 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
                     i_d_n = np.zeros(1,dtype=np.int)
                     comm.Recv([i_d_n,MPI.DOUBLE],source=r_n,tag=0)
                     i_dd[r_n] = i_d
-            i_dd = np.append(i_dd,np.array([size]))
+
+            if rank == 0 :
+                i_dd = np.append(i_dd,np.array([size]))
+                comm.Bcast([i_dd,MPI.INT],root=0)
+
+            comm.Barrier()
+
             k_corr_nojump_n = line_search(k_corr_data[0][i_dd[rank]:i_dd[rank+1]])
             k_corr_nojump_n = np.array([k_corr_nojump_n],dtype=np.float64)
             for r_n in range(number_rank) :
