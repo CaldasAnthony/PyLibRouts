@@ -208,7 +208,7 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             rank = comm.rank
             number_rank = comm.size
 
-            size = k_corr_data[0].size
+            size = len(k_corr_data[0])
             i_d = rank*size/number_rank
             if k_corr_data[0][i_d] != ' ' :
                 supp = 1
