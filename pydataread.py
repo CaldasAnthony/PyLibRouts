@@ -216,12 +216,12 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
                     supp = 1
                     while k_corr_data[0][i_d+supp] != ' ' :
                         supp += 1
-                    i_d += supp + 1
+                    i_d += supp
                 i_dd[r_n] = i_d
 
-            i_dd[i_dd.size-1] = size
+            i_dd[i_dd.size-1] = size-1
 
-            k_corr_nojump_n = line_search(k_corr_data[0][i_dd[rank]:i_dd[rank+1]])
+            k_corr_nojump_n = line_search(k_corr_data[0][i_dd[rank]:i_dd[rank+1]+1])
             if rank == 0 :
                 for i_d in range(i_dd.size) : print i_d, k_corr_data[0][i_d]
 
