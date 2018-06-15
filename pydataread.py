@@ -214,10 +214,11 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
             i_dd = np.zeros(number_rank+1,dtype=np.int)
             for r_n in range(0,number_rank) :
                 i_d = r_n*size/number_rank
-                if np.str(k_corr_data[i_d]) != ' ' :
+                print k_corr_data[i_d]
+                if k_corr_data[i_d] != ' ' :
                     print 'prout'
                     supp = 1
-                    while np.str(k_corr_data[i_d+supp]) != ' ' :
+                    while k_corr_data[i_d+supp] != ' ' :
                         supp += 1
                     i_d += supp
                 i_dd[r_n] = i_d
