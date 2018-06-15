@@ -216,14 +216,13 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
                     supp = 1
                     while k_corr_data[0][i_d+supp] != ' ' :
                         supp += 1
-                    i_d += supp
+                    i_d += supp + 1
                 i_dd[r_n] = i_d
 
-            i_dd[i_dd.size-1] = size
-            print i_dd
+            i_dd[i_dd.size] = size
 
             k_corr_nojump_n = line_search(k_corr_data[0][i_dd[rank]:i_dd[rank+1]])
-            print k_corr_nojump_n.size
+            
             for i_k in range(k_corr_nojump_n.size) :
                 print rank,k_corr_nojump_n[i_k]
                 k_corr_nojump_n[i_k] = np.float(k_corr_nojump_n[i_k])
