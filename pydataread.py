@@ -241,10 +241,8 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
                 elif r_n == 0 and rank == 0 :
                     k_corr_nojump = k_corr_nojump_n
                 elif r_n != 0 and rank == 0 :
-                    print r_n
                     length_n = np.zeros(1,dtype=np.int)
                     comm.Recv([length_n,MPI.INT],source=r_n,tag=1)
-                    print length_n
                     k_corr_nojump_ne = np.zeros(length_n,dtype=np.float64)
                     comm.Recv([k_corr_nojump_ne,MPI.DOUBLE],source=r_n,tag=2)
                     k_corr_nojump = np.append(k_corr_nojump,k_corr_nojump_ne)
