@@ -234,8 +234,6 @@ def k_corr_data_read(kcorr,path,name_exo,parameters,domain,dim_bande,dim_gauss,e
                 i_dd = np.append(i_dd,np.array([size]))
                 comm.Bcast([i_dd,MPI.INT],root=0)
 
-            comm.Barrier()
-
             k_corr_nojump_n = line_search(k_corr_data[0][i_dd[rank]:i_dd[rank+1]])
             k_corr_nojump_n = np.array([k_corr_nojump_n],dtype=np.float64)
             for r_n in range(number_rank) :
