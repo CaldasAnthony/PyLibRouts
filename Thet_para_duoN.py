@@ -95,7 +95,7 @@ n_species_active = np.array(['H2O'])
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
 #x_ratio_species_inactive = np.array([0.01])
 T_iso, P_surf, P_tau = 500, 1.e+6, 1.e+3
-x_ratio_species_active_array = np.array([0.01,0.1])
+x_ratio_species_active_array = np.array([0.10,0.20])
 x_ratio_species_inactive = np.array([])
 M = np.zeros(2,dtype=np.float)
 M_species, M[0], x_ratio_species = ratio(n_species,np.array([x_ratio_species_active_array[0]]),IsoComp=True)
@@ -351,6 +351,9 @@ if rank == 0 :
 
 ########################################################################################################################
 
+X_min, X_max = np.amin(x_ratio_species_active_array), np.amax(x_ratio_species_active_array)
+X_min_log, X_max_log = np.log10(X_min), np.log10(X_max)
+
 for beta_rad in beta_rad_array :
 
     beta = beta_rad*360./(2*np.pi)
@@ -368,7 +371,6 @@ for beta_rad in beta_rad_array :
                 print 'Top of the atmosphere : %i m'%(h_top)
 
         data_convert = np.zeros((number,1,n_layers+2,reso_lat+1,reso_long+1))
-        X_min, X_max = np.amin(x_ratio_species_active_array), np.amax(x_ratio_species_active_array)
         d_lim = (Rp+h)*np.cos(np.pi/2.-beta_rad)
         alp_max = R_gp*T_iso/(g0*np.amax(M))*np.log(P_tau/P_surf)
         n_lim = -alp_max/(1+alp_max/Rp)
@@ -385,13 +387,13 @@ for beta_rad in beta_rad_array :
 
                 if x <= d_lim and i_lat != 0  and i_lat != reso_lat and beta_rad >= theta_step :
                     if i_long >= 0. and i_long < reso_long/4. :
-                        X = 10**(np.log10(X_min) + (d_lim - x)*(np.log10(X_max)-np.log10(X_min))/(2*d_lim))
-                    if i_long >= 3*reso_long/2. and i_long < reso_long :
-                        X = 10**(np.log10(X_min) + (d_lim - x)*(np.log10(X_max)-np.log10(X_min))/(2*d_lim))
+                        X = 10**(X_min_log + (d_lim - x)*(X_max_log-X_min_log)/(2*d_lim))
+                    if i_long >= 3*reso_long/4. and i_long < reso_long :
+                        X = 10**(X_min_log + (d_lim - x)*(X_max_log-X_min_log)/(2*d_lim))
                     if i_long >= reso_long/4. and i_long < reso_long/2. :
-                        X = 10**(np.log10(X_max) - (d_lim - x)*(np.log10(X_max)-np.log10(X_min))/(2*d_lim))
-                    if i_long >= reso_long/2. and i_long < 3*reso_long/2. :
-                        X = 10**(np.log10(X_max) - (d_lim - x)*(np.log10(X_max)-np.log10(X_min))/(2*d_lim))
+                        X = 10**(X_max_log - (d_lim - x)*(X_max_log-X_min_log)/(2*d_lim))
+                    if i_long >= reso_long/2. and i_long < 3*reso_long/4. :
+                        X = 10**(X_max_log - (d_lim - x)*(X_max_log-X_min_log)/(2*d_lim))
                 else :
                     if i_long >= reso_long/4. and i_long < 3.*reso_long/4. :
                         X = X_max
@@ -399,7 +401,7 @@ for beta_rad in beta_rad_array :
                         X = X_min
                 if i_lat == 0 or i_lat == reso_lat :
                     if beta_rad >= theta_step :
-                        X = 10**((np.log10(X_max)+np.log10(X_min))/2.)
+                        X = 10**((X_max_log+X_min_log)/2.)
                     else :
                         if i_long >= reso_long/4. and i_long < 3.*reso_long/4. :
                             X = X_max

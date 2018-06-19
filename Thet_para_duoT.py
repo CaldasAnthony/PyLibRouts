@@ -93,7 +93,7 @@ n_species_active = np.array(['H2O'])
 
 #T_iso_array, P_surf, P_tau = np.array([1000.,2000.]), 1.e+6, 1.e+3
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
-x_ratio_species_inactive = np.array([0.01])
+#x_ratio_species_inactive = np.array([0.01])
 T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+3
 x_ratio_species_active = np.array([0.05])
 x_ratio_species_inactive = np.array([])
@@ -146,7 +146,8 @@ number = 3 + n_species.size + m_species.size + c_species.size
 
 # Choix dans la section de la maille
 
-lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
+#lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
+lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
 beta_rad_array = beta*2*np.pi/(360.)
 lat, long = 24, 47
 z_lim = int(lim_alt/delta_z)
@@ -387,11 +388,11 @@ for beta_rad in beta_rad_array :
                 if x <= d_lim and i_lat != 0  and i_lat != reso_lat and beta_rad >= theta_step :
                     if i_long >= 0. and i_long < reso_long/4. :
                         T = T_min + (d_lim - x)*(T_max-T_min)/(2*d_lim)
-                    if i_long >= 3*reso_long/2. and i_long < reso_long :
+                    if i_long >= 3*reso_long/4. and i_long < reso_long :
                         T = T_min + (d_lim - x)*(T_max-T_min)/(2*d_lim)
                     if i_long >= reso_long/4. and i_long < reso_long/2. :
                         T = T_max - (d_lim - x)*(T_max-T_min)/(2*d_lim)
-                    if i_long >= reso_long/2. and i_long < 3*reso_long/2. :
+                    if i_long >= reso_long/2. and i_long < 3*reso_long/4. :
                         T = T_max - (d_lim - x)*(T_max-T_min)/(2*d_lim)
                 else :
                     if i_long >= reso_long/4. and i_long < 3.*reso_long/4. :
@@ -991,7 +992,7 @@ for beta_rad in beta_rad_array :
                 Q_sample = np.array([])
                 bande_sample = np.load("%s%s/bande_sample_%s.npy"%(path,name_source,source))
 
-                k_corr_data_grid = "%s%s/crossection_%s.npy"%(path,name_source,source)
+                k_corr_data_grid = "%s%s/crossection_%s_800.npy"%(path,name_source,source)
 
             # Telechargement des donnees CIA
 
