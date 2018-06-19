@@ -846,15 +846,15 @@ def k_cont_interp_h2h2_integration(K_cont_h2h2,wavelength_cont_h2h2,T_array,band
                     if i_wave == zone_wave[0] :
                         for i in range(size) :
                             T = T_array[i]
-                            if T < T_min or T > T_max :
-                                if T < T_min :
+                            if T <= T_min or T >= T_max :
+                                if T <= T_min :
                                     if T != 0 :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[i] = K_cont_h2h2[0,i_wave]
                                     else :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[i] = 0.
-                                if T > T_max :
+                                if T >= T_max :
                                     i_Tu, i_Td, coeff = end, end, 1
                                     k_interp[i] = K_cont_h2h2[T_cont_h2h2.size-1,i_wave]
                             else :
@@ -905,15 +905,15 @@ def k_cont_interp_h2h2_integration(K_cont_h2h2,wavelength_cont_h2h2,T_array,band
                             i_wave = 0
                         for i in range(size) :
                             T = T_array[i]
-                            if T < T_min or T > T_max :
-                                if T < T_min :
+                            if T <= T_min or T >= T_max :
+                                if T <= T_min :
                                     if T != 0 :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[0,i] = K_cont_h2h2[0,i_wave]
                                     else :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[0,i] = 0.
-                                if T > T_max :
+                                if T >= T_max :
                                     i_Tu, i_Td, coeff = end, end, 1
                                     k_interp[0,i] = K_cont_h2h2[T_cont_h2h2.size-1,i_wave]
                             else :
@@ -1050,15 +1050,15 @@ def k_cont_interp_h2he_integration(K_cont_h2he,wavelength_cont_h2he,T_array,band
                     if i_wave == zone_wave[0] :
                         for i in range(size) :
                             T = T_array[i]
-                            if T < T_min or T > T_max :
-                                if T < T_min :
+                            if T <= T_min or T >= T_max :
+                                if T <= T_min :
                                     if T != 0 :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[i] = K_cont_h2he[0,i_wave]
                                     else :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[i] = 0.
-                                if T > T_max :
+                                if T >= T_max :
                                     i_Tu, i_Td, coeff = end, end, 1
                                     k_interp[i] = K_cont_h2he[T_cont_h2he.size-1,i_wave]
                             else :
@@ -1109,15 +1109,15 @@ def k_cont_interp_h2he_integration(K_cont_h2he,wavelength_cont_h2he,T_array,band
                             i_wave = 0
                         for i in range(size) :
                             T = T_array[i]
-                            if T < T_min or T > T_max :
-                                if T < T_min :
+                            if T <= T_min or T >= T_max :
+                                if T <= T_min :
                                     if T != 0 :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[0,i] = K_cont_h2he[0,i_wave]
                                     else :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[0,i] = 0.
-                                if T > T_max :
+                                if T >= T_max :
                                     i_Tu, i_Td, coeff = end, end, 1
                                     k_interp[0,i] = K_cont_h2he[T_cont_h2he.size-1,i_wave]
                             else :
@@ -1257,15 +1257,15 @@ def k_cont_interp_spespe_integration(K_cont_spespe,wavelength_cont_spespe,T_arra
                     if i_wave == zone_wave[0] :
                         for i in range(size) :
                             T = T_array[i]
-                            if T < T_min or T > T_max :
-                                if T < T_min :
+                            if T <= T_min or T >= T_max :
+                                if T <= T_min :
                                     if T != 0 :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[i] = K_cont_spespe[0,i_wave]
                                     else :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[i] = 0.
-                                if T > T_max :
+                                if T >= T_max :
                                     i_Tu, i_Td, coeff = end, end, 1
                                     k_interp[i] = K_cont_spespe[T_cont_spespe.size-1,i_wave]
                             else :
@@ -1317,15 +1317,15 @@ def k_cont_interp_spespe_integration(K_cont_spespe,wavelength_cont_spespe,T_arra
 
                         for i in range(size) :
                             T = T_array[i]
-                            if T < T_min or T > T_max :
-                                if T < T_min :
+                            if T <= T_min or T >= T_max :
+                                if T <= T_min :
                                     if T != 0 :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[0,i] = K_cont_spespe[0,i_wave]
                                     else :
                                         i_Tu, i_Td, coeff = 0, 0, 0
                                         k_interp[0,i] = 0.
-                                if T > T_max :
+                                if T >= T_max :
                                     i_Tu, i_Td, coeff = end, end, 1
                                     k_interp[0,i] = K_cont_spespe[T_cont_spespe.size-1,i_wave]
                             else :
