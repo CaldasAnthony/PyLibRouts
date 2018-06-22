@@ -31,7 +31,7 @@ number_rank = comm.size
 # Informations diverses sur l'etude
 
 path = "/data1/caldas/Pytmosph3R/"
-name_file = "Files/Para"
+name_file = "Files/Para_500_1000_nc"
 name_source = "Source"
 #name_exo = "HD209458"
 name_exo = "GJ1214b"
@@ -295,7 +295,7 @@ Flux = False            ###### Spectre flux = f(longueur d'onde)
 
 # Sauvegardes
 
-save_adress = "/data1/caldas/Pytmosph3R/I/"
+save_adress = "/data1/caldas/Pytmosph3R/I_500_1000_nc/"
 special = ''
 if rank == 0 :
     stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
@@ -993,7 +993,7 @@ for beta_rad in beta_rad_array :
                 Q_sample = np.array([])
                 bande_sample = np.load("%s%s/bande_sample_%s.npy"%(path,name_source,source))
 
-                k_corr_data_grid = "%s%s/crossection_%s_800.npy"%(path,name_source,source)
+                k_corr_data_grid = "%s%s/crossection_%s.npy"%(path,name_source,source)
 
             # Telechargement des donnees CIA
 
