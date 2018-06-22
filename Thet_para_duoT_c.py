@@ -456,7 +456,6 @@ for beta_rad in beta_rad_array :
             z_array = np.arange(h/np.float(delta_z)+1)*float(delta_z)
             if LimTop == False :
                 lim_alt = h
-            save_adress = "/data1/caldas/Pytmosph3R/I/"
             if Composition == False :
                 save_name_3D = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
                 save_name_3D_dat = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5))
