@@ -146,8 +146,8 @@ number = 3 + n_species.size + m_species.size + c_species.size
 
 # Choix dans la section de la maille
 
-#lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
-lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
+lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
+#lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
 beta_rad_array = beta*2*np.pi/(360.)
 lat, long = 24, 47
 z_lim = int(lim_alt/delta_z)
