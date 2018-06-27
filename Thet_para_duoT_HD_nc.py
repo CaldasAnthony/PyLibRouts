@@ -276,7 +276,7 @@ TimeSel = True         ###### Si nous etudions un temps precis de la simulation
 Script = True          ###### Si nous voulons avoir une version .dat du spectre
 ErrOr = True           ###### Si calculons le bruit de photon pour un instrument donne
 detection = JWST()
-Noise = False           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
+Noise = True           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
 resolution = 'low'
 Push = np.array([False,False,False,False])
 ###### Si nous voulons forcer le code a faire les spcectres intermediaires meme s'ils existent
@@ -1161,9 +1161,6 @@ for beta_rad in beta_rad_array :
             else :
                 save_name_3D_step = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
                 save_name_3D_step_dat = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
-            if Noise == True :
-                save_name_3D_step = '%s_n'%(save_name_3D_step)
-                save_name_3D_step_dat = '%s_n'%(save_name_3D_step_dat)
 
             if os.path.isfile('%s.npy'%(save_name_3D_step)) != True or Push[i_ca] == True :
 
@@ -1376,9 +1373,7 @@ for beta_rad in beta_rad_array :
                 else :
                     save_name_3D_step = "%s%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
                     save_name_3D_step = "%sdat/%s_3D_duo_linear_real_%i_%i_%i_%.2f_eq_%s"%(save_adress,name_exo,np.amin(T_iso_array),np.amax(T_iso_array),beta,P_tau/(1.e+5),stud)
-                if Noise == True :
-                    save_name_3D_step = '%s_n'%(save_name_3D_step)
-                    save_name_3D_step_dat = '%s_n'%(save_name_3D_step_dat)
+
                 I_step = np.load('%s.npy'%(save_name_3D_step))
                 if i_ca == 0 :
                     Itot = I_step
