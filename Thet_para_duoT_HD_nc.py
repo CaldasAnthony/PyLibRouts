@@ -426,8 +426,12 @@ for beta_rad in beta_rad_array :
                         data_convert[1,0,i_n,i_lat,i_long] = T_max
                     else :
                         if z_maxi == 0 :
-                            z_maxi = z - delta_z
-                            P_top = data_convert[0,0,i_n-1,i_lat,i_long]
+                            if P_tau < P_surf :
+                                z_maxi = z - delta_z
+                                P_top = data_convert[0,0,i_n-1,i_lat,i_long]
+                            else :
+                                z_maxi = 0.
+                                P_top = P_surf
                         data_convert[1,0,i_n,i_lat,i_long] = T
 
                     if Composition == False :

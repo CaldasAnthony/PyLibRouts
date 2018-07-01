@@ -94,7 +94,7 @@ n_species_active = np.array(['H2O'])
 #T_iso_array, P_surf, P_tau = np.array([1000.,2000.]), 1.e+6, 1.e+3
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
 #x_ratio_species_inactive = np.array([0.01])
-T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+3
+T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+7
 x_ratio_species_active = np.array([0.05])
 x_ratio_species_inactive = np.array([])
 M_species, M, x_ratio_species = ratio(n_species,x_ratio_species_active,IsoComp=True)
@@ -425,8 +425,12 @@ for beta_rad in beta_rad_array :
                         data_convert[1,0,i_n,i_lat,i_long] = T_max
                     else :
                         if z_maxi == 0 :
-                            z_maxi = z - delta_z
-                            P_top = data_convert[0,0,i_n-1,i_lat,i_long]
+                            if P_tau < P_surf :
+                                z_maxi = z - delta_z
+                                P_top = data_convert[0,0,i_n-1,i_lat,i_long]
+                            else :
+                                z_maxi = 0.
+                                P_top = P_surf
                         data_convert[1,0,i_n,i_lat,i_long] = T
 
                     if Composition == False :
