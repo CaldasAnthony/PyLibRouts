@@ -31,7 +31,7 @@ number_rank = comm.size
 # Informations diverses sur l'etude
 
 path = "/data1/caldas/Pytmosph3R/"
-name_file = "Files/Para_1000_1800_nc"
+name_file = "Files/Para_500_1000_NI_nc"
 name_source = "Source"
 name_exo = "HD209458"
 #name_exo = "GJ1214b"
@@ -94,7 +94,7 @@ n_species_active = np.array(['H2O'])
 #T_iso_array, P_surf, P_tau = np.array([1000.,2000.]), 1.e+6, 1.e+3
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
 #x_ratio_species_inactive = np.array([0.01])
-T_iso_array, P_surf, P_tau = np.array([1000.,1800.]), 1.e+6, 1.e+3
+T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+7
 x_ratio_species_active = np.array([0.05])
 x_ratio_species_inactive = np.array([])
 M_species, M, x_ratio_species = ratio(n_species,x_ratio_species_active,IsoComp=True)
@@ -295,7 +295,7 @@ Flux = False            ###### Spectre flux = f(longueur d'onde)
 
 # Sauvegardes
 
-save_adress = "/data1/caldas/Pytmosph3R/I_1000_1800_nc/"
+save_adress = "/data1/caldas/Pytmosph3R/I_500_1000_NI_nc/"
 special = ''
 if rank == 0 :
     stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
@@ -372,8 +372,13 @@ for beta_rad in beta_rad_array :
         data_convert = np.zeros((number,1,n_layers+2,reso_lat+1,reso_long+1))
         T_min, T_max = np.amin(T_iso_array), np.amax(T_iso_array)
         d_lim = (Rp+h)*np.cos(np.pi/2.-beta_rad)
-        alp_max = R_gp*T_max/(g0*M)*np.log(P_tau/P_surf)
-        n_lim = -alp_max/(1+alp_max/Rp)
+        if P_tau < P_surf :
+            alp_max = R_gp*T_max/(g0*M)*np.log(P_tau/P_surf)
+            n_lim = -alp_max / (1 + alp_max / Rp)
+        else :
+            alp_max = 0.
+            n_lim = 0
+
 
         if rank == 0 :
             bar = ProgressBar(reso_lat+1,'Data generation')
