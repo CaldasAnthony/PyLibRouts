@@ -386,6 +386,7 @@ for beta_rad in beta_rad_array :
         if rank == 0 :
             bar = ProgressBar(reso_lat+1,'Data generation')
 
+        z_maxi = 0
         for i_lat in range(reso_lat+1) :
             for i_long in range(reso_long+1) :
                 for i_n in range(n_layers+2) :
