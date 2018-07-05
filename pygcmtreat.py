@@ -1810,7 +1810,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                 ####################################### Assignation des coordonnees ############################################
 
                 d = np.append(-d_z,np.append(d_z,np.append(d_long,d_lat)))
-                n = np.append(n_l,np.append(n_l+1,np.append(1000+n_long,100+n_lat)))
+                n = np.append(n_l,np.append(n_l+1,np.append(10000+n_long,1000+n_lat)))
 
                 q_ind = np.argsort(d)
                 d = np.sort(d)
@@ -1833,7 +1833,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                 q_zh[0] = n_layers*delta_r
 
                 for i_d in range(1,d.size) :
-                    if n[i_d] < 100 :
+                    if n[i_d] < 1000 :
                         q_z[i_d] = n[i_d]
                         q_zh[i_d] = n[i_d]*delta_r
 
