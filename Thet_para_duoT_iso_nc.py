@@ -349,7 +349,7 @@ if rank == 0 :
 
 ########################################################################################################################
 
-for beta_rad in beta_rad_array :
+for beta_rad in beta_rad_array[0] :
 
     beta = beta_rad*360./(2*np.pi)
     stu_name = '_%.3f'%(beta)
