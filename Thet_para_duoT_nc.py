@@ -31,7 +31,7 @@ number_rank = comm.size
 # Informations diverses sur l'etude
 
 path = "/data1/caldas/Pytmosph3R/"
-name_file = "Files/Para_500_1000_NI_nc"
+name_file = "Files/Para_500_1000_noisy_nc"
 name_source = "Source"
 #name_exo = "HD209458"
 name_exo = "GJ1214b"
@@ -94,7 +94,7 @@ n_species_active = np.array(['H2O'])
 #T_iso_array, P_surf, P_tau = np.array([1000.,2000.]), 1.e+6, 1.e+3
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
 #x_ratio_species_inactive = np.array([0.01])
-T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+7
+T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+3
 x_ratio_species_active = np.array([0.05])
 x_ratio_species_inactive = np.array([])
 M_species, M, x_ratio_species = ratio(n_species,x_ratio_species_active,IsoComp=True)
@@ -276,8 +276,8 @@ TimeSel = True         ###### Si nous etudions un temps precis de la simulation
 Script = True          ###### Si nous voulons avoir une version .dat du spectre
 ErrOr = True           ###### Si calculons le bruit de photon pour un instrument donne
 detection = JWST()
-Noise = False           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
-resolution = 'low'
+Noise = True           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
+resolution = ''
 Push = np.array([False,False,False,False])
 ###### Si nous voulons forcer le code a faire les spcectres intermediaires meme s'ils existent
 
@@ -295,7 +295,7 @@ Flux = False            ###### Spectre flux = f(longueur d'onde)
 
 # Sauvegardes
 
-save_adress = "/data1/caldas/Pytmosph3R/I_500_1000_NI_nc/"
+save_adress = "/data1/caldas/Pytmosph3R/I_500_1000_noisy_nc/"
 special = ''
 if rank == 0 :
     stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
