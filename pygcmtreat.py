@@ -1834,8 +1834,12 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
 
                 for i_d in range(1,d.size) :
                     if n[i_d] < 1000 :
-                        q_z[i_d] = n[i_d]
-                        q_zh[i_d] = n[i_d]*delta_r
+                        if d != L:
+                            q_z[i_d] = n[i_d]
+                            q_zh[i_d] = n[i_d] * delta_r
+                        else:
+                            q_z[i_d] = n[i_d - 1]
+                            q_zh[i_d] = n[i_d - 1] * delta_r
 
                         lat_step = np.arcsin((Z[i_theta]+(d[i_d]-10)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-10)**2)))
                         q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
