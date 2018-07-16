@@ -1841,19 +1841,19 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                             q_z[i_d] = n_layers
                             q_zh[i_d] = n_layers * delta_r
 
-                        lat_step = np.arcsin((Z[i_theta]+(d[i_d]-10)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-10)**2)))
+                        lat_step = np.arcsin((Z[i_theta]+(d[i_d]-1)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-1)**2)))
                         q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
 
-                        long_step = np.arctan2(Y[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.cos(long_obs))
+                        long_step = np.arctan2(Y[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.cos(long_obs))
                         q_long[i_d] = np.int(np.round((long_step)/(2*np.pi)*reso_long))
                         if q_long[i_d] < 0 :
                             q_long[i_d] += reso_long
 
                     else :
-                        lat_step = np.arcsin((Z[i_theta]+(d[i_d]-10)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-10)**2)))
+                        lat_step = np.arcsin((Z[i_theta]+(d[i_d]-1)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-1)**2)))
                         q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
 
-                        long_step = np.arctan2(Y[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-10)*np.cos(lat_obs)*np.cos(long_obs))
+                        long_step = np.arctan2(Y[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.cos(long_obs))
                         q_long[i_d] = np.int(np.round((long_step)/(2*np.pi)*reso_long))
                         if q_long[i_d] < 0 :
                             q_long[i_d] += reso_long
@@ -1865,7 +1865,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                     if q_long[i_d] == reso_long :
                         q_long[i_d] = 0
 
-                    dx_opt[i_d] = np.abs(d[i_d]-d[i_d - 1])
+                    dx_opt[i_d-1] = np.abs(d[i_d]-d[i_d - 1])
 
 
                 wh, = np.where((dx_opt < 1.e-6)*(dx_opt != -1.))
