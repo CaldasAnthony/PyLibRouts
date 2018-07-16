@@ -6,6 +6,7 @@ from pytransfert import *
 from pyfunction import *
 from pymatrix import *
 from pydataread import *
+
 from pyremind import *
 from pyparagcmtreat import *
 from pyparaconvert import *
@@ -31,7 +32,7 @@ number_rank = comm.size
 # Informations diverses sur l'etude
 
 path = "/data1/caldas/Pytmosph3R/"
-name_file = "Files/Para_500_1000_noisy_nc"
+name_file = "Files/Para_1000_nc"
 name_source = "Source"
 #name_exo = "HD209458"
 name_exo = "GJ1214b"
@@ -68,6 +69,7 @@ g0 = G*Mp/(Rp**2)
 #d_al = 154*9.461e+15
 
 Rs = 0.206470165349*R_S
+print Rs
 Ts = 3000.
 d_al = 42.4*9.461e+15
 
@@ -94,7 +96,7 @@ n_species_active = np.array(['H2O'])
 #T_iso_array, P_surf, P_tau = np.array([1000.,2000.]), 1.e+6, 1.e+3
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
 #x_ratio_species_inactive = np.array([0.01])
-T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+3
+T_iso_array, P_surf, P_tau = np.array([1000.,1000.]), 1.e+6, 1.e+3
 x_ratio_species_active = np.array([0.05])
 x_ratio_species_inactive = np.array([])
 M_species, M, x_ratio_species = ratio(n_species,x_ratio_species_active,IsoComp=True)
@@ -146,8 +148,8 @@ number = 3 + n_species.size + m_species.size + c_species.size
 
 # Choix dans la section de la maille
 
-lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
-#lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
+#lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
+lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
 beta_rad_array = beta*2*np.pi/(360.)
 lat, long = 24, 47
 z_lim = int(lim_alt/delta_z)
@@ -295,7 +297,7 @@ Flux = False            ###### Spectre flux = f(longueur d'onde)
 
 # Sauvegardes
 
-save_adress = "/data1/caldas/Pytmosph3R/I_500_1000_noisy_nc/"
+save_adress = "/data1/caldas/Pytmosph3R/I_1000_nc/"
 special = ''
 if rank == 0 :
     stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
