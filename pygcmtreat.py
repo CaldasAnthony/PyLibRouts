@@ -1834,7 +1834,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
 
                 for i_d in range(1,d.size) :
                     if n[i_d] < 1000 :
-                        if d != L:
+                        if d[i_d] != L:
                             q_z[i_d] = n[i_d]
                             q_zh[i_d] = n[i_d] * delta_r
                         else:
