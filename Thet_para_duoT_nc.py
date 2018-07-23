@@ -32,7 +32,7 @@ number_rank = comm.size
 # Informations diverses sur l'etude
 
 path = "/data1/caldas/Pytmosph3R/"
-name_file = "Files/Para_1000_nc"
+name_file = "Files/Para_500_1000_nc"
 name_source = "Source"
 #name_exo = "HD209458"
 name_exo = "GJ1214b"
@@ -96,7 +96,7 @@ n_species_active = np.array(['H2O'])
 #T_iso_array, P_surf, P_tau = np.array([1000.,2000.]), 1.e+6, 1.e+3
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
 #x_ratio_species_inactive = np.array([0.01])
-T_iso_array, P_surf, P_tau = np.array([1000.,1000.]), 1.e+6, 1.e+3
+T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+3
 x_ratio_species_active = np.array([0.05])
 x_ratio_species_inactive = np.array([])
 M_species, M, x_ratio_species = ratio(n_species,x_ratio_species_active,IsoComp=True)
@@ -297,7 +297,7 @@ Flux = False            ###### Spectre flux = f(longueur d'onde)
 
 # Sauvegardes
 
-save_adress = "/data1/caldas/Pytmosph3R/I_1000_nc/"
+save_adress = "/data1/caldas/Pytmosph3R/I_500_1000_nc/"
 special = ''
 if rank == 0 :
     stud = stud_type(r_eff,Single,Continuum,Molecular,Scattering,Clouds)
@@ -483,7 +483,7 @@ for beta_rad in beta_rad_array :
 
     if Parameters == True :
 
-        if Corr == True and beta_rad == 0. :
+        if Corr == True and beta_rad == beta_rad_array[0] :
 
                                         ###### Parallele encoding init ######
 
