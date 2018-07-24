@@ -1844,26 +1844,23 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                 q_zh[0] = n_layers * delta_r
 
                 for i_d in range(1, d.size):
-                    if d[i_d] != L:
-                        n_z = np.int((np.sqrt(r ** 2 + (d[i_d]-1) ** 2) - Rp) / delta_r) + 1
-                        q_z[i_d] = n_z
-                        q_zh[i_d] = n_z * delta_r
-                    else:
-                        q_z[i_d] = n_layers
-                        q_zh[i_d] = n_layers * delta_r
+                    n_z = np.int((np.sqrt(r ** 2 + (d[i_d] - 1) ** 2) - Rp) / delta_r) + 1
+                    q_z[i_d - 1] = n_z
 
                     lat_step = np.arcsin(
                         (Z[i_theta] + (d[i_d] - 1) * np.sin(lat_obs)) / (np.sqrt(r ** 2 + (d[i_d] - 1) ** 2)))
-                    q_lat[i_d] = np.int(np.round((lat_step + np.pi / 2.) / (np.pi) * reso_lat))
+                    q_lat[i_d - 1] = np.int(np.round((lat_step + np.pi / 2.) / (np.pi) * reso_lat))
 
                     long_step = np.arctan2(Y[i_theta] + (d[i_d] - 1) * np.cos(lat_obs) * np.sin(long_obs),
                                            X[i_theta] + (d[i_d] - 1) * np.cos(lat_obs) * np.cos(long_obs))
-                    q_long[i_d] = np.int(np.round((long_step) / (2 * np.pi) * reso_long))
-                    if q_long[i_d] < 0:
-                        q_long[i_d] += reso_long
+                    q_long[i_d - 1] = np.int(np.round((long_step) / (2 * np.pi) * reso_long))
+                    if q_long[i_d - 1] < 0:
+                        q_long[i_d - 1] += reso_long
 
-                    if q_long[i_d] == reso_long:
-                        q_long[i_d] = 0
+                    if q_long[i_d - 1] == reso_long:
+                        q_long[i_d - 1] = 0
+
+                    q_zh[i_d] = (Z[i_theta] + d[i_d] * np.sin(lat_obs)) / (np.sin(lat_step)) - Rp
 
                     dx_opt[i_d - 1] = np.abs(d[i_d] - d[i_d - 1])
 
@@ -1952,10 +1949,15 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
             for i_theta in range(theta_number) :
                 for i_d in range(size) :
 
-                    z_1 = q_zh_grid[i_r,i_theta,i_d]
-                    if i_d != size-1 :
-                        z_2 = q_zh_grid[i_r,i_theta,i_d+1]
-                    else :
+                    if i_d != size - 1:
+                        if q_zh_grid[i_r, i_theta, i_d + 1] == q_zh_grid[i_r, i_theta, i_d]:
+                            z_1 = q_zh_grid[i_r, i_theta, i_d]
+                            z_2 = r
+                        else:
+                            z_1 = q_zh_grid[i_r, i_theta, i_d]
+                            z_2 = q_zh_grid[i_r, i_theta, i_d + 1]
+                    else:
+                        z_1 = q_zh_grid[i_r, i_theta, i_d]
                         z_2 = h
                     M_1 = data[number-1,t,order_grid[0,i_r,i_theta,i_d],order_grid[1,i_r,i_theta,i_d],order_grid[2,i_r,i_theta,i_d]]
                     T_1 = data[1,t,order_grid[0,i_r,i_theta,i_d],order_grid[1,i_r,i_theta,i_d],order_grid[2,i_r,i_theta,i_d]]
@@ -1976,11 +1978,17 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                         integ = integrate.quad(lambda z:P_1/(R_gp*T_1)*N_A*np.exp(-M_1*g_1/(R_gp*T_1)*z)*\
                               (Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
 
-                    if np.str(integ[0]) == 'inf' :
-                        pdx_grid[i_r,i_theta,i_d] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
-                        print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i_r,i_theta,i_d,pdx_grid[i_r,i_theta,i_d])), 'initial result', integ[0]
-                    else :
-                        pdx_grid[i_r,i_theta,i_d] = integ[0]
+                    if np.str(integ[0]) == 'inf':
+                        if q_zh_grid[i_r, i_theta, i_d + 1] == q_zh_grid[i_r, i_theta, i_d]:
+                            pdx_grid[i_r, i_theta, i_d] = 2 * P_1 / (R_gp * T_1) * N_A * (np.sqrt((Rp + z_2) ** 2 - (Rp + r) ** 2) - np.sqrt((Rp + z_1) ** 2 - (Rp + r) ** 2))
+                        else:
+                            pdx_grid[i_r, i_theta, i_d] = P_1 / (R_gp * T_1) * N_A * (np.sqrt((Rp + z_2) ** 2 - (Rp + r) ** 2) - np.sqrt((Rp + z_1) ** 2 - (Rp + r) ** 2))
+                        print('We did a correction in the integration cell (%i,%i,%i), with %.6e' % (i_r, i_theta, i_d, pdx_grid[i_r, i_theta, i_d])), 'initial result', integ[0]
+                    else:
+                        if q_zh_grid[i_r, i_theta, i_d + 1] == q_zh_grid[i_r, i_theta, i_d]:
+                            pdx_grid[i_r, i_theta, i_d] = 2 * integ[0]
+                        else:
+                            pdx_grid[i_r, i_theta, i_d] = integ[0]
 
                 bar.animate(i_r*theta_number+i_theta+1)
     else :
