@@ -1170,7 +1170,7 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
 
                     for i_d in range(1,d.size) :
                         if d[i_d] != L :
-                            n_z = np.int(np.sqrt(r**2 + (d[i_d]-1)**2)/delta_r) + 1
+                            n_z = np.int((np.sqrt(r**2 + (d[i_d]-1)**2) - Rp)/delta_r) + 1
                             q_z[i_d] = n_z
                             q_zh[i_d] = n_z*delta_r
                         else :
