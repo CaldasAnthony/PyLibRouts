@@ -1004,14 +1004,11 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                     ############################### Resolution des positions des niveaux ###########################################
 
                     d_z = np.zeros(n_layers+1)
-                    n_l = np.ones(n_layers+1,dtype=np.int)*(-1)
                     for i_l in range(n_lay_rank[i_r]+1,n_layers+1) :
                         d_z[i_l] = np.sqrt((Rp + i_l*delta_r)**2 - r**2)
-                        n_l[i_l] = i_l
 
                     wh, = np.where(d_z != 0)
                     d_z = d_z[wh]
-                    n_l = n_l[wh]
 
                     ############################### Resolution des positions de la latitude ########################################
 
@@ -1117,15 +1114,8 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                             n_lat[i_la] = i_la
 
                     wh, = np.where(n_lat != -1)
-                    n_lat = n_lat[wh]
                     d_lat = d_lat[wh]
-
-                    qq = np.argsort(d_lat)
                     d_lat = np.sort(d_lat)
-                    n_lat = n_lat[qq]
-
-                    wh_la, = np.where(n_lat >= reso_lat)
-                    n_lat[wh_la] = 2*reso_lat - 1 - n_lat[wh_la]
 
                     ############################### Resolution des positions de la latitude ########################################
 
@@ -1138,13 +1128,9 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
 
                         if theta == 0. or theta == np.pi :
                             if i_lo == 0 :
-                                d_long[i_lo] = -L
-                                d_long[i_lo+1] = 0.
-                                d_long[i_lo+2] = L
+                                d_long[i_lo], d_long[i_lo+1], d_long[i_lo+2] = -L, 0., L
+                                n_long[i_lo], n_long[i_lo+1], n_long[i_lo+2] = q_long_ref_init, q_long_ref_end, q_long_ref_end
 
-                                n_long[i_lo] = q_long_ref_init
-                                n_long[i_lo+1] = q_long_ref_end
-                                n_long[i_lo+2] = q_long_ref_end
                         else :
                             d_long[i_lo] = (Y[i_theta] - X[i_theta]*np.tan(long_o))/(np.cos(lat_obs)*(np.cos(long_obs)*np.tan(long_o)-np.sin(long_obs)))
 
@@ -1159,24 +1145,17 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
 
                     if wh.size != 0 :
                         d_long = d_long[wh]
-                        n_long = n_long[wh]
                     else :
                         d_long = np.array([])
-                        n_long = np.array([])
 
                     ####################################### Assignation des coordonnees ############################################
 
                     d = np.append(-d_z,np.append(d_z,np.append(d_long,d_lat)))
-                    n = np.append(n_l,np.append(n_l+1,np.append(10000+n_long,1000+n_lat)))
 
-                    q_ind = np.argsort(d)
                     d = np.sort(d)
-                    n = n[q_ind]
 
                     if q_lat_ref_init >= reso_lat :
                         q_lat_ref_init = 2*reso_lat - 1 - q_lat_ref_init
-                    if q_lat_ref_end >= reso_lat :
-                        q_lat_ref_end = 2*reso_lat - 1 - q_lat_ref_end
 
                     q_z = np.ones(d.size,dtype=np.int)*(-1)
                     q_zh = np.ones(d.size,dtype=np.int)*(-1)
@@ -1190,34 +1169,21 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                     q_zh[0] = n_layers*delta_r
 
                     for i_d in range(1,d.size) :
-                        if n[i_d] < 1000 :
-                            if d[i_d] != L :
-                                q_z[i_d] = n[i_d]
-                                q_zh[i_d] = n[i_d]*delta_r
-                            else :
-                                q_z[i_d] = n_layers
-                                q_zh[i_d] = n_layers * delta_r
-
-                            lat_step = np.arcsin((Z[i_theta]+(d[i_d]-1)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-1)**2)))
-                            q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
-
-                            long_step = np.arctan2(Y[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.cos(long_obs))
-                            q_long[i_d] = np.int(np.round((long_step)/(2*np.pi)*reso_long))
-                            if q_long[i_d] < 0 :
-                                q_long[i_d] += reso_long
-
+                        if d[i_d] != L :
+                            n_z = np.int(np.sqrt(r**2 + (d[i_d]-1)**2)/delta_r) + 1
+                            q_z[i_d] = n_z
+                            q_zh[i_d] = n_z*delta_r
                         else :
-                            lat_step = np.arcsin((Z[i_theta]+(d[i_d]-1)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-10)**2)))
-                            q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
+                            q_z[i_d] = n_layers
+                            q_zh[i_d] = n_layers * delta_r
 
-                            long_step = np.arctan2(Y[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.cos(long_obs))
-                            q_long[i_d] = np.int(np.round((long_step)/(2*np.pi)*reso_long))
-                            if q_long[i_d] < 0 :
-                                q_long[i_d] += reso_long
+                        lat_step = np.arcsin((Z[i_theta]+(d[i_d]-1)*np.sin(lat_obs))/(np.sqrt(r**2+(d[i_d]-1)**2)))
+                        q_lat[i_d] = np.int(np.round((lat_step+np.pi/2.)/(np.pi)*reso_lat))
 
-                            q_zh[i_d] = (Z[i_theta]+d[i_d]*np.sin(lat_obs))/(np.sin(lat_step)) - Rp
-
-                            q_z[i_d] = q_z[i_d - 1]
+                        long_step = np.arctan2(Y[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.sin(long_obs),X[i_theta]+(d[i_d]-1)*np.cos(lat_obs)*np.cos(long_obs))
+                        q_long[i_d] = np.int(np.round((long_step)/(2*np.pi)*reso_long))
+                        if q_long[i_d] < 0 :
+                            q_long[i_d] += reso_long
 
                         if q_long[i_d] == reso_long :
                             q_long[i_d] = 0
