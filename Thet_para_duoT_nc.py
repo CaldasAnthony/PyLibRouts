@@ -117,7 +117,9 @@ n_species_cross = np.array(['H2O','CH4','NH3','CO','CO2'])
 m_species = np.array([])
 m_file = np.array([])
 domain, domainn, source = "IR", "IR", "bin10"
+#domain, domainn, source = "IR", "IR", "R7000"
 dim_bande, dim_gauss = 3000, 16
+#dim_bande, dim_gauss = 24891, 16
 
 # Selection des sections efficaces
 
@@ -150,6 +152,7 @@ number = 3 + n_species.size + m_species.size + c_species.size
 
 lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
 #lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
+#lim_alt, rupt_alt, beta = h, 0.e+0, np.array([15.,90.])
 beta_rad_array = beta*2*np.pi/(360.)
 lat, long = 24, 47
 z_lim = int(lim_alt/delta_z)
