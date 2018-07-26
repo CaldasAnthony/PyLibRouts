@@ -146,8 +146,8 @@ number = 3 + n_species.size + m_species.size + c_species.size
 
 # Choix dans la section de la maille
 
-lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
-#lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
+#lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,theta_number/4+1)*360./np.float(theta_number)
+lim_alt, rupt_alt, beta = h, 0.e+0, np.linspace(0,theta_number/4,2)*360./np.float(theta_number)
 beta_rad_array = beta*2*np.pi/(360.)
 lat, long = 24, 47
 z_lim = int(lim_alt/delta_z)
@@ -276,7 +276,7 @@ TimeSel = True         ###### Si nous etudions un temps precis de la simulation
 Script = True          ###### Si nous voulons avoir une version .dat du spectre
 ErrOr = True           ###### Si calculons le bruit de photon pour un instrument donne
 detection = JWST()
-Noise = True           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
+Noise = False           ###### Si nous voulons bruiter le signal a partir du bruit de photon calcule
 resolution = 'low'
 Push = np.array([False,False,False,False])
 ###### Si nous voulons forcer le code a faire les spcectres intermediaires meme s'ils existent
@@ -482,7 +482,7 @@ for beta_rad in beta_rad_array :
 
     if Parameters == True :
 
-        if Corr == True and beta_rad_array[0] :
+        if Corr == True and beta_rad == beta_rad_array[0] :
 
                                         ###### Parallele encoding init ######
 
