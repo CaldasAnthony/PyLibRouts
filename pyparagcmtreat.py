@@ -1292,14 +1292,20 @@ def dx_correspondance(data,path,x_step,delta_r,theta_number,Rp,g0,h,t,n_layers,r
                                   (Rp+z_1+z)/(np.sqrt((Rp+z_1+z)**2-(Rp+r)**2)),0,z_2-z_1)
 
                         if np.str(integ[0]) == 'inf' :
-                            if q_zh_grid[i_r, i_theta, i_d + 1] == q_zh_grid[i_r, i_theta, i_d]:
-                                pdx_grid[i_r, i_theta, i_d] = 2*P_1 / (R_gp * T_1) * N_A * ( np.sqrt((Rp + z_2) ** 2 - (Rp + r) ** 2) - np.sqrt((Rp + z_1) ** 2 - (Rp + r) ** 2))
+                            if i_d != size - 1:
+                                if q_zh_grid[i_r, i_theta, i_d + 1] == q_zh_grid[i_r, i_theta, i_d]:
+                                    pdx_grid[i_r, i_theta, i_d] = 2*P_1 / (R_gp * T_1) * N_A * ( np.sqrt((Rp + z_2) ** 2 - (Rp + r) ** 2) - np.sqrt((Rp + z_1) ** 2 - (Rp + r) ** 2))
+                                else :
+                                    pdx_grid[i_r,i_theta,i_d] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
                             else :
-                                pdx_grid[i_r,i_theta,i_d] = P_1/(R_gp*T_1)*N_A*(np.sqrt((Rp+z_2)**2-(Rp+r)**2) - np.sqrt((Rp+z_1)**2-(Rp+r)**2))
+                                pdx_grid[i_r, i_theta, i_d] = P_1 / (R_gp * T_1) * N_A * (np.sqrt((Rp + z_2) ** 2 - (Rp + r) ** 2) - np.sqrt((Rp + z_1) ** 2 - (Rp + r) ** 2))
                             print('We did a correction in the integration cell (%i,%i,%i), with %.6e' %(i_r,i_theta,i_d,pdx_grid[i_r,i_theta,i_d])), 'initial result', integ[0]
                         else :
-                            if q_zh_grid[i_r,i_theta,i_d+1] == q_zh_grid[i_r,i_theta,i_d] :
-                                pdx_grid[i_r,i_theta,i_d] = 2 * integ[0]
+                            if i_d != size - 1:
+                                if q_zh_grid[i_r,i_theta,i_d+1] == q_zh_grid[i_r,i_theta,i_d] :
+                                    pdx_grid[i_r,i_theta,i_d] = 2 * integ[0]
+                                else :
+                                    pdx_grid[i_r, i_theta, i_d] = integ[0]
                             else :
                                 pdx_grid[i_r, i_theta, i_d] = integ[0]
 
