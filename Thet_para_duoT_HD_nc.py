@@ -94,7 +94,7 @@ n_species_active = np.array(['H2O'])
 #T_iso_array, P_surf, P_tau = np.array([1000.,2000.]), 1.e+6, 1.e+3
 #x_ratio_species_active = np.array([0.01,0.01,0.01,0.01,0.01,0.01])
 #x_ratio_species_inactive = np.array([0.01])
-T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+7
+T_iso_array, P_surf, P_tau = np.array([500.,1000.]), 1.e+6, 1.e+3
 x_ratio_species_active = np.array([0.05])
 x_ratio_species_inactive = np.array([])
 M_species, M, x_ratio_species = ratio(n_species,x_ratio_species_active,IsoComp=True)

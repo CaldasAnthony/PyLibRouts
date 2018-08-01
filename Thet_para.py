@@ -330,6 +330,9 @@ if Parameters == True :
             dx_correspondance(data,path_cyl,x_step,r_step,theta_number,Rp,g0,h,t,n_layers,reso_long,reso_lat,reso_alt,obs,n_level_rank,\
                           Middle,Cylindre,Integral,Gravity)
 
+                data, path, x_step, delta_r, theta_number, Rp, g0, h, t, n_layers, reso_long, reso_lat, reso_alt, obs, n_lay_rank, \
+                Middle = False, Cylindric = True, Integral = True, Gravity = False
+
         obs = np.array([lat_obs,long_obs],dtype=np.float64)
 
                                     ###### Parallele encoding init ######

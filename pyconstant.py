@@ -34,6 +34,7 @@ M_atom = np.array([1.00,4.00,6.941,9.012182,10.811,12.0107,14.0067,15.9994,18.99
 
 ratio_HeH2 = 24.45/73.46*(M_mole[np.where(M_n_mole == 'H2')][0]/M_atom[np.where(M_n_atom == 'He')][0])
 ratio_HeH2 = 0.17647
+
 #ratio_HeH2 = 1.e-12
 #x_CH4 = 5.e-4
 #x_H2_l = 2*x_CH4
